@@ -220,7 +220,6 @@ config = {
 	couple_couples = {
 		"caopi|caozhi+zhenji",
 		"simayi|shensimayi+zhangchunhua",
-		"diy_simazhao+diy_wangyuanji",
 		"liubei+ganfuren|mifuren|sp_sunshangxiang",
 		"liushan+xingcai",
 		"zhugeliang|wolong|shenzhugeliang+huangyueying",
