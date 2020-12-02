@@ -30,22 +30,22 @@ public:
                     QMap<QString, QStringList> W_map = scenario->getMap(false);
                     if (OH_map.contains(player->getGeneralName())) {
                         QStringList h_list = W_map.value(OH_map.value(player->getGeneralName()));
-                        /*if (h_list.length() > 1) {
+                        if (h_list.length() > 1) {
                             if (player->askForSkillInvoke("reselect")) {
                                 h_list.removeOne(player->getGeneralName());
                                 QString general_name = room->askForGeneral(player, h_list);
                                 room->changeHero(player, general_name, true, false);
                             }
-                        }*/
+                        }
                     } else if (OW_map.contains(player->getGeneralName())) {
                         QStringList w_list = H_map.value(OW_map.value(player->getGeneralName()));
-                        /*if (w_list.length() > 1) {
+                        if (w_list.length() > 1) {
                             if (player->askForSkillInvoke("reselect")) {
                                 w_list.removeOne(player->getGeneralName());
                                 QString general_name = room->askForGeneral(player, w_list);
                                 room->changeHero(player, general_name, true, false);
                             }
-                        }*/
+                        }
                     }
                 }
             }
