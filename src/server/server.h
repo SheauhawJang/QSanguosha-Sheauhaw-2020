@@ -88,6 +88,7 @@ private:
     QWidget *createMiscTab();
     QLayout *createButtonLayout();
 
+    QScrollArea *gameModeBox;
     QScrollArea *createGameModeBox();
     QGroupBox *create1v1Box();
     QGroupBox *create3v3Box();
@@ -167,6 +168,10 @@ private:
 
     int accept_type; // -1 means console start while 1 means server start
 
+protected:
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void resizeEvent(QResizeEvent *event);
+
 private slots:
     void setMaxHpSchemeBox();
 
@@ -180,6 +185,8 @@ private slots:
     void doCustomAssign();
     void doBossModeCustomAssign();
     void setMiniCheckBox();
+
+    void resizeScrollArea();
 };
 
 class BossModeCustomAssignDialog : public QDialog

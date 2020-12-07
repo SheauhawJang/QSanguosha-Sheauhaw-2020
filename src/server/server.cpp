@@ -56,6 +56,7 @@ ServerDialog::ServerDialog(QWidget *parent)
     tab_widget->addTab(createPackageTab(), tr("Game Pacakge Selection"));
     tab_widget->addTab(createAdvancedTab(), tr("Advanced"));
     tab_widget->addTab(createMiscTab(), tr("Miscellaneous"));
+    connect(tab_widget, SIGNAL(currentChanged(int)), this, SLOT(resizeScrollArea()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(tab_widget);
@@ -63,6 +64,25 @@ ServerDialog::ServerDialog(QWidget *parent)
     setLayout(layout);
 
     setMinimumWidth(300);
+    //setMinimumHeight(800);
+}
+
+void ServerDialog::paintEvent(QPaintEvent *event)
+{
+    QDialog::paintEvent(event);
+    resizeScrollArea();
+}
+
+void ServerDialog::resizeEvent(QResizeEvent *event)
+{
+    QDialog::resizeEvent(event);
+    resizeScrollArea();
+}
+
+void ServerDialog::resizeScrollArea()
+{
+    gameModeBox->resize(gameModeBox->parentWidget()->width() - 2 * gameModeBox->x(),
+                        gameModeBox->parentWidget()->height() - gameModeBox->y());
 }
 
 QWidget *ServerDialog::createBasicTab()
@@ -95,6 +115,7 @@ QWidget *ServerDialog::createBasicTab()
 
     QWidget *widget = new QWidget;
     widget->setLayout(form_layout);
+
     return widget;
 }
 
@@ -1044,11 +1065,11 @@ QScrollArea *ServerDialog::createGameModeBox()
             QLayout *item_layout = qobject_cast<QLayout *>(item);
             side->addLayout(item_layout);
         }
-        if (i == item_list.length() / 2 - 4)
+        if (i != lrSp && i + 1 != item_list.length())
             side->addStretch();
     }
 
-    right->addStretch();
+    //right->addStretch();
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addLayout(left);
@@ -1066,9 +1087,9 @@ QScrollArea *ServerDialog::createGameModeBox()
     area->setWidget(mode_box);
     area->setAlignment(Qt::AlignCenter);
     area->setBackgroundRole(QPalette::Light);
+    area->setFrameStyle(0);
     area->setWidgetResizable(true);
-
-    return area;
+    return gameModeBox = area;
 }
 
 QLayout *ServerDialog::createButtonLayout()

@@ -8810,21 +8810,21 @@ void Room::changeLesbianSkill()
     foreach (ServerPlayer *player, getAllPlayers())
     {
         player->changeLesbianSkill("lijian");
-        player->changeLesbianSkill("jieyin");
-        player->changeLesbianSkill("jiaojin");
-        player->changeLesbianSkill("yanyu");
-        player->changeLesbianSkill("fuzhu");
-        player->changeLesbianSkill("lihun");
-        player->changeLesbianSkill("xingwu");
-        player->changeLesbianSkill("fuhan");
-        player->changeLesbianSkill("noslijian");
-        if (player && player->hasSkill("luoyan"))
-            player->acquireSkill("#lesbianluoyan");
-        player->changeLesbianSkill("lianli");
-        player->changeLesbianSkill("tongxin");
-        player->changeLesbianSkill("#lianli-slash", true);
-        player->changeLesbianSkill("#lianli-jink", true);
-        player->changeLesbianSkill("#lianli-clear", true);
+        //player->changeLesbianSkill("jieyin");
+        //player->changeLesbianSkill("jiaojin");
+        //player->changeLesbianSkill("yanyu");
+        //player->changeLesbianSkill("fuzhu");
+        //player->changeLesbianSkill("lihun");
+        //player->changeLesbianSkill("xingwu");
+        //player->changeLesbianSkill("fuhan");
+        //player->changeLesbianSkill("noslijian");
+        //if (player && player->hasSkill("luoyan"))
+            //player->acquireSkill("#lesbianluoyan");
+        //player->changeLesbianSkill("lianli");
+        //player->changeLesbianSkill("tongxin");
+        //player->changeLesbianSkill("#lianli-slash", true);
+        //player->changeLesbianSkill("#lianli-jink", true);
+        //player->changeLesbianSkill("#lianli-clear", true);
     }
 }
 

@@ -2178,11 +2178,6 @@ public:
         filter_pattern = ".!";
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
-    {
-        return !player->hasUsed("LesbianLijianCard");
-    }
-
     virtual const Card *viewAs(const Card *originalCard) const
     {
         LijianCard *lijian_card = new LesbianLijianCard;

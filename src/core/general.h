@@ -41,7 +41,7 @@ public:
 
     enum Gender
     {
-        Sexless, Male, Female, Neuter
+        Sexless, Male, Female, Neuter, Intersex
     };
     Gender getGender() const;
     void setGender(Gender gender);

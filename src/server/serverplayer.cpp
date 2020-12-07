@@ -1625,22 +1625,14 @@ void ServerPlayer::changeLesbianSkill(const QString &skill, bool hidden)
 {
     ServerPlayer *player = this;
     if (player && player->hasSkill(skill))
-    {
-        if (skill == "noslijian")
+        if (hidden)
         {
-            room->detachSkillFromPlayer(player, "noslijian");
-            room->acquireSkill(player, "noslesbianlijian");
+            QString realskill = skill.mid(2);
+            room->acquireSkill(player, QString("#lesbian")+realskill);
         }
         else
-            if (hidden)
-            {
-                QString realskill = skill.mid(2);
-                room->acquireSkill(player, QString("#lesbian")+realskill);
-            }
-            else
-            {
-                room->detachSkillFromPlayer(player, skill);
-                room->acquireSkill(player, QString("lesbian")+skill);
-            }
-    }
+        {
+            room->detachSkillFromPlayer(player, skill);
+            room->acquireSkill(player, QString("lesbian")+skill);
+        }
 }

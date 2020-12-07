@@ -335,7 +335,7 @@ Engine::Engine(bool isManualMode)
     modes["08pz"] = tr("8 players (0 renegade)");
     modes["08_defense"] = tr("8 players (JianGe Defense)");
     modes["08_zdyj"] = tr("8 players (Best Loyalist)");
-    //modes["08_hongyan"] = tr("8 players (Hongyan Races)");
+    modes["08_hongyan"] = tr("8 players (Hongyan Races)");
     //modes["08_dragonboat"] = tr("8 players (Dragon Bost Races)");
     modes["09p"] = tr("9 players");
     modes["10pd"] = tr("10 players");

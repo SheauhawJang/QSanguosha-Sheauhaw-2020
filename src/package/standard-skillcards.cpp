@@ -240,7 +240,7 @@ LijianCard::LijianCard(bool cancelable) : duel_cancelable(cancelable)
 
 bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!to_select->isMale())
+    if (!targetGenderFilter(to_select))
         return false;
 
     Duel *duel = new Duel(Card::NoSuit, 0);
@@ -271,6 +271,20 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
         room->useCard(CardUseStruct(duel, from, to));
     else
         delete duel;
+}
+
+bool LijianCard::targetGenderFilter(const Player *to_select) const
+{
+    return to_select->isMale();
+}
+
+LesbianLijianCard::LesbianLijianCard(bool cancelable) : LijianCard::LijianCard(cancelable)
+{
+}
+
+bool LesbianLijianCard::targetGenderFilter(const Player *) const
+{
+    return true;
 }
 
 QingnangCard::QingnangCard()
