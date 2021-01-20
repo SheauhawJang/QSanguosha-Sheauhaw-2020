@@ -11,7 +11,8 @@
 #include <QFile>
 
 Skill::Skill(const QString &name, Frequency frequency)
-    : frequency(frequency), limit_mark(QString()), lord_skill(false), attached_lord_skill(false), owner(QString())
+    : frequency(frequency), limit_mark(QString()), lord_skill(false), attached_lord_skill(false), owner(QString()),
+      is_lesbian_skill(false), has_lesbian_skill(false)
 {
     static QChar lord_symbol('$');
     static QChar attached_lord_symbol('&');
@@ -39,6 +40,16 @@ bool Skill::isLordSkill() const
 bool Skill::isAttachedLordSkill() const
 {
     return attached_lord_skill;
+}
+
+bool Skill::isLesbianSkill() const
+{
+    return is_lesbian_skill;
+}
+
+bool Skill::hasLesbianSkill() const
+{
+    return has_lesbian_skill;
 }
 
 bool Skill::shouldBeVisible(const Player *Self) const

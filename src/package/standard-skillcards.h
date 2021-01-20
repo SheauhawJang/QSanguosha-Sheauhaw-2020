@@ -47,6 +47,15 @@ public:
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
+class JieyinCardLesbian : public JieyinCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE JieyinCardLesbian();
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+};
+
 class FanjianCard : public SkillCard
 {
     Q_OBJECT
@@ -89,19 +98,15 @@ public:
 
 private:
     bool duel_cancelable;
-
-protected:
-    virtual bool targetGenderFilter(const Player *to_select) const;
 };
 
-class LesbianLijianCard : public LijianCard
+class LijianCardLesbian : public LijianCard
 {
     Q_OBJECT
-public:
-    Q_INVOKABLE LesbianLijianCard(bool cancelable = false);
 
-protected:
-    virtual bool targetGenderFilter(const Player *) const;
+public:
+    Q_INVOKABLE LijianCardLesbian(bool cancelable = false);
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
 };
 
 class QingnangCard : public SkillCard

@@ -1943,6 +1943,7 @@ class Jieyin : public OneCardViewAsSkill
 public:
     Jieyin() : OneCardViewAsSkill("jieyin")
     {
+        has_lesbian_skill = true;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
@@ -1952,7 +1953,7 @@ public:
 
     virtual bool viewFilter(const Card *to_select) const
     {
-        QString choice = Self->tag["jieyin"].toString();
+        QString choice = Self->tag[objectName()].toString();
         if (choice == "discard")
             return !Self->isJilei(to_select) && !to_select->isEquipped();
         else if (choice == "putequip")
@@ -1971,6 +1972,39 @@ public:
     QString getSelectBox() const
     {
         return "discard+putequip";
+    }
+};
+
+class JieyinLesbian : public Jieyin
+{
+public:
+    JieyinLesbian() : Jieyin()
+    {
+        setObjectName(objectName() + Skill::Lesbian());
+        is_lesbian_skill = true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("JieyinCardLesbian");
+    }
+
+    virtual bool viewFilter(const Card *to_select) const
+    {
+        QString choice = Self->tag[objectName()].toString();
+        if (choice == "discard")
+            return !Self->isJilei(to_select) && !to_select->isEquipped();
+        else if (choice == "putequip")
+            return to_select->getTypeId() == Card::TypeEquip;
+        return false;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        JieyinCardLesbian *jieyin_card = new JieyinCardLesbian();
+        jieyin_card->addSubcard(originalCard->getId());
+        jieyin_card->setSkillName(objectName());
+        return jieyin_card;
     }
 };
 
@@ -2149,6 +2183,7 @@ public:
     Lijian() : OneCardViewAsSkill("lijian")
     {
         filter_pattern = ".!";
+        has_lesbian_skill = true;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
@@ -2169,23 +2204,23 @@ public:
     }
 };
 
-class LesbianLijian : public Lijian
+class LijianLesbian : public Lijian
 {
 public:
-    LesbianLijian() : Lijian()
+    LijianLesbian() : Lijian()
     {
-        setObjectName("lesbian" + objectName());
-        filter_pattern = ".!";
+        setObjectName(objectName() + Skill::Lesbian());
+        is_lesbian_skill = true;
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return !player->hasUsed("LesbianLijianCard");
+        return !player->hasUsed("LijianCardLesbian");
     }
 
     virtual const Card *viewAs(const Card *originalCard) const
     {
-        LijianCard *lijian_card = new LesbianLijianCard;
+        LijianCard *lijian_card = new LijianCardLesbian;
         lijian_card->addSubcard(originalCard->getId());
         return lijian_card;
     }
@@ -2555,7 +2590,6 @@ void StandardPackage::addGenerals()
     addMetaObject<JieyinCard>();
     addMetaObject<KurouCard>();
     addMetaObject<LijianCard>();
-    addMetaObject<LesbianLijianCard>();
     addMetaObject<FanjianCard>();
     addMetaObject<QingnangCard>();
     addMetaObject<LiuliCard>();
@@ -2563,9 +2597,13 @@ void StandardPackage::addGenerals()
     addMetaObject<JijiangCard>();
     addMetaObject<GuoseCard>();
 
+
+    addMetaObject<LijianCardLesbian>();
+    addMetaObject<JieyinCardLesbian>();
+
     skills << new NoDistanceTargetMod << new Xiaoxi << new NonCompulsoryInvalidity << new RendeBasic;
 
-    skills << new LesbianLijian;
+    skills << new LijianLesbian << new JieyinLesbian;
 }
 
 class GdJuejing : public TriggerSkill

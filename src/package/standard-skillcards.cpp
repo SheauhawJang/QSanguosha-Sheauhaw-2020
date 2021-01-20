@@ -129,7 +129,7 @@ JieyinCard::JieyinCard()
 bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
     if (!targets.isEmpty() || !to_select->isMale()) return false;
-    QString choice = Self->tag["jieyin"].toString();
+    QString choice = Self->tag[m_skillName].toString();
     return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }
 
@@ -168,6 +168,19 @@ void JieyinCard::onEffect(const CardEffectStruct &effect) const
         effect.to->drawCards(1, objectName());
         room->recover(effect.from, recover);
     }
+}
+
+JieyinCardLesbian::JieyinCardLesbian()
+{
+    m_skillName = "jieyin" + Skill::Lesbian();
+    will_throw = false;
+}
+
+bool JieyinCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty()) return false;
+    QString choice = Self->tag[m_skillName].toString();
+    return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }
 
 FanjianCard::FanjianCard()
@@ -240,7 +253,7 @@ LijianCard::LijianCard(bool cancelable) : duel_cancelable(cancelable)
 
 bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!targetGenderFilter(to_select))
+    if (!to_select->isMale())
         return false;
 
     Duel *duel = new Duel(Card::NoSuit, 0);
@@ -273,18 +286,21 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
         delete duel;
 }
 
-bool LijianCard::targetGenderFilter(const Player *to_select) const
-{
-    return to_select->isMale();
-}
-
-LesbianLijianCard::LesbianLijianCard(bool cancelable) : LijianCard::LijianCard(cancelable)
+LijianCardLesbian::LijianCardLesbian(bool cancelable) : LijianCard::LijianCard(cancelable)
 {
 }
 
-bool LesbianLijianCard::targetGenderFilter(const Player *) const
+bool LijianCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    return true;
+    Duel *duel = new Duel(Card::NoSuit, 0);
+    duel->deleteLater();
+    if (targets.isEmpty() && Sanguosha->isProhibited(NULL, to_select, duel))
+        return false;
+
+    if (targets.length() == 1 && to_select->isCardLimited(duel, Card::MethodUse))
+        return false;
+
+    return targets.length() < 2 && to_select != Self;
 }
 
 QingnangCard::QingnangCard()
