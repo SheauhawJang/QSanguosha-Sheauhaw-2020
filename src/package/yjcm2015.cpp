@@ -985,6 +985,7 @@ public:
     {
         view_as_skill = new YanyuVS;
         events << EventPhaseEnd << EventPhaseStart;
+        has_lesbian_skill = true;
     }
 
     virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
@@ -1019,6 +1020,43 @@ public:
             player->broadcastSkillInvoke(objectName());
             male->drawCards(2, objectName());
 		}
+        return false;
+    }
+};
+
+class YanyuLesbian : public Yanyu
+{
+public:
+    YanyuLesbian() : Yanyu()
+    {
+        setObjectName(objectName() + Skill::Lesbian());
+        is_lesbian_skill = true;
+    }
+
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer * &) const
+    {
+        if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player)) {
+            if (player->getPhase() == Player::Play && player->getMark("yanyu") > 1) {
+                return QStringList(objectName());
+            }
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent , Room *room, ServerPlayer *player, QVariant &, ServerPlayer *Self) const
+    {
+        QList<ServerPlayer *> malelist;
+        foreach (ServerPlayer *p, room->getAlivePlayers()) {
+            if (p != Self)
+                malelist << p;
+        }
+        if (malelist.isEmpty()) return false;
+        ServerPlayer *male = room->askForPlayerChosen(player, malelist, objectName(), "@yanyu-give", true, true);
+        if (male != NULL){
+            player->broadcastSkillInvoke(objectName());
+            male->drawCards(2, objectName());
+        }
         return false;
     }
 };
@@ -1497,6 +1535,8 @@ YJCM2015Package::YJCM2015Package()
 	addMetaObject<MingjianCard>();
 
     skills << new YaomingDiscard;
+
+    skills << new YanyuLesbian;
 
 }
 ADD_PACKAGE(YJCM2015)

@@ -1989,16 +1989,6 @@ public:
         return !player->hasUsed("JieyinCardLesbian");
     }
 
-    virtual bool viewFilter(const Card *to_select) const
-    {
-        QString choice = Self->tag[objectName()].toString();
-        if (choice == "discard")
-            return !Self->isJilei(to_select) && !to_select->isEquipped();
-        else if (choice == "putequip")
-            return to_select->getTypeId() == Card::TypeEquip;
-        return false;
-    }
-
     virtual const Card *viewAs(const Card *originalCard) const
     {
         JieyinCardLesbian *jieyin_card = new JieyinCardLesbian();
