@@ -8809,13 +8809,7 @@ void Room::changeLesbianSkill()
 {
     foreach (ServerPlayer *player, getAllPlayers())
     {
-        QStringList lesbian_skills;
-        foreach (const Skill *skill, player->getSkillList(false, false))
-            if (skill->hasLesbianSkill() && !skill->isLesbianSkill())
-                lesbian_skills.append(skill->objectName());
-        foreach (QString skill, lesbian_skills)
-            player->changeLesbianSkill(skill);
-        //player->changeLesbianSkill("lijian");
+        player->changeLesbianSkill("lijian");
         //player->changeLesbianSkill("jieyin");
         //player->changeLesbianSkill("jiaojin");
         //player->changeLesbianSkill("yanyu");

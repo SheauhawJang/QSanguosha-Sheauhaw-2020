@@ -129,7 +129,7 @@ JieyinCard::JieyinCard()
 bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
     if (!targets.isEmpty() || !to_select->isMale()) return false;
-    QString choice = Self->tag[m_skillName].toString();
+    QString choice = Self->tag["jieyin"].toString();
     return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }
 
@@ -168,19 +168,6 @@ void JieyinCard::onEffect(const CardEffectStruct &effect) const
         effect.to->drawCards(1, objectName());
         room->recover(effect.from, recover);
     }
-}
-
-JieyinCardLesbian::JieyinCardLesbian()
-{
-    m_skillName = "jieyin" + Skill::Lesbian();
-    will_throw = false;
-}
-
-bool JieyinCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
-{
-    if (!targets.isEmpty()) return false;
-    QString choice = Self->tag[m_skillName].toString();
-    return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }
 
 FanjianCard::FanjianCard()
@@ -253,7 +240,7 @@ LijianCard::LijianCard(bool cancelable) : duel_cancelable(cancelable)
 
 bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!to_select->isMale())
+    if (!targetGenderFilter(to_select))
         return false;
 
     Duel *duel = new Duel(Card::NoSuit, 0);
@@ -286,21 +273,18 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
         delete duel;
 }
 
-LijianCardLesbian::LijianCardLesbian(bool cancelable) : LijianCard::LijianCard(cancelable)
+bool LijianCard::targetGenderFilter(const Player *to_select) const
+{
+    return to_select->isMale();
+}
+
+LesbianLijianCard::LesbianLijianCard(bool cancelable) : LijianCard::LijianCard(cancelable)
 {
 }
 
-bool LijianCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+bool LesbianLijianCard::targetGenderFilter(const Player *) const
 {
-    Duel *duel = new Duel(Card::NoSuit, 0);
-    duel->deleteLater();
-    if (targets.isEmpty() && Sanguosha->isProhibited(NULL, to_select, duel))
-        return false;
-
-    if (targets.length() == 1 && to_select->isCardLimited(duel, Card::MethodUse))
-        return false;
-
-    return targets.length() < 2 && to_select != Self;
+    return true;
 }
 
 QingnangCard::QingnangCard()

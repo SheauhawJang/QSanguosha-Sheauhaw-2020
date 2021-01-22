@@ -31,8 +31,6 @@ public:
     explicit Skill(const QString &name, Frequency frequent = NotFrequent);
     bool isLordSkill() const;
     bool isAttachedLordSkill() const;
-    bool isLesbianSkill() const;
-    bool hasLesbianSkill() const;
     virtual bool shouldBeVisible(const Player *Self) const; // usually for attached skill
     QString getDescription() const;
     QString getNotice(int index) const;
@@ -52,20 +50,12 @@ public:
     QStringList getSources() const;
     QStringList getInheritSkill() const;
 
-    static inline const QString &Lesbian()
-    {
-        return "_lesbian";
-    }
-
 protected:
     Frequency frequency;
     QString limit_mark;
 	QString owner;//for sort out skill audio
     bool attached_lord_skill;
     QStringList inherit_skills;
-
-    bool is_lesbian_skill;
-    bool has_lesbian_skill;
 
 private:
     bool lord_skill;
