@@ -27,7 +27,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QElapsedTimer>
-#include <QtMath>
 
 #ifdef QSAN_UI_LIBRARY_AVAILABLE
 #pragma message WARN("UI elements detected in server side!!!")
@@ -3048,7 +3047,7 @@ void Room::assignGeneralsForPlayersOfJianGeDefenseMode(const QList<ServerPlayer 
     QMap<QString, QStringList> general_choices;
     foreach (QString key, Config.JianGeDefenseKingdoms.keys()) {
         QString kingdom = Config.JianGeDefenseKingdoms[key];
-        //int total = Sanguosha->getGeneralCount(false, kingdom);
+        int total = Sanguosha->getGeneralCount(false, kingdom);
         general_choices[kingdom] = Sanguosha->getRandomGenerals(0, existed[kingdom], kingdom);
     }
 
@@ -3147,7 +3146,6 @@ void Room::assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to
         }
     }
 
-    int limit = choices.size() / to_assign.size();
     foreach (ServerPlayer *player, to_assign) {
         player->clearSelected();
 
@@ -3158,7 +3156,7 @@ void Room::assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to
             extra = Config.value("LoyalistExtra_Choice", 0).toInt();
         }
 
-        int choice_count = std::min(max_choice + extra, limit);
+        int choice_count = max_choice + extra;
 
         for (int i = 0; i < choice_count; i++) {
             qShuffle(choices);
@@ -8822,8 +8820,8 @@ void Room::changeLesbianSkill()
         //player->changeLesbianSkill("jiaojin"); //bingo
         //player->changeLesbianSkill("yanyu"); //bingo
         //player->changeLesbianSkill("fuzhu"); //bingo
-        //player->changeLesbianSkill("lihun"); //bingo
-        //player->changeLesbianSkill("xingwu"); //valid
+        //player->changeLesbianSkill("lihun");
+        //player->changeLesbianSkill("xingwu");
         //player->changeLesbianSkill("fuhan");
         //player->changeLesbianSkill("noslijian");
         //if (player && player->hasSkill("luoyan"))

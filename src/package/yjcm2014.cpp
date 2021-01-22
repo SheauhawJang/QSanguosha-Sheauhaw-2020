@@ -982,7 +982,7 @@ class JiaojinLesbian : public Jiaojin
 public:
     JiaojinLesbian() : Jiaojin()
     {
-        setObjectName(objectName() + Skill::lesbian());
+        setObjectName(objectName() + Skill::Lesbian());
         is_lesbian_skill = true;
     }
 

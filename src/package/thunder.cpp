@@ -1112,7 +1112,6 @@ public:
 
             player->drawCards(is_equip?2:1, objectName());
         }
-        return false;
     }
 };
 

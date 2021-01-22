@@ -16,10 +16,10 @@ using namespace QSanProtocol;
 Client *ClientInstance = NULL;
 
 Client::Client(QObject *parent, const QString &filename)
-    : QObject(parent), m_isDiscardActionRefusable(true), m_lightUpSkillButton(false),
-      choose_max_num(0), choose_min_num(0), m_bossLevel(0), _m_race(false),
-      status(NotActive), alive_count(1), swap_pile(0),
-      _m_roomState(true), player_count(1) // Self is not included!! Be care!!!
+    : QObject(parent), m_isDiscardActionRefusable(true), m_lightUpSkillButton(false), m_bossLevel(0),
+    status(NotActive), alive_count(1), swap_pile(0),
+    _m_roomState(true), choose_min_num(0), choose_max_num(0), _m_race(false),
+    player_count(1) // Self is not included!! Be care!!!
 {
     ClientInstance = this;
     m_isGameOver = false;
@@ -1987,7 +1987,7 @@ void Client::setSkinId(const QVariant &arg_str)
     if (player != Self) return;
     int skin_id = args.at(1).toInt();
     bool is_head = args.at(2).toBool();
-    //bool just_set = args.at(3).toBool();
+    bool just_set = args.at(3).toBool();
     if (is_head)
         player->setHeadSkinId(skin_id);
     else

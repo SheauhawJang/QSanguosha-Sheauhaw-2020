@@ -172,7 +172,7 @@ void JieyinCard::onEffect(const CardEffectStruct &effect) const
 
 JieyinCardLesbian::JieyinCardLesbian()
 {
-    m_skillName = "jieyin" + Skill::lesbian();
+    m_skillName = "jieyin" + Skill::Lesbian();
     will_throw = false;
 }
 

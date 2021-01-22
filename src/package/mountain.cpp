@@ -1134,14 +1134,7 @@ public:
 
         static QSet<QString> banned;
         if (banned.isEmpty())
-        {
             banned << "zuoci" << "zhoutai" << "yuji";
-
-            if (room->getMode() == "08_hongyan")
-                foreach (QString s, all)
-                    if (Sanguosha->getGeneral(s)->isMale())
-                        banned << s;
-        }
 
         return (all - banned - huashen_set - room_set).toList();
     }

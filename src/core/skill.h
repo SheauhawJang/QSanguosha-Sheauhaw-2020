@@ -52,8 +52,7 @@ public:
     QStringList getSources() const;
     QStringList getInheritSkill() const;
 
-    virtual void setLesbian();
-    static inline const QString lesbian()
+    static inline const QString &Lesbian()
     {
         return "_lesbian";
     }
