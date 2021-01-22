@@ -8815,11 +8815,11 @@ void Room::changeLesbianSkill()
                 lesbian_skills.append(skill->objectName());
         foreach (QString skill, lesbian_skills)
             player->changeLesbianSkill(skill);
-        //player->changeLesbianSkill("lijian"); //bingo
-        //player->changeLesbianSkill("jieyin"); //bingo
-        //player->changeLesbianSkill("jiaojin"); //bingo
-        //player->changeLesbianSkill("yanyu"); //bingo
-        //player->changeLesbianSkill("fuzhu"); //bingo
+        //player->changeLesbianSkill("lijian");
+        //player->changeLesbianSkill("jieyin");
+        //player->changeLesbianSkill("jiaojin");
+        //player->changeLesbianSkill("yanyu");
+        //player->changeLesbianSkill("fuzhu");
         //player->changeLesbianSkill("lihun");
         //player->changeLesbianSkill("xingwu");
         //player->changeLesbianSkill("fuhan");

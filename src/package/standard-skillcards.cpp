@@ -178,7 +178,7 @@ JieyinCardLesbian::JieyinCardLesbian()
 
 bool JieyinCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!targets.isEmpty()|| to_select == Self) return false;
+    if (!targets.isEmpty()) return false;
     QString choice = Self->tag[m_skillName].toString();
     return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }

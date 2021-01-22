@@ -952,44 +952,12 @@ public:
     {
         events << DamageInflicted;
 		view_as_skill = new dummyVS;
-        has_lesbian_skill = true;
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.from && damage.from->isMale() && player->canDiscard(player, "he")) {
-            if (room->askForCard(player, ".Equip", "@jiaojin", data, objectName())) {
-
-                LogMessage log;
-                log.type = "#Jiaojin";
-                log.from = player;
-                log.arg = QString::number(damage.damage);
-                log.arg2 = QString::number(--damage.damage);
-                room->sendLog(log);
-
-                if (damage.damage < 1)
-                    return true;
-                data = QVariant::fromValue(damage);
-            }
-        }
-        return false;
-    }
-};
-
-class JiaojinLesbian : public Jiaojin
-{
-public:
-    JiaojinLesbian() : Jiaojin()
-    {
-        setObjectName(objectName() + Skill::Lesbian());
-        is_lesbian_skill = true;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        DamageStruct damage = data.value<DamageStruct>();
-        if (damage.from && damage.from != player && player->canDiscard(player, "he")) {
             if (room->askForCard(player, ".Equip", "@jiaojin", data, objectName())) {
 
                 LogMessage log;
@@ -1392,8 +1360,6 @@ YJCM2014Package::YJCM2014Package()
     addMetaObject<XianzhouCard>();
     addMetaObject<XianzhouDamageCard>();
     addMetaObject<PingkouCard>();
-
-    skills << new JiaojinLesbian;
 
 }
 

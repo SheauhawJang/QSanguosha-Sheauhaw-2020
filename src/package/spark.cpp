@@ -5621,7 +5621,6 @@ public:
     Fuzhu() : TriggerSkill("fuzhu")
     {
         events << EventPhaseStart;
-        has_lesbian_skill = true;
     }
 
     virtual TriggerList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &) const
@@ -5661,30 +5660,6 @@ public:
         room->swapPile();
         return false;
     }
-};
-
-class FuzhuLesbian : public Fuzhu
-{
-public:
-    FuzhuLesbian() : Fuzhu()
-    {
-        setObjectName(objectName() + Skill::Lesbian());
-        is_lesbian_skill = true;
-    }
-
-    virtual TriggerList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &) const
-    {
-        TriggerList skill_list;
-        if (player->getPhase() != Player::Finish || player->isDead()) return skill_list;
-
-        QList<ServerPlayer *> xushis = room->findPlayersBySkillName(objectName());
-        foreach (ServerPlayer *xushi, xushis) {
-            if (xushi == player || room->getDrawPile().length() > xushi->getHp()*10 || xushi->canSlash(player, false)) continue;
-            skill_list.insert(xushi, QStringList(objectName()));
-        }
-        return skill_list;
-    }
-
 };
 
 class Weilu : public TriggerSkill
