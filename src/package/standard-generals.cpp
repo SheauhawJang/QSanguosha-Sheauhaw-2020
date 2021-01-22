@@ -2169,28 +2169,6 @@ public:
     }
 };
 
-class LesbianLijian : public Lijian
-{
-public:
-    LesbianLijian() : Lijian()
-    {
-        setObjectName("lesbian" + objectName());
-        filter_pattern = ".!";
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const
-    {
-        return !player->hasUsed("LesbianLijianCard");
-    }
-
-    virtual const Card *viewAs(const Card *originalCard) const
-    {
-        LijianCard *lijian_card = new LesbianLijianCard;
-        lijian_card->addSubcard(originalCard->getId());
-        return lijian_card;
-    }
-};
-
 class Biyue : public PhaseChangeSkill
 {
 public:
@@ -2555,7 +2533,6 @@ void StandardPackage::addGenerals()
     addMetaObject<JieyinCard>();
     addMetaObject<KurouCard>();
     addMetaObject<LijianCard>();
-    addMetaObject<LesbianLijianCard>();
     addMetaObject<FanjianCard>();
     addMetaObject<QingnangCard>();
     addMetaObject<LiuliCard>();
@@ -2564,8 +2541,6 @@ void StandardPackage::addGenerals()
     addMetaObject<GuoseCard>();
 
     skills << new NoDistanceTargetMod << new Xiaoxi << new NonCompulsoryInvalidity << new RendeBasic;
-
-    skills << new LesbianLijian;
 }
 
 class GdJuejing : public TriggerSkill

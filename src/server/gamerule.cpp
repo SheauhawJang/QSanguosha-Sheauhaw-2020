@@ -134,9 +134,12 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             if (room->getMode() == "08_hongyan")
             {
                 foreach (ServerPlayer *aplayer, room->getAllPlayers())
+                {
                     if (aplayer && !aplayer->isFemale())
                         aplayer->setGender(General::Female);
-                room->changeLesbianSkill();
+                    room->setPlayerMark(aplayer, "Lesbian", 1);
+                }
+                //room->changeLesbianSkill();
             }
             if (room->getMode() == "08_dragonboat")
                 foreach (ServerPlayer *aplayer, room->getAllPlayers())

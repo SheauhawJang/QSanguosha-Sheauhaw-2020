@@ -199,7 +199,7 @@ public:
     QList<ServerPlayer *> getUseExtraTargets(CardUseStruct card_use, bool distance_limited = false);
     QList<ServerPlayer *> getCardDefautTargets(const Card *card, bool distance_limited = false);
 
-    void changeLesbianSkill(const QString &skill, bool hidden = false);
+    //void changeLesbianSkill(const QString &skill, bool hidden = false);
 
     // static function
     static bool CompareByActionOrder(ServerPlayer *a, ServerPlayer *b);

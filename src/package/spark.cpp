@@ -5626,11 +5626,11 @@ public:
     virtual TriggerList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList skill_list;
-        if (player->getPhase() != Player::Finish || !player->isMale() || player->isDead()) return skill_list;
+        if (player->getPhase() != Player::Finish || !player->isLesbian() || player->isDead()) return skill_list;
 
         QList<ServerPlayer *> xushis = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *xushi, xushis) {
-            if (room->getDrawPile().length() > xushi->getHp()*10 || xushi->canSlash(player, false)) continue;
+            if (xushi == player || room->getDrawPile().length() > xushi->getHp()*10 || xushi->canSlash(player, false)) continue;
             skill_list.insert(xushi, QStringList(objectName()));
         }
         return skill_list;

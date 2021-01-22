@@ -1463,3 +1463,7 @@ bool Player::isYourFriend(const Player *fri) const
     return false;
 }
 
+bool Player::isLesbian(const Player *p) const
+{
+    return (isMale() || (getMark("Lesbian") && p != this));
+}

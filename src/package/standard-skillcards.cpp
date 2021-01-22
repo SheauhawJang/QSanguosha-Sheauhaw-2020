@@ -128,7 +128,7 @@ JieyinCard::JieyinCard()
 
 bool JieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!targets.isEmpty() || !to_select->isMale()) return false;
+    if (!targets.isEmpty() || !to_select->isLesbian(Self)) return false;
     QString choice = Self->tag["jieyin"].toString();
     return choice != "putequip" || to_select->canSetEquip(Sanguosha->getCard(getEffectiveId()));
 }
@@ -240,7 +240,7 @@ LijianCard::LijianCard(bool cancelable) : duel_cancelable(cancelable)
 
 bool LijianCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    if (!targetGenderFilter(to_select))
+    if (!to_select->isLesbian())
         return false;
 
     Duel *duel = new Duel(Card::NoSuit, 0);
@@ -271,20 +271,6 @@ void LijianCard::use(Room *room, ServerPlayer *, QList<ServerPlayer *> &targets)
         room->useCard(CardUseStruct(duel, from, to));
     else
         delete duel;
-}
-
-bool LijianCard::targetGenderFilter(const Player *to_select) const
-{
-    return to_select->isMale();
-}
-
-LesbianLijianCard::LesbianLijianCard(bool cancelable) : LijianCard::LijianCard(cancelable)
-{
-}
-
-bool LesbianLijianCard::targetGenderFilter(const Player *) const
-{
-    return true;
 }
 
 QingnangCard::QingnangCard()

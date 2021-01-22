@@ -89,19 +89,6 @@ public:
 
 private:
     bool duel_cancelable;
-
-protected:
-    virtual bool targetGenderFilter(const Player *to_select) const;
-};
-
-class LesbianLijianCard : public LijianCard
-{
-    Q_OBJECT
-public:
-    Q_INVOKABLE LesbianLijianCard(bool cancelable = false);
-
-protected:
-    virtual bool targetGenderFilter(const Player *) const;
 };
 
 class QingnangCard : public SkillCard

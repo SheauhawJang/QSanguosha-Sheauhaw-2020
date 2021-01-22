@@ -276,6 +276,8 @@ public:
     virtual void setDeputySkinId(int id);
     int getDeputySkinId() const;
 
+    bool isLesbian(const Player *p = NULL) const;
+
 protected:
     QMap<QString, int> marks;
     QMap<QString, QList<int> > piles;

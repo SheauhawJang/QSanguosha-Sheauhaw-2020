@@ -1413,7 +1413,7 @@ public:
         ServerPlayer *vic = room->askForPlayerChosen(erqiao, room->getOtherPlayers(erqiao), objectName(), "@xingwu-choose");
         vic->throwAllEquips();
         if (vic->isAlive())
-            room->damage(DamageStruct(objectName(), erqiao, vic, vic->isMale()?2:1));
+            room->damage(DamageStruct(objectName(), erqiao, vic, vic->isLesbian(erqiao)?2:1));
         return false;
     }
 };
@@ -2526,7 +2526,7 @@ LihunCard::LihunCard()
 
 bool LihunCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    return targets.isEmpty() && to_select->isMale() && to_select != Self;
+    return targets.isEmpty() && to_select->isLesbian() && to_select != Self;
 }
 
 void LihunCard::onEffect(const CardEffectStruct &effect) const

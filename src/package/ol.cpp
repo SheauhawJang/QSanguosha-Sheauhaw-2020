@@ -1404,6 +1404,11 @@ public:
             foreach(ServerPlayer *p, room->getAlivePlayers())
                 all.subtract(p->tag["1v1Arrange"].toStringList().toSet());
         }
+        if (room->getMode() == "08_hongyan")
+            foreach (QString gen, Sanguosha->getLimitedGeneralNames("shu"))
+                if (Sanguosha->getGeneral(gen)->isMale())
+                    all.remove(gen);
+
         QSet<QString> huashen_set, room_set;
         foreach (ServerPlayer *player, room->getAlivePlayers()) {
             QVariantList huashens = player->tag["Huashens"].toList();

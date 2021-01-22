@@ -1620,7 +1620,7 @@ QList<ServerPlayer *> ServerPlayer::getCardDefautTargets(const Card *card, bool 
 
     return targets;
 }
-
+/*
 void ServerPlayer::changeLesbianSkill(const QString &skill, bool hidden)
 {
     ServerPlayer *player = this;
@@ -1636,3 +1636,4 @@ void ServerPlayer::changeLesbianSkill(const QString &skill, bool hidden)
             room->acquireSkill(player, QString("lesbian")+skill);
         }
 }
+*/

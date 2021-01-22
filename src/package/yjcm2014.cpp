@@ -957,7 +957,7 @@ public:
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         DamageStruct damage = data.value<DamageStruct>();
-        if (damage.from && damage.from->isMale() && player->canDiscard(player, "he")) {
+        if (damage.from && damage.from->isLesbian(player) && player->canDiscard(player, "he")) {
             if (room->askForCard(player, ".Equip", "@jiaojin", data, objectName())) {
 
                 LogMessage log;

@@ -1331,7 +1331,7 @@ QStringList Engine::getRandomLords() const
     return lords;
 }
 
-QStringList Engine::getRandomFemaleLords(bool luxun) const
+QStringList Engine::getRandomFemaleLords(bool zuoci) const
 {
     QStringList banlist_ban = getExtraGeneralsBan();
 
@@ -1344,7 +1344,7 @@ QStringList Engine::getRandomFemaleLords(bool luxun) const
         const General *general = Sanguosha->getGeneral(name);
         if (general && general->isFemale())
             all_lords << general->objectName();
-        else if (general && name.contains("luxun") && luxun)
+        else if (general && name.contains("zuoci") && zuoci)
             all_lords << name;
     }
 
@@ -1372,7 +1372,7 @@ QStringList Engine::getRandomFemaleLords(bool luxun) const
         if (banlist_ban.contains(general->objectName()))
             continue;
         //const General *general = Sanguosha->getGeneral(nonlord);
-        if (!general || !(general->isFemale() || (nonlord.contains("luxun") && luxun)))
+        if (!general || !(general->isFemale() || (nonlord.contains("zuoci") && zuoci)))
             continue;
         QString main_name = getMainGeneral(nonlord);
         all_nonlord_list << nonlord;
@@ -1461,7 +1461,7 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
     return general_list;
 }
 
-QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom, bool luxun) const
+QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom, bool zuoci) const
 {
     QStringList all_maf_generals = getLimitedGeneralNames(kingdom);
     QStringList all_generals;
@@ -1470,7 +1470,7 @@ QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_
         const General *general = Sanguosha->getGeneral(name);
         if (general && general->isFemale())
             all_generals << general->objectName();
-        else if (general && name.contains("luxun") && luxun)
+        else if (general && name.contains("zuoci") && zuoci)
             all_generals << name;
     }
 
@@ -1883,4 +1883,3 @@ int Engine::correctAttackRange(const Player *target, bool include_weapon, bool f
 
     return extra;
 }
-

@@ -998,7 +998,7 @@ public:
         if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player)) {
             if (player->getPhase() == Player::Play && player->getMark("yanyu") > 1) {
                 foreach (ServerPlayer *p, room->getAlivePlayers()) {
-                    if (p->isMale())
+                    if (p->isLesbian(player))
                         return QStringList(objectName());
                 }
             }
@@ -1010,7 +1010,7 @@ public:
     {
         QList<ServerPlayer *> malelist;
         foreach (ServerPlayer *p, room->getAlivePlayers()) {
-            if (p->isMale())
+            if (p->isLesbian(player))
                 malelist << p;
         }
         if (malelist.isEmpty()) return false;

@@ -373,7 +373,7 @@ public:
                 ServerPlayer *to = use.to.at(use.index);
 
                 if (to && to->isAlive() && to->getMark("Equips_of_Others_Nullified_to_You") == 0) {
-                    if ((player->isMale() && to->isFemale()) || (player->isFemale() && to->isMale()))
+                    if ((player->isMale() && to->isFemale()) || (player->isFemale() && to->isMale()) || player->getMark("Lesbian"))
                         return QStringList(objectName());
                 }
             }

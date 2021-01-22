@@ -1,3 +1,4 @@
+
 #ifndef _ROOM_H
 #define _ROOM_H
 
@@ -447,7 +448,7 @@ public:
 
     void preventDamage(const DamageStruct &damage);
 
-    void changeLesbianSkill();
+    //void changeLesbianSkill();
     int getBoatTreasure(const QString &kingdom) const;
     void speakRanks(bool over = false);
     int getTreasureRank(const QString &kingdom) const;

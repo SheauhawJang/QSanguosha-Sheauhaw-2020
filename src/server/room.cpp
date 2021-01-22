@@ -317,6 +317,9 @@ void Room::revivePlayer(ServerPlayer *player, bool sendlog, bool emotion)
         log.from = player;
         sendLog(log);
     }
+
+    if (getMode() == "08_hongyan")
+        setPlayerMark(player, "Lesbian", 1);
 }
 
 static bool CompareByRole(ServerPlayer *player1, ServerPlayer *player2)
@@ -3119,6 +3122,8 @@ void Room::assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to
     QStringList all_choices = Sanguosha->getRandomFemaleGenerals(0, existed);
     QStringList choices = Sanguosha->getMainGenerals(all_choices);
 
+    int limit_choice = choices.size() / to_assign.size();
+
     if (Config.EnableHegemony) {
         if (to_assign.first()->getGeneral()) {
             foreach (ServerPlayer *sp, m_players) {
@@ -3156,7 +3161,7 @@ void Room::assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to
             extra = Config.value("LoyalistExtra_Choice", 0).toInt();
         }
 
-        int choice_count = max_choice + extra;
+        int choice_count = std::min(max_choice + extra, limit_choice);
 
         for (int i = 0; i < choice_count; i++) {
             qShuffle(choices);
@@ -8804,12 +8809,12 @@ void Room::preventDamage(const DamageStruct &damage)
     if (damage.flags.contains("qinggang"))
         removePlayerMark(damage.to, "Armor_Nullified");
 }
-
+/*
 void Room::changeLesbianSkill()
 {
     foreach (ServerPlayer *player, getAllPlayers())
     {
-        player->changeLesbianSkill("lijian");
+        //player->changeLesbianSkill("lijian");
         //player->changeLesbianSkill("jieyin");
         //player->changeLesbianSkill("jiaojin");
         //player->changeLesbianSkill("yanyu");
@@ -8820,13 +8825,14 @@ void Room::changeLesbianSkill()
         //player->changeLesbianSkill("noslijian");
         //if (player && player->hasSkill("luoyan"))
             //player->acquireSkill("#lesbianluoyan");
-        //player->changeLesbianSkill("lianli");
-        //player->changeLesbianSkill("tongxin");
-        //player->changeLesbianSkill("#lianli-slash", true);
-        //player->changeLesbianSkill("#lianli-jink", true);
-        //player->changeLesbianSkill("#lianli-clear", true);
+        player->changeLesbianSkill("lianli");
+        player->changeLesbianSkill("tongxin");
+        player->changeLesbianSkill("#lianli-slash", true);
+        player->changeLesbianSkill("#lianli-jink", true);
+        player->changeLesbianSkill("#lianli-clear", true);
     }
 }
+*/
 
 int Room::getBoatTreasure(const QString &kingdom) const
 {
