@@ -1331,7 +1331,7 @@ QStringList Engine::getRandomLords() const
     return lords;
 }
 
-QStringList Engine::getRandomFemaleLords(bool luxun) const
+QStringList Engine::getRandomFemaleLords(bool luxun, bool zuoci) const
 {
     QStringList banlist_ban = getExtraGeneralsBan();
 
@@ -1345,6 +1345,8 @@ QStringList Engine::getRandomFemaleLords(bool luxun) const
         if (general && general->isFemale())
             all_lords << general->objectName();
         else if (general && name.contains("luxun") && luxun)
+            all_lords << name;
+        else if (general && name.contains("zuoci") && zuoci)
             all_lords << name;
     }
 
@@ -1461,7 +1463,7 @@ QStringList Engine::getRandomGenerals(int count, const QSet<QString> &ban_set, c
     return general_list;
 }
 
-QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom, bool luxun) const
+QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_set, const QString &kingdom, bool luxun, bool zuoci) const
 {
     QStringList all_maf_generals = getLimitedGeneralNames(kingdom);
     QStringList all_generals;
@@ -1471,6 +1473,8 @@ QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_
         if (general && general->isFemale())
             all_generals << general->objectName();
         else if (general && name.contains("luxun") && luxun)
+            all_generals << name;
+        else if (general && name.contains("zuoci") && zuoci)
             all_generals << name;
     }
 

@@ -1024,12 +1024,23 @@ public:
     }
 };
 
+class YanyuVSLesbian : public YanyuVS
+{
+public:
+    YanyuVSLesbian() : YanyuVS()
+    {
+        setObjectName(objectName() + Skill::lesbian());
+        is_lesbian_skill = true;
+    }
+};
+
 class YanyuLesbian : public Yanyu
 {
 public:
     YanyuLesbian() : Yanyu()
     {
-        setObjectName(objectName() + Skill::Lesbian());
+        view_as_skill = new YanyuVSLesbian;
+        setObjectName(objectName() + Skill::lesbian());
         is_lesbian_skill = true;
     }
 

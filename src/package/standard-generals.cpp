@@ -1980,8 +1980,7 @@ class JieyinLesbian : public Jieyin
 public:
     JieyinLesbian() : Jieyin()
     {
-        setObjectName(objectName() + Skill::Lesbian());
-        is_lesbian_skill = true;
+        setLesbian();
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
@@ -2199,7 +2198,7 @@ class LijianLesbian : public Lijian
 public:
     LijianLesbian() : Lijian()
     {
-        setObjectName(objectName() + Skill::Lesbian());
+        setObjectName(objectName() + Skill::lesbian());
         is_lesbian_skill = true;
     }
 

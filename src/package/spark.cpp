@@ -5668,7 +5668,7 @@ class FuzhuLesbian : public Fuzhu
 public:
     FuzhuLesbian() : Fuzhu()
     {
-        setObjectName(objectName() + Skill::Lesbian());
+        setObjectName(objectName() + Skill::lesbian());
         is_lesbian_skill = true;
     }
 

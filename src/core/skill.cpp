@@ -226,6 +226,12 @@ bool Skill::buttonEnabled(const QString &button_name, const QList<const Card *> 
     return false;
 }
 
+void Skill::setLesbian()
+{
+    setObjectName(objectName() + Skill::lesbian());
+    is_lesbian_skill = true;
+}
+
 ViewAsSkill::ViewAsSkill(const QString &name)
     : Skill(name), response_pattern(QString()), response_or_use(false), expand_pile(QString()), guhuo_type(QString()), guhuo_dialog_type(QString())
 {

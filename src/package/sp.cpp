@@ -2543,6 +2543,16 @@ void LihunCard::onEffect(const CardEffectStruct &effect) const
     }
 }
 
+LihunCardLesbian::LihunCardLesbian()
+{
+
+}
+
+bool LihunCardLesbian::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    return targets.isEmpty() && to_select != Self;
+}
+
 class LihunSelect : public OneCardViewAsSkill
 {
 public:
@@ -2564,6 +2574,28 @@ public:
     }
 };
 
+class LihunSelectLesbian : public LihunSelect
+{
+public:
+    LihunSelectLesbian() : LihunSelect()
+    {
+        setObjectName(objectName() + Skill::lesbian());
+        is_lesbian_skill = true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("LihunCardLesbian");
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        LihunCardLesbian *card = new LihunCardLesbian;
+        card->addSubcard(originalCard);
+        return card;
+    }
+};
+
 class Lihun : public TriggerSkill
 {
 public:
@@ -2571,6 +2603,7 @@ public:
     {
         events << EventPhaseStart << EventPhaseEnd;
         view_as_skill = new LihunSelect;
+        has_lesbian_skill = true;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const
@@ -2623,6 +2656,22 @@ public:
         if (card->isKindOf("LihunCard"))
             return 1;
         return -1;
+    }
+};
+
+class LihunLesbian : public Lihun
+{
+public:
+    LihunLesbian() : Lihun()
+    {
+        setObjectName(objectName() + Skill::lesbian());
+        is_lesbian_skill = true;
+        view_as_skill = new LihunSelectLesbian;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL && target->hasUsed("LihunCardLesbian");
     }
 };
 
@@ -2872,6 +2921,10 @@ SPPackage::SPPackage()
     addMetaObject<MumuCard>();
 
     skills << new Nuzhan << new XingwuDiscard << new Zhixi << new ZhixiFilter;
+
+    addMetaObject<LihunCardLesbian>();
+    skills << new LihunLesbian;
+
 }
 
 ADD_PACKAGE(SP)
