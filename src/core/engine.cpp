@@ -317,7 +317,7 @@ Engine::Engine(bool isManualMode)
     //modes["02pbb"] = tr("2 players (using blance beam)");
     modes["02_1v1"] = tr("2 players (KOF style)");
     modes["03p"] = tr("3 players");
-    //modes["03_1v2"] = tr("3 players (Dou Di Zhu)");
+    modes["03_1v2"] = tr("3 players (Dou Di Zhu)");
     modes["04p"] = tr("4 players");
     modes["04_1v3"] = tr("4 players (Hulao Pass)");
     modes["04_boss"] = tr("4 players(Boss)");

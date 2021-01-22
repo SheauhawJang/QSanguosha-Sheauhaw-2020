@@ -374,6 +374,18 @@ TriggerList TriggerSkill::triggerable(TriggerEvent triggerEvent, Room *room, Ser
     return skill_lists;
 }
 
+QStringList TriggerSkill::triggerable(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer* &) const
+{
+    if (triggerable(target, room))
+        return QStringList(objectName());
+    return QStringList();
+}
+
+bool TriggerSkill::triggerable(const ServerPlayer *target, Room *) const
+{
+    return triggerable(target);
+}
+
 bool TriggerSkill::triggerable(const ServerPlayer *target) const
 {
     return target != NULL && (global || (target->isAlive() && target->hasSkill(this)));
@@ -387,13 +399,6 @@ void TriggerSkill::insertPriority(TriggerEvent e, double value)
 void TriggerSkill::record(TriggerEvent, Room *, ServerPlayer *, QVariant &) const
 {
 
-}
-
-QStringList TriggerSkill::triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &, ServerPlayer* &) const
-{
-    if (triggerable(target))
-        return QStringList(objectName());
-    return QStringList();
 }
 
 bool TriggerSkill::trigger(TriggerEvent , Room *, ServerPlayer *, QVariant &) const
