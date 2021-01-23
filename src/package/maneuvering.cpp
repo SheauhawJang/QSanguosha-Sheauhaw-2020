@@ -258,7 +258,7 @@ public:
                 QString source_name = move.reason.m_playerId;
                 ServerPlayer *source = room->findPlayer(source_name);
                 if (source && source->ingoreArmor(player)) continue;
-                if (move.from != player || !move.from_places.contains(Player::PlaceEquip)) return QStringList();
+                if (move.from != player || !move.from_places.contains(Player::PlaceEquip)) continue;
                 for (int i = 0; i < move.card_ids.size(); i++) {
                     if (move.from_places[i] != Player::PlaceEquip) continue;
                     const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);

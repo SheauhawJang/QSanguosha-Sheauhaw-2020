@@ -336,15 +336,15 @@ Engine::Engine(bool isManualMode)
     modes["08_defense"] = tr("8 players (JianGe Defense)");
     modes["08_zdyj"] = tr("8 players (Best Loyalist)");
     modes["08_hongyan"] = tr("8 players (Hongyan Races)");
-    //modes["08_dragonboat"] = tr("8 players (Dragon Bost Races)");
+    modes["08_dragonboat"] = tr("8 players (Dragon Bost Races)");
     modes["09p"] = tr("9 players");
     modes["10pd"] = tr("10 players");
     modes["10p"] = tr("10 players (1 renegade)");
     modes["10pz"] = tr("10 players (0 renegade)");
-    //modes["11p"] = tr("11 players");
-    //modes["12pd"] = tr("12 players");
-    //modes["12p"] = tr("12 players (1 renegade)");
-    //modes["12pz"] = tr("12 players (0 renegade)");
+    modes["11p"] = tr("11 players");
+    modes["12pd"] = tr("12 players");
+    modes["12p"] = tr("12 players (1 renegade)");
+    modes["12pz"] = tr("12 players (0 renegade)");
 
     foreach (const Skill *skill, skills.values()) {
         Skill *mutable_skill = const_cast<Skill *>(skill);

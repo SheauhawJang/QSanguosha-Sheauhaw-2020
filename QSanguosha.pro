@@ -139,7 +139,8 @@ SOURCES += \
     src/package/chaos.cpp \
     src/package/compete-world.cpp \
     src/ui/guhuodialog.cpp \
-    src/ui/yanjiaobox.cpp
+    src/ui/yanjiaobox.cpp \
+    src/package/dragonboat.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -271,7 +272,8 @@ HEADERS += \
     src/package/chaos.h \
     src/package/compete-world.h \
     src/ui/guhuodialog.h \
-    src/ui/yanjiaobox.h
+    src/ui/yanjiaobox.h \
+    src/package/dragonboat.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

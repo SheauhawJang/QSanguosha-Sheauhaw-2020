@@ -30,6 +30,7 @@ config = {
 		"LimitationBroken",
 		"DerivativeCard",
         "BestLoyalistCard",
+		"DragonBoatCard",
         "CompeteWorldCard",
 		"New3v3Card",
 		"New3v3_2013Card",
@@ -72,6 +73,7 @@ config = {
 		"NostalYJCM2013",
         "BestLoyalist",
 		"JianGeDefense",
+		"DragonBoat",
 		"BossMode",
 		"TrialOfGod",
 		"Special3v3",
@@ -362,5 +364,17 @@ config = {
         "zuoci",
         "yuanshu",
         "huanghao",
-    }
+    },
+	
+    dragon_ban_cards = {
+        cards = "peach+analeptic+ex_nihilo+indulgence+supply_shortage+amazing_grace+god_salvation+archery_attack+savage_assault+crossbow+deluge+earthquake+mudslide+typhoon+volcano+lightning",
+    },
+	
+	dragon_ban = {
+		"zuoci", "yuanshu", "sp_jiaxu", "buzhi", "lingju", "as_lingju", "huanghao",
+		"xunyou", "guohuanghou", "zhangrang", "yuanshao", "liru", "caopi", "manchong",
+		"caiwenji", "xuhuang", "nos_xuhuang", "daqiao", "nos_daqiao", "zhangchunhua",
+		"miansha_zhangchunhua", "zhugeke", "nos_huanggai", "hanhaoshihuan", "xiahoujuan",
+		"twyj_xiahouba", "liuqi",
+	},
 }

@@ -1694,36 +1694,45 @@ public:
         events << EventPhaseStart << EventPhaseChanging;
     }
 
-    bool triggerable(const ServerPlayer *target) const
+    void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        return target != NULL;
-    }
-
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
-            foreach (ServerPlayer *sunluyu, room->getOtherPlayers(player)) {
-                if (!player->inMyAttackRange(sunluyu) && TriggerSkill::triggerable(sunluyu)
-                    && room->askForSkillInvoke(sunluyu, objectName(), QVariant::fromValue(player))) {
-                    sunluyu->broadcastSkillInvoke(objectName());
-					room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, sunluyu->objectName(), player->objectName());
-                    room->acquireSkill(player, "zhixi", true, true);
-					if (sunluyu->getMark("mumu") == 0) {
-                        QVariantList sunluyus = player->tag[objectName()].toList();
-                        sunluyus << QVariant::fromValue(sunluyu);
-                        player->tag[objectName()] = QVariant::fromValue(sunluyus);
-                        room->insertAttackRangePair(player, sunluyu);
-					}
-                }
-            }
-        } else if (triggerEvent == EventPhaseChanging) {
+        if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to != Player::NotActive) return false;
-
+            if (change.to != Player::NotActive) return;
             QVariantList sunluyus = player->tag[objectName()].toList();
             foreach (QVariant sunluyu, sunluyus) {
                 ServerPlayer *s = sunluyu.value<ServerPlayer *>();
                 room->removeAttackRangePair(player, s);
+            }
+        }
+    }
+
+    TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        TriggerList skill_list;
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
+            foreach (ServerPlayer *sunluyu, room->getOtherPlayers(player))
+                if (!player->inMyAttackRange(sunluyu) && TriggerSkill::triggerable(sunluyu))
+                    skill_list.insert(sunluyu, QStringList(objectName()));
+            return skill_list;
+        }
+        return skill_list;
+    }
+
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *sunluyu) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
+            if (room->askForSkillInvoke(sunluyu, objectName(), QVariant::fromValue(player)))
+            {
+                sunluyu->broadcastSkillInvoke(objectName());
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, sunluyu->objectName(), player->objectName());
+                room->acquireSkill(player, "zhixi", true, true);
+                if (sunluyu->getMark("mumu") == 0) {
+                    QVariantList sunluyus = player->tag[objectName()].toList();
+                    sunluyus << QVariant::fromValue(sunluyu);
+                    player->tag[objectName()] = QVariant::fromValue(sunluyus);
+                    room->insertAttackRangePair(player, sunluyu);
+                }
             }
         }
         return false;
@@ -1840,34 +1849,32 @@ public:
     }
 };
 
-class Mumu : public PhaseChangeSkill
+class Mumu : public TriggerSkill
 {
 public:
-    Mumu() : PhaseChangeSkill("mumu")
+    Mumu() : TriggerSkill("mumu")
     {
+        events << EventPhaseStart;
         view_as_skill = new MumuVS;
     }
 
     bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL && target->getPhase() == Player::RoundStart;
+        return target != NULL && target->getPhase() == Player::RoundStart && target->getMark("mumu") > 0;
     }
 
-    bool onPhaseChange(ServerPlayer *target) const
+    void record(TriggerEvent , Room *, ServerPlayer *target, QVariant &) const
     {
-        if (target->getMark("mumu") > 0) {
-            target->setMark("mumu", 0);
-            QString translation = Sanguosha->translate(":meibu");
-            QString in_attack = Sanguosha->translate("meibu_in_attack");
-            if (!translation.endsWith(in_attack)) {
-                translation.append(in_attack);
-                Sanguosha->addTranslationEntry(":meibu", translation.toStdString().c_str());
-                JsonArray args;
-                args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
-                target->getRoom()->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
-            }
+        target->setMark("mumu", 0);
+        QString translation = Sanguosha->translate(":meibu");
+        QString in_attack = Sanguosha->translate("meibu_in_attack");
+        if (!translation.endsWith(in_attack)) {
+            translation.append(in_attack);
+            Sanguosha->addTranslationEntry(":meibu", translation.toStdString().c_str());
+            JsonArray args;
+            args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
+            target->getRoom()->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
         }
-        return false;
     }
 };
 

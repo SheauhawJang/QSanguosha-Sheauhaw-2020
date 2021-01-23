@@ -1154,29 +1154,39 @@ public:
         events << EventPhaseStart;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        return target != NULL;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
-    {
+        TriggerList list;
         if (player->getPhase() == Player::RoundStart) {
             foreach (ServerPlayer *fuhuanghou, room->getAllPlayers()) {
                 if (player->isKongcheng()) break;
-                if (TriggerSkill::triggerable(fuhuanghou) && fuhuanghou->canPindian(player) && fuhuanghou->isWounded()
-                    && room->askForSkillInvoke(fuhuanghou, objectName(), QVariant::fromValue(player))) {
-                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, fuhuanghou->objectName(), player->objectName());
-                    fuhuanghou->broadcastSkillInvoke("zhuikong");
-                    if (fuhuanghou->pindian(player, objectName(), NULL)) {
-                        room->addPlayerTip(player, "#zhuikong");
-                        room->setPlayerFlag(player, "DisabledOtherTargets");
-                    } else
-                        room->setFixedDistance(player, fuhuanghou, 1);
+                if (TriggerSkill::triggerable(fuhuanghou) && fuhuanghou->canPindian(player) && fuhuanghou->isWounded()) {
+                    list.insert(fuhuanghou, QStringList(objectName()));
                 }
             }
-        } else if (player->getPhase() == Player::NotActive)
+        }
+        return list;
+    }
+
+    virtual void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (player->getPhase() == Player::NotActive)
             room->removePlayerTip(player, "#zhuikong");
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *fuhuanghou) const
+    {
+        if (player->getPhase() == Player::RoundStart) {
+            if (room->askForSkillInvoke(fuhuanghou, objectName(), QVariant::fromValue(player))) {
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, fuhuanghou->objectName(), player->objectName());
+                fuhuanghou->broadcastSkillInvoke("zhuikong");
+                if (fuhuanghou->pindian(player, objectName(), NULL)) {
+                    room->addPlayerTip(player, "#zhuikong");
+                    room->setPlayerFlag(player, "DisabledOtherTargets");
+                } else
+                    room->setFixedDistance(player, fuhuanghou, 1);
+            }
+        }
         return false;
     }
 };
