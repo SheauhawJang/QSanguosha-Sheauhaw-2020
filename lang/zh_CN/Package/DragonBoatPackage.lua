@@ -19,7 +19,7 @@ return {
 	["sufei"] = "苏飞",
 	["wu_sufei"] = "苏飞",
 	["lianpian"] = "联翩",
-	[":lianpian"] = "每当你或与你势力相同的其他角色于其出牌阶段使用牌时，若指定的角色包括令该牌使用者本回合上一张使用的牌一名指定的角色，你可以令该牌使用者摸一张牌。",
+	[":lianpian"] = "每当你或与你势力相同的其他角色于其出牌阶段使用牌时，若指定的角色包括该牌使用者本回合上一张使用的牌指定的一名角色，则你可以令该牌使用者摸一张牌。",
 	
 	["huangquan"] = "黄权",
 	["wei_huangquan"] = "黄权",
@@ -34,9 +34,10 @@ return {
 	["wu_tangzi"] = "唐咨",
 	["xingzhao"] = "兴棹",
 	[":xingzhao"] = "若你所属势力持有的“龙船至宝”数合计大于等于：<br/><b><font color=\"blue\">2</font></b>个：你和与你势力相同的其他角色拥有技能“恂恂”；<br/><b><font color=\"blue\">4</font></b>个：你和与你势力相同的其他角色使用装备牌时，你可以令其摸一张牌；<br/><b><font color=\"blue\">6</font></b>个：你可以令你和与你势力相同的其他角色跳过弃牌阶段；<br/><b><font color=\"blue\">12</font></b>个：你所属势力成为第一名。<br/><b>备注：</b>以上效果<b><font color=\"green\">可叠加</font></b>。",
+	["#xingzhao-changed"] = "<b><font color=\"yellow\"> 兴棹 </font></b>技能效果生效，<b><font color=\"yellow\"> 龙船至宝 </font></b> 的排名发生变化！",
 	
-	["dragon_liuqi"] = "刘琦",
-	["qdragon_liuqi"] = "刘琦",
+	["d_liuqi"] = "刘琦",
+	["qun_d_liuqi"] = "刘琦",
 	["d_wenji"] = "问计",
 	[":d_wenji"] = "出牌阶段开始时，你可以令一名与你势力相同的其他角色交给你一张牌。你于本回合内使用与该牌名称相同的牌不能被其他角色响应。",
 	["@d_wenji-invoke"] = "你可以发动“问计”，选择一名与你势力相同的其他角色",

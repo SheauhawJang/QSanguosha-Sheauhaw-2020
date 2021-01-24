@@ -254,7 +254,7 @@ public:
     virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
     {
         DamageStruct damage = data.value<DamageStruct>();
-        if (damage.nature == DamageStruct::Fire && player->isChained() && !damage.chain)
+        if (TriggerSkill::triggerable(player) && damage.nature == DamageStruct::Fire && player->isChained() && !damage.chain)
             return QStringList(objectName());
         return QStringList();
     }

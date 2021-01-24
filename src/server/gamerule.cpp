@@ -143,11 +143,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             }
             if (room->getMode() == "08_dragonboat")
                 foreach (ServerPlayer *aplayer, room->getAllPlayers())
-                {
                     room->setPlayerMark(aplayer, "@aiye", 1);
-                    room->acquireSkill(aplayer, "#aiyeneverdie");
-                    room->acquireSkill(aplayer, "#aiyegainmark");
-                }
             if (room->getMode() == "08_zdyj" && Config.value("zdyj/Rule", "2017").toString() == "2017")
                 foreach (ServerPlayer *aplayer, room->getAllPlayers())
                     if (aplayer->getMark("shown_loyalist"))
@@ -467,7 +463,13 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
             RoomThread *thread = room->getThread();
 
             if (card_use.from && !card_use.to.isEmpty()) {
-                thread->trigger(TargetSpecifying, room, card_use.from, data);
+                for (int i = 0; i < card_use.to.length(); i++) {
+                    CardUseStruct new_use = data.value<CardUseStruct>();
+                    new_use.index = i;
+                    data = QVariant::fromValue(new_use);
+                    thread->trigger(TargetSpecifying, room, card_use.from, data);
+                }
+                //thread->trigger(TargetSpecifying, room, card_use.from, data);
 
                 QList<ServerPlayer *> f_targets, all_players = room->getAllPlayers(true);
 
@@ -602,6 +604,14 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         break;
     }
     case HpChanged: {
+        if (room->getMode() == "08_dragonboat")
+            foreach (ServerPlayer *player, room->getAllPlayers())
+                if (player->getHp() <= 0)
+                {
+                    room->sendCompulsoryTriggerLog(player, "aiye");
+                    room->notifySkillInvoked(player, "aiye");
+                    room->recover(player, RecoverStruct(player, NULL, 1 - player->getHp()));
+                }
         if (player->getHp() > 0)
             break;
         if (data.isNull() || data.canConvert<RecoverStruct>())
