@@ -701,44 +701,6 @@ public:
 
 };
 
-class BLDongchaSee : public TriggerSkill
-{
-public:
-    BLDongchaSee() : TriggerSkill("#bl_dongcha-see")
-    {
-        events << TurnStart;
-        frequency = Compulsory;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target, Room *room) const
-    {
-        return target != NULL;
-    }
-
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (!room->getTag("FirstRound").toBool()) return false;
-        QList<ServerPlayer *> rebels;
-        foreach (ServerPlayer *p, room->getAllPlayers(true))
-            if (p->getRole() == "rebel")
-                rebels << p;
-        qShuffle(rebels);
-        if (!rebels.isEmpty())
-        {
-            ServerPlayer *showee = rebels.first();
-            foreach (ServerPlayer *bl, room->getAllPlayers())
-                if (bl->hasSkill("bl_dongcha"))
-                {
-                    room->sendCompulsoryTriggerLog(bl, "bl_dongcha");
-                    room->notifySkillInvoked(bl, "bl_dongcha");
-                    room->broadcastProperty(bl, showee, "role", showee->getRole());
-                    room->askForChoice(bl, "bl_dongcha", showee->getGeneralName()+"+cancel", QVariant(), "@@bl_dongcha");
-                }
-        }
-        return false;
-    }
-};
-
 class BLDongcha : public TriggerSkill
 {
 public:
@@ -750,6 +712,25 @@ public:
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
+        if (room->getTag("FirstRound").toBool())
+        {
+            QList<ServerPlayer *> rebels;
+            foreach (ServerPlayer *p, room->getAllPlayers(true))
+                if (p->getRoleEnum() == Player::Rebel)
+                    rebels << p;
+            if (!rebels.isEmpty())
+            {
+                ServerPlayer *showee = rebels.at(qrand() % rebels.size());
+                foreach (ServerPlayer *bl, room->getAllPlayers())
+                    if (bl->hasSkill("bl_dongcha"))
+                    {
+                        room->sendCompulsoryTriggerLog(bl, "bl_dongcha");
+                        room->notifySkillInvoked(bl, "bl_dongcha");
+                        room->broadcastProperty(bl, showee, "role", showee->getRole());
+                        room->askForChoice(bl, "bl_dongcha", showee->getGeneralName()+"+cancel", QVariant(), "@@bl_dongcha");
+                    }
+            }
+        }
         QList<ServerPlayer *> targets;
         foreach (ServerPlayer *p, room->getAlivePlayers())
             if (!(p->getEquips().isEmpty() && p->getJudgingArea().isEmpty()) && player->canDiscard(p, "je"))
@@ -779,54 +760,48 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        return target != NULL && target->getRole() == "lord";
+        TriggerList list;
+        if (player->hasFlag("Global_Dying") && player->getHp() <= 0 && player->getRoleEnum() == Player::Lord)
+            foreach (ServerPlayer *loyalist, room->getAllPlayers())
+                if (loyalist->hasSkill(objectName()))
+                    list.insert(loyalist, nameList());
+        return list;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *loyalist) const
     {
-        if (!player->hasFlag("Global_Dying") || player->getHp() > 0) return false;
-        foreach (ServerPlayer *loyalist, room->getAlivePlayers())
-            if (loyalist->hasSkill(objectName()) && loyalist->getMark("shown_loyalist"))
-            {
-                room->sendCompulsoryTriggerLog(loyalist, objectName());
-                room->notifySkillInvoked(loyalist, objectName());
-                room->setPlayerFlag(player, "-Global_Dying");
+        room->sendCompulsoryTriggerLog(loyalist, objectName());
+        room->notifySkillInvoked(loyalist, objectName());
+        room->setPlayerFlag(player, "-Global_Dying");
 
-                LogMessage log;
-                log.type = "#GainMaxHp";
-                log.from = player;
-                log.arg = QString::number(1);
-                int new_maxhp = player->getMaxHp() + 1;
-                log.arg2 = QString::number(new_maxhp);
-                room->sendLog(log);
-                room->setPlayerProperty(loyalist, "maxhp", new_maxhp);
+        LogMessage log;
+        log.type = "#GainMaxHp";
+        log.from = player;
+        log.arg = QString::number(1);
+        int new_maxhp = player->getMaxHp() + 1;
+        log.arg2 = QString::number(new_maxhp);
+        room->sendLog(log);
+        room->setPlayerProperty(player, "maxhp", new_maxhp);
 
-                int to_hp = loyalist->getHp();
-                room->recover(player, RecoverStruct(player, NULL, to_hp - player->getHp()));
+        int to_hp = loyalist->getHp();
+        room->recover(player, RecoverStruct(player, NULL, to_hp - player->getHp()));
 
-                DummyCard *dummy = new DummyCard(loyalist->handCards());
-                QList <const Card *> equips = loyalist->getEquips();
-                foreach(const Card *card, equips)
-                    dummy->addSubcard(card);
+        DummyCard *dummy = new DummyCard(loyalist->handCards());
+        QList <const Card *> equips = loyalist->getEquips();
+        foreach(const Card *card, equips)
+            dummy->addSubcard(card);
 
-                if (dummy->subcardsLength() > 0) {
-                    CardMoveReason reason(CardMoveReason::S_REASON_RECYCLE, player->objectName());
-                    room->obtainCard(player, dummy, reason, false);
-                }
-                delete dummy;
+        if (dummy->subcardsLength() > 0) {
+            CardMoveReason reason(CardMoveReason::S_REASON_RECYCLE, player->objectName());
+            room->obtainCard(player, dummy, reason, false);
+        }
+        delete dummy;
 
-                room->killPlayer(loyalist);
+        room->killPlayer(loyalist);
 
-                return false;
-            }
         return false;
-    }
-
-    virtual int getPriority(TriggerEvent triggerEvent) const
-    {
-        return 0;
     }
 };
 
@@ -897,7 +872,7 @@ BestLoyalistPackage::BestLoyalistPackage()
 
     addMetaObject<FenyueCard>();
 
-    skills << new BLDongcha << new BLDongchaSee << new BLSheshen;
+    skills << new BLDongcha << new BLSheshen;
 }
 
 ADD_PACKAGE(BestLoyalist)

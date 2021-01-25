@@ -1367,6 +1367,7 @@ MOLPackage::MOLPackage()
     skills << new ChoulveUse << new ChoulveRecord << new PingcaiMove;
 
     skills << new Feiyang << new Bahu << new BahuTargetMod;
+    related_skills.insert("bahu", "#bahu-target");
 }
 
 ADD_PACKAGE(MOL)

@@ -54,4 +54,13 @@ return {
 	["@fenyue-choose"] = "奋钺：请选择对 %dest 执行的操作",
 	["fenyue:sealhandcards"] = "其不能使用打出手牌",
 	["fenyue:useslash"] = "视为对其出杀",
+	
+	["bl_dongcha"] = "洞察",
+	[":bl_dongcha"] = "<b><font color=\"orange\">忠臣技，</font></b>游戏开始时，随机一名反贼的身份对你可见；准备阶段，你可以弃置场上的一张牌。",
+	["@@bl_dongcha"] = "洞察：这个人是个反贼。",
+	
+	["bl_sheshen"] = "舍身",
+	[":bl_sheshen"] = "<b><font color=\"orange\">忠臣技，</font></b>锁定技，主公处于濒死状态即将死亡时，你令主公+1体力上限，回复体力至X点（X为你的体力值数），获得你的所有牌，然后你死亡。",
+
+	["#Showlord"] = "忠臣 %from 已经阵亡，主公 %to 亮出了自己的身份！",
 	}

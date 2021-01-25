@@ -3161,7 +3161,7 @@ void Room::assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to
             extra = Config.value("LoyalistExtra_Choice", 0).toInt();
         }
 
-        int choice_count = std::min(max_choice + extra, limit_choice);
+        int choice_count = qMin(max_choice + extra, limit_choice);
 
         for (int i = 0; i < choice_count; i++) {
             qShuffle(choices);
@@ -5308,7 +5308,7 @@ bool Room::hasWelfare(const ServerPlayer *player) const
     else if (Config.EnableHegemony || mode == "06_XMode")
         return false;
     else
-        return player->isLord() && player_count > 4;
+        return player->isLord() && (player_count > 4 || mode == "03_1v2");
 }
 
 ServerPlayer *Room::getFront(ServerPlayer *a, ServerPlayer *b) const
@@ -5402,8 +5402,6 @@ void Room::startGame()
     foreach (ServerPlayer *player, m_players) {
         Q_ASSERT(player->getGeneral());if ((mode == "06_swzs" || mode == "05_zhfd") && player->isLord())
             player->setMaxHp(player->getGeneralMaxHp() - 1);
-        if (mode == "03_1v2" && player->isLord())
-            player->setMaxHp(player->getGeneralMaxHp() + 1);
         else if (mode == "05_zhfd" && Config.value("zhfd/Mode", "NormalMode").toString() == "BossMode" && player->getRole() == "loyalist")
         {
             player->setMaxHp(player->getGeneralMaxHp() - 1);

@@ -671,7 +671,7 @@ void Dashboard::clearHighlightEquip()
         if (!_m_equipCards[i])
         {
             _m_equipBorders[i]->hide();
-            _m_equipBorders[i]->stop();
+            //_m_equipBorders[i]->stop();
         }
 }
 

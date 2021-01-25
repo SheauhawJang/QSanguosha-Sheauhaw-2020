@@ -27,6 +27,7 @@ void PixmapAnimation::setPath(const QString &path)
 {
     frames.clear();
     current = 0;
+    setObjectName(path);
 
     int i = 0;
     QString pic_path = QString("%1%2%3").arg(path).arg(i++).arg(".png");
