@@ -374,7 +374,7 @@ public:
 
                 if (to && to->isAlive() && to->getMark("Equips_of_Others_Nullified_to_You") == 0) {
                     if ((player->isMale() && to->isFemale()) || (player->isFemale() && to->isMale()) || player->getMark("Lesbian"))
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         }
@@ -420,7 +420,7 @@ public:
             if (use.card != NULL && use.card->isKindOf("Slash")) {
                 ServerPlayer *to = use.to.at(use.index);
                 if (to && to->isAlive() && to->getMark("Equips_of_Others_Nullified_to_You") == 0)
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -466,7 +466,7 @@ public:
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (effect.to->isAlive() && effect.to->getMark("Equips_of_Others_Nullified_to_You") == 0 &&
                 effect.from->canSlash(effect.to, NULL, false))
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -571,7 +571,7 @@ public:
         if (!WeaponSkill::triggerable(player)) return QStringList();
         SlashEffectStruct effect = data.value<SlashEffectStruct>();
         if (effect.to->isAlive() && effect.to->getMark("Equips_of_Others_Nullified_to_You") == 0 && player->getCardCount() >= 3)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -632,7 +632,7 @@ public:
                 damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0) {
             if ((damage.to->getDefensiveHorse() && damage.from->canDiscard(damage.to, damage.to->getDefensiveHorse()->getEffectiveId())) ||
                     (damage.to->getOffensiveHorse() && damage.from->canDiscard(damage.to, damage.to->getOffensiveHorse()->getEffectiveId())))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -686,7 +686,7 @@ public:
             Jink *jink = new Jink(Card::NoSuit, 0);
             jink->setSkillName(objectName());
             if (!player->isLocked(jink))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -1229,7 +1229,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash") && damage.by_user && !damage.chain && !damage.transfer
                 && damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0 && !damage.to->isNude())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1277,7 +1277,7 @@ public:
         CardEffectStruct effect = data.value<CardEffectStruct>();
         if (effect.from && effect.from->ingoreArmor(player)) return QStringList();
         if (effect.card->isKindOf("Slash") && effect.card->isBlack())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

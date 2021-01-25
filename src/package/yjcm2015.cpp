@@ -160,7 +160,7 @@ public:
         DyingStruct dying = data.value<DyingStruct>();
         if (triggerEvent == Dying && dying.who == player) {
             if (player != NULL && player->isAlive() && player->hasLordSkill(this) && player->getMark(limit_mark) > 0 && hasWeiGens(player))
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == QuitDying) {
             QVariantList responsers = player->tag[objectName()].toList();
             if (!responsers.isEmpty())
@@ -254,7 +254,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (TriggerSkill::triggerable(player) && player->getWeapon() && damage.card && damage.card->isKindOf("Slash")
                 && !damage.chain && !damage.transfer && damage.to->isAlive())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -735,7 +735,7 @@ public:
             QList<ServerPlayer *> all_players = room->getAlivePlayers();
             foreach (ServerPlayer *p, all_players) {
                 if (yaomingCheak(player, p))
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -905,7 +905,7 @@ public:
             QList<ServerPlayer *> xiahoushis = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *xiahoushi, xiahoushis) {
                 if (xiahoushi != NULL && player != xiahoushi && xiahoushi->getHandcardNum() == player->getHandcardNum())
-                    skill_list.insert(xiahoushi, QStringList(objectName()));
+                    skill_list.insert(xiahoushi, nameList());
             }
         }
         return skill_list;
@@ -999,7 +999,7 @@ public:
             if (player->getPhase() == Player::Play && player->getMark("yanyu") > 1) {
                 foreach (ServerPlayer *p, room->getAlivePlayers()) {
                     if (p->isLesbian(player))
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         }
@@ -1323,7 +1323,7 @@ public:
         QList<ServerPlayer *> zhongyaos = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *zhongyao, zhongyaos) {
             if (zhongyao != NULL && player != zhongyao)
-                skill_list.insert(zhongyao, QStringList(objectName()));
+                skill_list.insert(zhongyao, nameList());
         }
         return skill_list;
     }

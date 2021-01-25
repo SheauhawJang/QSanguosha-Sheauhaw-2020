@@ -139,7 +139,7 @@ public:
             case Player::PhaseNone: Q_ASSERT(false);
         }
         if (TriggerSkill::triggerable(player) && index > 0 && !player->isKongcheng() && !player->isSkipped(change.to))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -218,7 +218,7 @@ public:
         QList<ServerPlayer *> caiwenjis = room->findPlayersBySkillName(objectName());
         foreach(ServerPlayer *caiwenji, caiwenjis)
             if (!caiwenji->isNude())
-                skill_list.insert(caiwenji, QStringList(objectName()));
+                skill_list.insert(caiwenji, nameList());
         return skill_list;
     }
 
@@ -270,7 +270,7 @@ public:
         DeathStruct death = data.value<DeathStruct>();
 
         if (death.who == player && death.damage && death.damage->from && death.damage->from->isAlive())
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -328,7 +328,7 @@ public:
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
                     && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
-                    return QStringList(objectName());
+                    return nameList();
                 }
             }
         } else if (triggerEvent == FinishJudge) {
@@ -447,7 +447,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Duel") || (use.card->isKindOf("Slash") && use.card->isRed())) {
             if (triggerEvent == TargetSpecified && use.index > 0)  return QStringList();
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -875,7 +875,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Slash") && use.from && use.from->isAlive()) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -952,7 +952,7 @@ public:
         if (triggerEvent == EventPhaseChanging && TriggerSkill::triggerable(player)) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
             if (change.to == Player::Play && !player->isSkipped(Player::Play)) {
-                return QStringList(objectName());
+                return nameList();
             }
         } else if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Discard) {
             if (player->hasFlag("fangquanInvoked"))
@@ -1231,9 +1231,9 @@ public:
                 skill_list.insert(zuoci, QStringList("huashen!"));
 
         } else if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getPhase() == Player::RoundStart)
-            skill_list.insert(player, QStringList(objectName()));
+            skill_list.insert(player, nameList());
         else if (triggerEvent == EventPhaseChanging && TriggerSkill::triggerable(player) && data.value<PhaseChangeStruct>().to == Player::NotActive)
-            skill_list.insert(player, QStringList(objectName()));
+            skill_list.insert(player, nameList());
 
         return skill_list;
     }

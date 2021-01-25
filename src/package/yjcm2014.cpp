@@ -445,7 +445,7 @@ public:
             if (triggerEvent == CardUsed) {
                 CardUseStruct use = data.value<CardUseStruct>();
                 if (use.card->getTypeId() != Card::TypeSkill)
-                    return QStringList(objectName());
+                    return nameList();
             } else if (triggerEvent == TargetChosed) {
                 QList<ServerPlayer *> targets = room->getOtherPlayers(player);
                 foreach (ServerPlayer *p, targets) {
@@ -460,7 +460,7 @@ public:
                             tos << to;
                     }
                     if (tos.size() == 1)
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         }
@@ -568,7 +568,7 @@ public:
                 QList<ServerPlayer *> players = room->getOtherPlayers(player);
                 foreach (ServerPlayer *p, players) {
                     if (!p->isKongcheng())
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         } else if (triggerEvent == CardUsed || triggerEvent == CardResponded) {
@@ -583,7 +583,7 @@ public:
                         cardstar = resp.m_card;
                 }
                 if (cardstar && int(cardstar->getTypeId()) == player->getMark("QiangzhiTypeId"))
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -648,13 +648,13 @@ public:
             QList<ServerPlayer *> zhangsongs = room->findPlayersBySkillName(objectName());
             foreach(ServerPlayer *zhangsong, zhangsongs) {
                 if (zhangsong != player)
-                    skill_list.insert(zhangsong, QStringList(objectName()));
+                    skill_list.insert(zhangsong, nameList());
             }
         } else if (triggerEvent == EventPhaseEnd && player->getPhase() == Player::Play && player->getMark("GlobalKilledCountinPlay") == 0) {
             QList<ServerPlayer *> players = room->getAlivePlayers();
             foreach(ServerPlayer *p, players) {
                 if (p->getMark("XiantuInvoked") > 0) {
-                    skill_list.insert(p, QStringList(objectName()));
+                    skill_list.insert(p, nameList());
                 }
             }
         }
@@ -1101,7 +1101,7 @@ public:
             QList<ServerPlayer *> players = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *p, players) {
                 if (player != p)
-                    skill_list.insert(p, QStringList(objectName()));
+                    skill_list.insert(p, nameList());
             }
         }
 
@@ -1254,7 +1254,7 @@ public:
                     QVariant card_data = card_list.at(card_list.length()-2);
                     const Card *last_card = card_data.value<const Card *>();
                     if (last_card && (card->sameSuitWith(last_card) || card->sameNumberWith(last_card)))
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
 

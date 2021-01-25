@@ -40,7 +40,7 @@ SelectBox::SelectBox(const QString &skillname, const QStringList &options)
     }
 
     const QRectF rect = boundingRect();
-    setPos(RoomSceneInstance->tableCenterPos().x() - rect.width() / 2, RoomSceneInstance->tableCenterPos().y()*2 - 230);
+    setPos(RoomSceneInstance->tableCenterPos().x() - rect.width() / 2, RoomSceneInstance->tableCenterPos().y()*2 - 240);
 
     setFlag(QGraphicsItem::ItemIsMovable, false);
     show();

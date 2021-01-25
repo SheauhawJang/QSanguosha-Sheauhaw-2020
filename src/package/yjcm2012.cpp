@@ -32,7 +32,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if ((use.card->isKindOf("Slash") || use.card->isNDTrick()) && use.from != player) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -356,7 +356,7 @@ public:
         DyingStruct dying_data = data.value<DyingStruct>();
         if (dying_data.who != target) return QStringList();
 
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool effect(TriggerEvent, Room *room, ServerPlayer *liaohua, QVariant &data, ServerPlayer *) const
@@ -512,7 +512,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash") && damage.card->getSkillName() == objectName()
             && player->getPhase() == Player::Play && !player->hasFlag(objectName())) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -695,7 +695,7 @@ public:
             room->getAlivePlayers();
 
         if (!targets.isEmpty())
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -733,12 +733,12 @@ public:
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (triggerEvent == ConfirmCardUsed && TriggerSkill::triggerable(player) && use.card->objectName() == "slash")
-            return QStringList(objectName());
+            return nameList();
         else if (triggerEvent == TargetChosed && TriggerSkill::triggerable(player) && use.card->isKindOf("FireSlash")
                  && !player->getUseExtraTargets(use, true).isEmpty())
-            return QStringList(objectName());
+            return nameList();
         else if (triggerEvent == CardFinished && use.card->hasFlag("InvokedLihuo") && !use.card->tag["GlobalCardDamagedTag"].isNull()) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -877,9 +877,9 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish
             && !player->isKongcheng() && player->getPile("wine").isEmpty())
-            return QStringList(objectName());
+            return nameList();
         else if (triggerEvent == AskForPeaches && !player->getPile("wine").isEmpty())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

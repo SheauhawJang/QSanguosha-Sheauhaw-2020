@@ -33,7 +33,7 @@ public:
         if (!TriggerSkill::triggerable(player) || player->getPhase() != Player::Play) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card && (use.card->isKindOf("Slash") || use.card->isNDTrick()))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -154,7 +154,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if ((use.card->isKindOf("Slash") || use.card->isKindOf("Duel")) && use.card->tag["FuyinCanInvoke"].toBool()
                 && use.from && use.from->isAlive() && use.from->getHandcardNum() >= player->getHandcardNum()) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -216,7 +216,7 @@ public:
     {
         if (TriggerSkill::triggerable(player) &&
                 (!getLiangyinTargets(player, data, true).isEmpty() || !getLiangyinTargets(player, data, false).isEmpty()))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -275,7 +275,7 @@ public:
         switch (player->getPhase()) {
         case Player::Start: {
             if (PhaseChangeSkill::triggerable(player) && ! player->isNude())
-                return QStringList(objectName());
+                return nameList();
             break;
         }
         case Player::Finish: {
@@ -590,7 +590,7 @@ public:
     {
         TriggerList skill_list;
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish && TriggerSkill::triggerable(player))
-            skill_list.insert(player, QStringList(objectName()));
+            skill_list.insert(player, nameList());
         else if (triggerEvent == EventPhaseChanging && data.value<PhaseChangeStruct>().to == Player::NotActive) {
             int x = player->getHandcardNum();
             QStringList haozhao_list = player->tag["ZhenguSource"].toStringList();
@@ -648,7 +648,7 @@ public:
                 if (use.index == 0){
                     foreach (ServerPlayer *to, use.to) {
                         if (!to->isNude() && to->getHandcardNum() >= player->getHandcardNum())
-                            return QStringList(objectName());
+                            return nameList();
                     }
                 }
             }
@@ -752,7 +752,7 @@ public:
     {
         if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Start && player->getPile("honour").length() > 2 &&
                 player->getMark(objectName()) == 0) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -842,11 +842,11 @@ public:
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == DrawNCards)
-            return QStringList(objectName());
+            return nameList();
         else if (triggerEvent == EventPhaseEnd && player->getPhase() == Player::Play) {
             int x = player->getMark("damage_point_play_phase");
             if ((x == 0 && player->getHandcardNum() < player->getHp()) || x > 1)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -906,7 +906,7 @@ public:
     {
         if (player != NULL && player->isAlive() && player->hasLordSkill("weidi") && player->getPhase() == Player::Discard
                 && player->getHandcardNum() > player->getMaxCards() && !room->getLieges("qun", player).isEmpty()) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -1080,7 +1080,7 @@ public:
         if (TriggerSkill::triggerable(player) && use.card->isNDTrick() && !player->isNude()) {
             foreach (ServerPlayer *p, use.to) {
                 if (p != player)
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();

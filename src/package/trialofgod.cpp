@@ -607,7 +607,7 @@ public:
         if (!TriggerSkill::triggerable(player) || player->getPhase() == Player::NotActive) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->isKindOf("Slash") && !player->getUseExtraTargets(use, true).isEmpty())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

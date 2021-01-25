@@ -72,7 +72,7 @@ public:
         DeathStruct death = data.value<DeathStruct>();
 
         if (death.who == player)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -105,7 +105,7 @@ public:
         DeathStruct death = data.value<DeathStruct>();
 
         if (death.who == player && death.damage && death.damage->from && death.damage->from->isAlive())
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -201,7 +201,7 @@ public:
         DeathStruct death = data.value<DeathStruct>();
 
         if (death.who == player)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -273,7 +273,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
                 if (p->getHp() > player->getHp())
-                    return QStringList(objectName());
+                    return nameList();
         }
 
         return QStringList();
@@ -388,7 +388,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
                 if (!p->isChained())
-                    return QStringList(objectName());
+                    return nameList();
         }
 
         return QStringList();
@@ -425,7 +425,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
                 if (p->isChained())
-                    return QStringList(objectName());
+                    return nameList();
         }
 
         return QStringList();
@@ -585,7 +585,7 @@ public:
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
                     && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
-                    return QStringList(objectName());
+                    return nameList();
                 }
             }
         }
@@ -661,7 +661,7 @@ public:
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
                     && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
-                    return QStringList(objectName());
+                    return nameList();
                 }
             }
         }
@@ -723,10 +723,10 @@ public:
         if (triggerEvent == EventPhaseChanging) {
             if (data.value<PhaseChangeStruct>().to == Player::Discard &&
                     player->hasSkipped(Player::Play) && !player->isSkipped(Player::Discard))
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == EventPhaseStart) {
             if (player->getPhase() == Player::Finish && player->hasSkipped(Player::Draw))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -809,7 +809,7 @@ public:
         QList<ServerPlayer *> niens = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *nien, niens) {
             if (nien != player)
-                skill_list.insert(nien, QStringList(objectName()));
+                skill_list.insert(nien, nameList());
         }
 
         return skill_list;
@@ -868,7 +868,7 @@ public:
                     && ((move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD
                     || (move.to && move.to != player && move.to_place == Player::PlaceHand
                     && move.reason.m_reason != CardMoveReason::S_REASON_GIVE))) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -945,7 +945,7 @@ public:
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer* &) const
     {
-        if (triggerEvent == DrawNCards && TriggerSkill::triggerable(player)) return QStringList(objectName());
+        if (triggerEvent == DrawNCards && TriggerSkill::triggerable(player)) return nameList();
         return QStringList();
     }
 
@@ -1007,7 +1007,7 @@ public:
 
     virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &, ServerPlayer * &) const
     {
-        if (player->getGeneralName() == "best_nien") return QStringList(objectName());
+        if (player->getGeneralName() == "best_nien") return nameList();
         return QStringList();
     }
 
@@ -1106,7 +1106,7 @@ public:
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (TriggerSkill::triggerable(boss) && damage.to && boss->getHp() > damage.to->getHp() && damage.card && damage.card->isKindOf("Slash"))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1219,7 +1219,7 @@ public:
     virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *boss, QVariant &data, ServerPlayer * &) const
     {
         DamageStruct damage = data.value<DamageStruct>();
-        if (TriggerSkill::triggerable(boss) && damage.from && damage.from->getWeapon()) return QStringList(objectName());
+        if (TriggerSkill::triggerable(boss) && damage.from && damage.from->getWeapon()) return nameList();
         return QStringList();
     }
 
@@ -1248,7 +1248,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             ServerPlayer *from = damage.from;
             if (from && from->isAlive() && player->canDiscard(from, "he"))
-                return QStringList(objectName());
+                return nameList();
         }
 
         return QStringList();
@@ -1291,7 +1291,7 @@ public:
         QList<ServerPlayer *> bosses = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *boss, bosses) {
             if (boss != target)
-                skill_list.insert(boss, QStringList(objectName()));
+                skill_list.insert(boss, nameList());
         }
         return skill_list;
     }
@@ -1380,7 +1380,7 @@ public:
             QList<ServerPlayer *> bosses = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *boss, bosses) {
                 if (boss != target && boss->canGetCard(target, "he"))
-                    skill_list.insert(boss, QStringList(objectName()));
+                    skill_list.insert(boss, nameList());
             }
         }
         return skill_list;
@@ -1431,7 +1431,7 @@ public:
                 DamageStruct damage = data.value<DamageStruct>();
                 QStringList assignee_list = player->property("bossmingwan_targets").toString().split("+");
                 if (damage.to && damage.to->isAlive() && !assignee_list.contains(damage.to->objectName()))
-                    return QStringList(objectName());
+                    return nameList();
             }
         } else if (triggerEvent == CardUsed || triggerEvent == CardResponded) {
             if (!player->property("bossmingwan_targets").toString().isEmpty()) {
@@ -1445,7 +1445,7 @@ public:
                         cardstar = resp.m_card;
                 }
                 if (cardstar && cardstar->getTypeId() != Card::TypeSkill && cardstar->getHandlingMethod() == Card::MethodUse)
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -1501,7 +1501,7 @@ public:
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (TriggerSkill::triggerable(boss) && (boss->getPhase() != Player::NotActive || damage.nature == DamageStruct::Fire))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1536,11 +1536,11 @@ public:
             if (triggerEvent == EventPhaseChanging && data.value<PhaseChangeStruct>().to == Player::NotActive) {
                 ArcheryAttack *aa = new ArcheryAttack(Card::NoSuit, 0);
                 aa->setSkillName("_" + objectName());
-                if (aa->isAvailable(boss)) return QStringList(objectName());
+                if (aa->isAvailable(boss)) return nameList();
             } else if (triggerEvent == EventPhaseStart && boss->getPhase() == Player::RoundStart) {
                 SavageAssault *sa = new SavageAssault(Card::NoSuit, 0);
                 sa->setSkillName("_" + objectName());
-                if (sa->isAvailable(boss)) return QStringList(objectName());
+                if (sa->isAvailable(boss)) return nameList();
             }
         }
         return QStringList();
@@ -1582,14 +1582,14 @@ public:
         if (TriggerSkill::triggerable(boss)) {
             if (triggerEvent == EventPhaseChanging) {
                 if (data.value<PhaseChangeStruct>().to == Player::Discard && !boss->isSkipped(Player::Discard))
-                    return QStringList(objectName());
+                    return nameList();
             } else if (triggerEvent == EventPhaseStart && boss->getPhase() == Player::Finish) {
                 QList<ServerPlayer *> players = room->getOtherPlayers(boss);
                 foreach (ServerPlayer *p, players) {
                     if (p->getHandcardNum() > boss->getHandcardNum())
                         return QStringList();
                 }
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -1638,7 +1638,7 @@ public:
         TriggerList skill_list;
         QList<ServerPlayer *> bosses = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *boss, bosses)
-            skill_list.insert(boss, QStringList(objectName()));
+            skill_list.insert(boss, nameList());
         return skill_list;
     }
 
@@ -1685,10 +1685,10 @@ public:
         if (triggerEvent == Damaged && TriggerSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.from && damage.from->isAlive() && damage.from != player)
-                return QStringList(objectName());
+                return nameList();
 
         } else if (triggerEvent == EventPhaseStart && player->getPhase() == Player::RoundStart && player->getMark("#bossduqu") > 0)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -1758,11 +1758,11 @@ public:
             if (triggerEvent == EventPhaseChanging) {
                 PhaseChangeStruct change = data.value<PhaseChangeStruct>();
                 if (change.to == Player::Draw && !boss->isSkipped(change.to))
-                    return QStringList(objectName());
+                    return nameList();
                 else if (change.to == Player::NotActive && boss->getHandcardNum() < 9)
-                    return QStringList(objectName());
+                    return nameList();
             } else if (triggerEvent == EventPhaseStart && boss->getPhase() == Player::Play && boss->getHandcardNum() < 9)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -1817,7 +1817,7 @@ public:
             QList<ServerPlayer *> bosses = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *boss, bosses) {
                 if (boss != player)
-                    skill_list.insert(boss, QStringList(objectName()));
+                    skill_list.insert(boss, nameList());
             }
 
         }
@@ -1887,7 +1887,7 @@ public:
         QList<ServerPlayer *> bosses = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *boss, bosses) {
             if (boss != player)
-                skill_list.insert(boss, QStringList(objectName()));
+                skill_list.insert(boss, nameList());
         }
         return skill_list;
     }
@@ -1949,7 +1949,7 @@ public:
         if (!TriggerSkill::triggerable(player) || player->getPhase() != Player::Play) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card && (use.card->isKindOf("Slash") || use.card->isNDTrick()) && player->getMark("GlobalPlayCardUsedTimes") < 3)
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

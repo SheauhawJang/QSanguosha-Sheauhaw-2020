@@ -216,7 +216,7 @@ public:
         if (TriggerSkill::triggerable(player)) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->isKindOf("ArcheryAttack"))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -252,13 +252,13 @@ public:
                 if (p->getKingdom() == "qun") {
                     QList<ServerPlayer *> yuanshaos = room->findPlayersBySkillName(objectName());
                     foreach (ServerPlayer *yuanshao, yuanshaos)
-                        skill_list.insert(yuanshao, QStringList(objectName()));
+                        skill_list.insert(yuanshao, nameList());
                     break;
                 }
             }
         } else if (triggerEvent == EventPhaseStart && player->getPhase() == Player::RoundStart) {
             if (TriggerSkill::triggerable(player) && player->getMark("#descendant") > 0)
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         }
         return skill_list;
     }
@@ -368,7 +368,7 @@ public:
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Draw) {
             if (TriggerSkill::triggerable(player))
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == FinishJudge) {
             JudgeStruct *judge = data.value<JudgeStruct *>();
             if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
@@ -419,7 +419,7 @@ public:
                 ServerPlayer *to = use.to.at(use.index);
 
                 if (to && to->isAlive() && player->canDiscard(to, "he"))
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -492,7 +492,7 @@ public:
 
             if (dying_data.who != target)
                 return QStringList();
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }

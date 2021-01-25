@@ -377,7 +377,7 @@ TriggerList TriggerSkill::triggerable(TriggerEvent triggerEvent, Room *room, Ser
 QStringList TriggerSkill::triggerable(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer* &) const
 {
     if (triggerable(target, room))
-        return QStringList(objectName());
+        return nameList();
     return QStringList();
 }
 
@@ -450,6 +450,11 @@ PhaseChangeSkill::PhaseChangeSkill(const QString &name)
 bool PhaseChangeSkill::trigger(TriggerEvent, Room *, ServerPlayer *player, QVariant &) const
 {
     return onPhaseChange(player);
+}
+
+bool PhaseChangeSkill::onPhaseChange(ServerPlayer *) const
+{
+    return false;
 }
 
 DrawCardsSkill::DrawCardsSkill(const QString &name, bool is_initial)

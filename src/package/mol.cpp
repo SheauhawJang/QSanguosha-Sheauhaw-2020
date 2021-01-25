@@ -131,7 +131,7 @@ public:
                     QVariant card_data = card_list.at(card_list.length()-2);
                     const Card *last_card = card_data.value<const Card *>();
                     if (last_card && (!card->sameColorWith(last_card)))
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
 
@@ -523,7 +523,7 @@ public:
         foreach(QVariant move_data, move_datas) {
             CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
             if (move.to == zhugeguo && move.to_place == Player::PlaceEquip) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -883,9 +883,9 @@ public:
             if (!to || to->isDead() || to->getMark("Equips_of_Others_Nullified_to_You") > 0) return QStringList();
 
             if (to->getArmor() && player->canDiscard(to, to->getArmor()->getEffectiveId()))
-                return QStringList(objectName());
+                return nameList();
             if (to->getDefensiveHorse() && player->canDiscard(to, to->getDefensiveHorse()->getEffectiveId()))
-                return QStringList(objectName());
+                return nameList();
 
         } else if (triggerEvent == PreCardsMoveOneTime) {
             CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();

@@ -25,7 +25,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players) {
                 if (player->getHp() >= p->getHp())
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
 
@@ -77,7 +77,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         const Card *card = use.card;
         if (card && card->isNDTrick() && card->getHandlingMethod() == Card::MethodUse && room->isAllOnPlace(card, Player::PlaceTable)) {
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -327,7 +327,7 @@ public:
                 foreach (ServerPlayer *p, room->getAlivePlayers()) {
                     if (targets1.contains(p->objectName()) && targets2.contains(p->objectName())) {
                         if (snatch->targetFilter(QList<const Player *>(), p, player) && !player->isProhibited(p, snatch))
-                            return QStringList(objectName());
+                            return nameList();
                     }
                 }
 
@@ -392,7 +392,7 @@ public:
             QList<int> all_ids = room->getDrawPile();
             foreach (int card_id, all_ids) {
                 if (Sanguosha->getCard(card_id)->getNumber() == 6)
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -712,7 +712,7 @@ public:
         DyingStruct dying_data = data.value<DyingStruct>();
 
         if (dying_data.who && dying_data.who != player && dying_data.who->getHp() < 0)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }

@@ -46,12 +46,12 @@ public:
             if (use.index > 0) return QStringList();
             ServerPlayer *target = use.to.first();
             if (TriggerSkill::triggerable(player) && target->isAlive() && use.card->isKindOf("Slash") && player->canGetCard(target, "he")) {
-                return QStringList(objectName());
+                return nameList();
             }
         } else if (triggerEvent == TargetConfirmed && player->getMark("juzhanTransformed")%2==0) {
             ServerPlayer *target = use.from;
             if (TriggerSkill::triggerable(player) && target->isAlive() && use.card->isKindOf("Slash")) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -210,7 +210,7 @@ public:
             foreach(QVariant move_data, move_datas) {
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.reason.m_skillName == "feijun")
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -242,7 +242,7 @@ public:
                 || (triggerEvent == DamageInflicted && player->isAlive() && player->getMark("#orange") > 0)) {
             QList<ServerPlayer *> lujis = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *luji, lujis)
-                skill_list.insert(luji, QStringList(objectName()));
+                skill_list.insert(luji, nameList());
 
         }
         return skill_list;
@@ -306,7 +306,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         PhaseChangeStruct change = data.value<PhaseChangeStruct>();
         if (change.to == Player::Draw && !player->isSkipped(Player::Draw) && player->getMark("#orange") == 0)
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -421,7 +421,7 @@ public:
                     x++;
                 }
             }
-            if (target->getCardUsedTimes(".|play") < x) return QStringList(objectName());
+            if (target->getCardUsedTimes(".|play") < x) return nameList();
 
         }
         return QStringList();
@@ -529,7 +529,7 @@ public:
         QList<ServerPlayer *> all_players = room->getAlivePlayers();
         foreach (ServerPlayer *p, all_players) {
             if (!use.to.contains(p) && !p->isNude())
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -593,7 +593,7 @@ public:
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (TriggerSkill::triggerable(player) && use.from != player && use.card->getTypeId() != Card::TypeSkill)
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -737,7 +737,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.from && damage.from->isAlive() && damage.from != player
                     && !damage.from->isKongcheng() && !player->isNude())
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         }
 
         return skill_list;
@@ -937,7 +937,7 @@ public:
                 card = use.card;
         }
         if (card && card->hasFlag("ShicaiCanInvoke") && room->isAllOnPlace(card, Player::PlaceTable))
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -982,7 +982,7 @@ public:
 
         } else if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getPhase() == Player::Finish){
             if (!player->isKongcheng() && !player->getPile("mingren_pile").isEmpty())
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         }
         return skill_list;
     }
@@ -1090,7 +1090,7 @@ public:
             card = data.value<CardResponseStruct>().m_card;
         }
         if (card && card->getTypeId() == Sanguosha->getCard(id)->getTypeId())
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }

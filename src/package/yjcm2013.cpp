@@ -60,7 +60,7 @@ public:
             QList<ServerPlayer *> caochongs = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *caochong, caochongs) {
                 if (!caochong->isNude())
-                    skill_list.insert(caochong, QStringList(objectName()));
+                    skill_list.insert(caochong, nameList());
             }
 
         }
@@ -222,7 +222,7 @@ public:
             QList<ServerPlayer *> guanpings = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *guanping, guanpings) {
                 if (!guanping->isNude())
-                    skill_list.insert(guanping, QStringList(objectName()));
+                    skill_list.insert(guanping, nameList());
             }
         }
 
@@ -924,12 +924,12 @@ public:
             QList<ServerPlayer *> zhurans = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *zhuran, zhurans) {
                 if (zhuran->getCardCount() >= player->getHandcardNum() && !zhuran->hasFlag("DanshouUsed"))
-                    skill_list.insert(zhuran, QStringList(objectName()));
+                    skill_list.insert(zhuran, nameList());
             }
         } else if (triggerEvent == TargetConfirmed && TriggerSkill::triggerable(player) && !player->hasFlag("DanshouUsed")) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->getTypeId() == Card::TypeBasic || use.card->getTypeId() == Card::TypeTrick) {
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
             }
         }
 
@@ -1161,7 +1161,7 @@ public:
             foreach (ServerPlayer *fuhuanghou, room->getAllPlayers()) {
                 if (player->isKongcheng()) break;
                 if (TriggerSkill::triggerable(fuhuanghou) && fuhuanghou->canPindian(player) && fuhuanghou->isWounded()) {
-                    list.insert(fuhuanghou, QStringList(objectName()));
+                    list.insert(fuhuanghou, nameList());
                 }
             }
         }

@@ -160,7 +160,7 @@ public :
                     {
                         foreach (ServerPlayer *player, room->getAllPlayers())
                             if (player->hasSkill(objectName()) && target->getKingdom() == player->getKingdom())
-                                list.insert(player, QStringList(objectName()));
+                                list.insert(player, nameList());
                         break;
                     }
         }
@@ -214,7 +214,7 @@ public :
             if (room->getTag("FirstRound").toBool())
                 foreach (ServerPlayer *quan, room->getAllPlayers())
                     if (TriggerSkill::triggerable(quan))
-                         list.insert(quan, QStringList(objectName()));
+                         list.insert(quan, nameList());
         }
         else
         {
@@ -310,7 +310,6 @@ public:
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data) const
     {
         TriggerList list;
-        QStringList name = QStringList(objectName());
         if (triggerEvent == Death)
         {
             DeathStruct death = data.value<DeathStruct>();
@@ -321,7 +320,7 @@ public:
                         return list;
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->getKingdom() == death.who->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun"))
-                        list.insert(p, name);
+                        list.insert(p, nameList());
             }
         }
         else if (triggerEvent == EventLoseSkill)
@@ -333,7 +332,7 @@ public:
                         return list;
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->getKingdom() == target->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun"))
-                        list.insert(target, name);
+                        list.insert(target, nameList());
             }
             else if (data.toString() == "xunxun")
             {
@@ -341,7 +340,7 @@ public:
                     foreach (ServerPlayer *tangzi, room->getAllPlayers())
                         if (tangzi->hasSkill(objectName()) && tangzi->getKingdom() == target->getKingdom())
                             if (tangWillEffect(tangzi, room))
-                                list.insert(tangzi, name);
+                                list.insert(tangzi, nameList());
             }
         }
         else if (triggerEvent == EventAcquireSkill)
@@ -352,7 +351,7 @@ public:
                     if (p->getKingdom() == target->getKingdom() && p->hasSkill(objectName()))
                         return list;
                 if (tangWillEffect(target, room))
-                    list.insert(target, name);
+                    list.insert(target, nameList());
             }
         }
         else if (triggerEvent == MarkChanged)
@@ -362,7 +361,7 @@ public:
                 foreach (ServerPlayer *tangzi, room->getAllPlayers())
                     if (tangzi->hasSkill(objectName()) && tangzi->getKingdom() == target->getKingdom())
                         if (tangWillEffect(tangzi, room))
-                            list.insert(tangzi, name);
+                            list.insert(tangzi, nameList());
         }
         else if (triggerEvent == CardUsed)
         {
@@ -370,7 +369,7 @@ public:
             if (use.card->isKindOf("EquipCard"))
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->hasSkill(objectName()) && p->getKingdom() == target->getKingdom() && room->getBoatTreasure(p->getKingdom()) > 3)
-                        list.insert(p, name);
+                        list.insert(p, nameList());
         }
         else if (triggerEvent == EventPhaseChanging)
         {
@@ -378,7 +377,7 @@ public:
             if (change.to == Player::Discard && target->isAlive())
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->hasSkill(objectName()) && p->getKingdom() == target->getKingdom() && room->getBoatTreasure(p->getKingdom()) > 5)
-                        list.insert(p, name);
+                        list.insert(p, nameList());
         }
     }
 
@@ -446,6 +445,143 @@ protected:
         foreach (ServerPlayer *p, room->getAllPlayers(true))
             if (p->getKingdom() == tangzi->getKingdom() && !p->hasSkill("xunxun"))
                 return true;
+        return false;
+    }
+};
+
+class DWenji : public TriggerSkill
+{
+public:
+    DWenji() : TriggerSkill("d_wenji")
+    {
+        events << EventPhaseStart << CardUsed;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            if (player->getPhase() == Player::Play && TriggerSkill::triggerable(player)) {
+                foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
+                    if (!p->isNude() && p->getKingdom() == player->getKingdom())
+                        return nameList();
+                }
+            }
+        }
+        else if (triggerEvent == CardUsed)
+        {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
+                QStringList wenji_list = player->tag[objectName()].toStringList();
+
+                QString classname = use.card->getClassName();
+                if (use.card->isKindOf("Slash")) classname = "Slash";
+                if (wenji_list.contains(classname))
+                    return nameList();
+            }
+        }
+        return QStringList();
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::NotActive) {
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                p->tag.remove(objectName());
+            }
+        }
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            QList<ServerPlayer *> targets;
+            foreach (ServerPlayer *p, room->getOtherPlayers(player)) {
+                if (!p->isNude() && p->getKingdom() == player->getKingdom())
+                    targets << p;
+            }
+            if (targets.isEmpty()) return false;
+
+            if (room->askForSkillInvoke(player, objectName()))
+                foreach (ServerPlayer *target, targets) {
+                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), player->objectName());
+                    player->broadcastSkillInvoke(objectName());
+                    const Card *card = room->askForExchange(target, objectName(), 1, 1, true, "@wenji-give:" + player->objectName());
+
+                    CardMoveReason reason(CardMoveReason::S_REASON_GIVE, target->objectName(), player->objectName(), objectName(), QString());
+                    reason.m_playerId = player->objectName();
+                    room->moveCardTo(card, player, Player::PlaceHand, reason, true);
+
+
+                    const Card *record_card = Sanguosha->getCard(card->getEffectiveId());
+
+                    if (!player->getHandcards().contains(record_card)) return false;
+
+                    QString classname = record_card->getClassName();
+                    if (record_card->isKindOf("Slash")) classname = "Slash";
+                    QStringList list = player->tag[objectName()].toStringList();
+                    list.append(classname);
+                    player->tag[objectName()] = list;
+
+                }
+        } else if (triggerEvent == CardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
+                QStringList wenji_list = player->tag[objectName()].toStringList();
+
+                QString classname = use.card->getClassName();
+                if (use.card->isKindOf("Slash")) classname = "Slash";
+                if (!wenji_list.contains(classname)) return false;
+
+
+                QStringList fuji_tag = use.card->tag["Fuji_tag"].toStringList();
+
+                QList<ServerPlayer *> players = room->getOtherPlayers(player);
+                foreach (ServerPlayer *p, players) {
+                    fuji_tag << p->objectName();
+                }
+                use.card->setTag("Fuji_tag", fuji_tag);
+            }
+        }
+
+        return false;
+    }
+};
+
+class DTunjiang : public PhaseChangeSkill
+{
+public:
+    DTunjiang() : PhaseChangeSkill("d_tunjiang")
+    {
+
+    }
+
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        TriggerList list;
+        if (player->getPhase() != Player::Finish) return list;
+        if (player->hasFlag("TunjiangDisabled") || player->hasSkipped(Player::Play)) return list;
+        if (player->getMark("damage_point_play_phase") > 0) return list;
+        foreach (ServerPlayer *p, room->getAllPlayers()) {
+            if (p->getKingdom() == player->getKingdom() && TriggerSkill::triggerable(p))
+                list.insert(p, nameList());
+        }
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *, QVariant &, ServerPlayer *player) const
+    {
+        QList<ServerPlayer *> targets;
+        foreach (ServerPlayer *p, room->getAllPlayers()) {
+            if (p->getKingdom() == player->getKingdom())
+                targets << p;
+        }
+        if (targets.isEmpty()) return false;
+        ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(), QString(), true, true);
+        if (target) {
+            target->broadcastSkillInvoke(objectName());
+            target->drawCards(2, objectName());
+        }
         return false;
     }
 };
@@ -644,14 +780,12 @@ DragonBoatPackage::DragonBoatPackage()
     wu_tangzi->addRelateSkill("xunxun");
 
     General *d_liuqi = new General(this, "d_liuqi", "shu", 3, true, true);
-    //d_liuqi->addSkill(new DWenji);
-    //d_liuqi->addSkill(new DTunjiang);
-    //d_liuqi->addSkill(new DTunjiangRecord);
+    d_liuqi->addSkill(new DWenji);
+    d_liuqi->addSkill(new DTunjiang);
 
     General *qd_liuqi = new General(this, "qun_d_liuqi", "qun", 3, true, true);
-    //qd_liuqi->addSkill("d_wenji");
-    //qd_liuqi->addSkill("d_tunjiang");
-    //qd_liuqi->addSkill("#d_tunjiang-record");
+    qd_liuqi->addSkill("d_wenji");
+    qd_liuqi->addSkill("d_tunjiang");
 
     addMetaObject<JianjiCard>();
 

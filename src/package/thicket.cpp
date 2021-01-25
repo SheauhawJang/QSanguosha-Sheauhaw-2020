@@ -175,7 +175,7 @@ public:
         if (player->hasSkipped(Player::Draw) && (change.to == Player::Play || change.to == Player::Discard || change.to == Player::Finish)) {
             foreach (ServerPlayer *xuhuang, room->findPlayersBySkillName(objectName())) {
                 if (xuhuang != player && !xuhuang->hasFlag("JieziTriggered"))
-                    skill_list.insert(xuhuang, QStringList(objectName()));
+                    skill_list.insert(xuhuang, nameList());
             }
         }
         return skill_list;
@@ -243,7 +243,7 @@ public:
             QList<ServerPlayer *> menghuos = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *menghuo, menghuos) {
                 if (menghuo != player)
-                    skill_list.insert(menghuo, QStringList(objectName()));
+                    skill_list.insert(menghuo, nameList());
             }
         }
         return skill_list;
@@ -329,7 +329,7 @@ public:
             TriggerList skill_list;
             foreach (ServerPlayer *zhurong, zhurongs)
                 if (zhurong != player)
-                    skill_list.insert(zhurong, QStringList(objectName()));
+                    skill_list.insert(zhurong, nameList());
             return skill_list;
         }
         return TriggerList();
@@ -359,7 +359,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash") && zhurong->canPindian(damage.to)
             && !damage.chain && !damage.transfer && !damage.to->hasFlag("Global_DebutFlag"))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -506,7 +506,7 @@ public:
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *lusu, QVariant &, ServerPlayer * &) const
     {
-        if (triggerEvent == DrawNCards && TriggerSkill::triggerable(lusu)) return QStringList(objectName());
+        if (triggerEvent == DrawNCards && TriggerSkill::triggerable(lusu)) return nameList();
         else if (triggerEvent == EventPhaseEnd && lusu->isAlive() && lusu->getPhase() == Player::Draw) {
             if (lusu->hasFlag("haoshiInvoked") && lusu->getHandcardNum() > 5)
                 return QStringList("haoshi!");
@@ -790,7 +790,7 @@ public:
         else if (triggerEvent == TargetConfirmed)
             to = use.from;
         if (to->isAlive() && to->isFemale())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -827,7 +827,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
                 if (player->getHp() > p->getHp())
-                    return QStringList(objectName());
+                    return nameList();
         }
 
         return QStringList();

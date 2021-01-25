@@ -78,7 +78,7 @@ public:
             QString pattern = data.toStringList().first();
             QString prompt = data.toStringList().at(1);
             if (pattern != "jink" || prompt.startsWith("@hujia-jink")) return QStringList();
-            if (!room->getLieges("wei", player).isEmpty())  return QStringList(objectName());
+            if (!room->getLieges("wei", player).isEmpty())  return nameList();
         }
         return QStringList();
     }
@@ -121,7 +121,7 @@ public:
                 QList<ServerPlayer *> targets = room->getOtherPlayers(player);
                 foreach(ServerPlayer *p, targets)
                     if (player->canGetCard(p, "h"))
-                        return QStringList(objectName());
+                        return nameList();
             }
         }
         return QStringList();
@@ -172,7 +172,7 @@ public:
     {
         JudgeStruct *judge = data.value<JudgeStruct *>();
         if (room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge && TriggerSkill::triggerable(player))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -336,7 +336,7 @@ public:
             foreach(QVariant move_data, move_datas) {
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.to == player && move.to_place == Player::PlaceHand)
-                    return QStringList(objectName());
+                    return nameList();
 
             }
         }
@@ -567,7 +567,7 @@ public:
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Start && TriggerSkill::triggerable(player))
-            return QStringList(objectName());
+            return nameList();
         else if (triggerEvent == FinishJudge) {
             JudgeStruct *judge = data.value<JudgeStruct *>();
             if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
@@ -934,7 +934,7 @@ public:
     {
         TriggerList skill_list;
         if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player) && player->getPhase() == Player::Play)
-            skill_list.insert(player, QStringList(objectName()));
+            skill_list.insert(player, nameList());
         else if (triggerEvent == CardFinished) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card && use.card->isKindOf("Slash") && room->isAllOnPlace(use.card, Player::PlaceTable)) {
@@ -1048,7 +1048,7 @@ public:
             isHandcard = resp.m_isHandcard;
         }
         if (cardstar && cardstar->getTypeId() != Card::TypeSkill && isHandcard)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -1122,7 +1122,7 @@ public:
             if (use.card != NULL && use.card->isKindOf("Slash")) {
                 ServerPlayer *to = use.to.at(use.index);
                 if (to && to->isAlive())
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -1284,7 +1284,7 @@ public:
         if (triggerEvent != CardUsed || !TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card && use.card->isNDTrick())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1486,7 +1486,7 @@ public:
         if (TriggerSkill::triggerable(player)) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
             if (change.to == Player::Discard && player->getCardUsedTimes("Slash|play") == 0 && player->getCardRespondedTimes("Slash|play") == 0)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -1515,7 +1515,7 @@ public:
         if (player->getPhase() == Player::Start && player->getMark("qinxue") == 0) {
             int n = player->getHandcardNum() - player->getHp();
             int wake_lim = (Sanguosha->getPlayerCount(room->getMode()) >= 7) ? 2 : 3;
-            if (n >= wake_lim) return QStringList(objectName());
+            if (n >= wake_lim) return nameList();
         }
         return QStringList();
     }
@@ -1573,7 +1573,7 @@ public:
                 QList<ServerPlayer *> gannings = room->findPlayersBySkillName(objectName());
                 foreach (ServerPlayer *ganning, gannings) {
                     if (ganning->getMark(limit_mark) > 0)
-                        skill_list.insert(ganning, QStringList(objectName()));
+                        skill_list.insert(ganning, nameList());
                 }
                 return skill_list;
             }
@@ -1786,7 +1786,7 @@ public:
         QList<ServerPlayer *> players = room->getOtherPlayers(player);
         players.removeOne(use.from);
         if (players.isEmpty()) return QStringList();
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool effect(TriggerEvent , Room *room, ServerPlayer *daqiao, QVariant &data, ServerPlayer *) const
@@ -1855,7 +1855,7 @@ public:
             }
             if (effect.card && effect.card->getTypeId() == Card::TypeTrick
                 && (effect.card->isKindOf("DelayedTrick") || effect.from != player) && !player->isKongcheng())
-                    skill_list.insert(player, QStringList(objectName()));
+                    skill_list.insert(player, nameList());
         }
         return skill_list;
     }
@@ -1912,7 +1912,7 @@ public:
         foreach(QVariant move_data, move_datas) {
             CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
             if (move.from == player && move.from_places.contains(Player::PlaceHand))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -2027,12 +2027,12 @@ public:
             if (use.card != NULL && (use.card->isKindOf("Slash") || use.card->isKindOf("Duel"))) {
                 ServerPlayer *to = use.to.at(use.index);
                 if (to && to->isAlive())
-                    return QStringList(objectName());
+                    return nameList();
             }
         } else if (triggerEvent == TargetConfirmed) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card != NULL && (use.card->isKindOf("Duel"))) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -2086,7 +2086,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card && damage.card->isKindOf("Slash") && damage.to && damage.to->isAlive()
                     && player->canGetCard(damage.to, "hej")  && !damage.to->hasFlag("Global_DebutFlag"))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -2350,7 +2350,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card && damage.card->isKindOf("Slash") && (!damage.card->isRed()
                 || (damage.from && damage.from->isAlive()))) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();

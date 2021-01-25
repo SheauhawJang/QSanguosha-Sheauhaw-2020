@@ -82,7 +82,7 @@ public:
             if (card == NULL) return QStringList();
 
             if (card->isKindOf("Jink") || card->isKindOf("Lightning"))
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -590,7 +590,7 @@ public:
                     bool nojink = (player->getHandcardNum() >= to->getHandcardNum());
                     bool adddamage = (player->getHp() <= to->getHp());
                     if (nojink || adddamage)
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         }
@@ -775,7 +775,7 @@ public:
         DyingStruct dying_data = data.value<DyingStruct>();
         if (!TriggerSkill::triggerable(zhoutai) || dying_data.who != zhoutai) return QStringList();
         if (zhoutai->getHp() < 1)
-            return QStringList(objectName());
+            return nameList();
 
         return QStringList();
     }
@@ -852,7 +852,7 @@ public:
         QVariantList move_datas = data.toList();
         foreach(QVariant move_data, move_datas) {
             if (getFenjiTarget(move_data) != NULL)
-                return QStringList(objectName());
+                return nameList();
 
         }
         return QStringList();

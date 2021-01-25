@@ -128,9 +128,9 @@ public:
         TriggerList skill_list;
         if (damage.from && damage.from != player) {
             if (TriggerSkill::triggerable(player))
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
             if (TriggerSkill::triggerable(damage.from))
-                skill_list.insert(damage.from, QStringList(objectName()));
+                skill_list.insert(damage.from, nameList());
         }
         return skill_list;
     }
@@ -140,7 +140,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (TriggerSkill::triggerable(damage.from) && player->isAlive()){
             ask_who = damage.from;
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -178,7 +178,7 @@ public:
                 return QStringList("beizhan!");
         } else if (triggerEvent == EventPhaseChanging && TriggerSkill::triggerable(player)) {
             if (data.value<PhaseChangeStruct>().to == Player::NotActive)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }

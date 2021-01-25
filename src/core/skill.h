@@ -180,6 +180,11 @@ public:
         return global;
     }
 
+    inline const QStringList nameList() const
+    {
+        return QStringList(objectName());
+    }
+
 protected:
     const ViewAsSkill *view_as_skill;
     QList<TriggerEvent> events;
@@ -222,7 +227,7 @@ public:
     PhaseChangeSkill(const QString &name);
 
     virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual bool onPhaseChange(ServerPlayer *target) const = 0;
+    virtual bool onPhaseChange(ServerPlayer *target) const;
 };
 
 class DrawCardsSkill : public TriggerSkill

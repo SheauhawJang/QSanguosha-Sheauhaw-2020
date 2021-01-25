@@ -78,14 +78,14 @@ public:
         if (triggerEvent == Damaged && TriggerSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.from && damage.from->isAlive())
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == Death && player != NULL && player->hasSkill(objectName())) {
             DeathStruct death = data.value<DeathStruct>();
             if (death.who == player) {
                 QList<ServerPlayer *> players = room->getOtherPlayers(player);
                 foreach(ServerPlayer *p, players) {
                     if (p->getMark("@nightmare") > 0)
-                        return QStringList(objectName());
+                        return nameList();
                 }
             }
         }
@@ -540,10 +540,10 @@ public:
             if (!room->getTag("FirstRound").toBool()) return skill_list;
             QList<ServerPlayer *> lvbus = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *lvbu, lvbus)
-                skill_list.insert(lvbu, QStringList(objectName()));
+                skill_list.insert(lvbu, nameList());
 
         } else if (TriggerSkill::triggerable(player)) {
-            skill_list.insert(player, QStringList(objectName()));
+            skill_list.insert(player, nameList());
         }
         return skill_list;
     }
@@ -579,7 +579,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card != NULL && use.card->isNDTrick())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -792,7 +792,7 @@ public:
 
         } else if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw){
             if (!player->isKongcheng() && !player->getPile("stars").isEmpty())
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         }
         return skill_list;
     }
@@ -934,7 +934,7 @@ public:
         TriggerList skill_list;
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
             if (TriggerSkill::triggerable(player) && !player->getPile("stars").isEmpty())
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         } else if (triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.nature == DamageStruct::Fire) {
@@ -1063,7 +1063,7 @@ public:
         TriggerList skill_list;
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish) {
             if (TriggerSkill::triggerable(player) && !player->getPile("stars").isEmpty())
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
         } else if (triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.nature != DamageStruct::Thunder) {
@@ -1123,13 +1123,13 @@ public:
                     CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                     if (move.from == player && move.reason.m_playerId == player->objectName() && move.from_places.contains(Player::PlaceHand)
                             && move.reason.m_reason == CardMoveReason::S_REASON_RULEDISCARD) {
-                        return QStringList(objectName());
+                        return nameList();
                     }
                 }
             }
             return QStringList();
         }
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
@@ -1304,7 +1304,7 @@ public:
         } else if (triggerEvent == AskForRetrial) {
             if (player->isNude()) return QStringList();
         }
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
@@ -1389,7 +1389,7 @@ public:
         if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
             foreach (ServerPlayer *p, room->getAllPlayers()) {
                 if (p->getMark("GlobalKilledCount") > 0 && TriggerSkill::triggerable(p)) {
-                    skill_list.insert(p, QStringList(objectName()));
+                    skill_list.insert(p, nameList());
                 }
             }
         }
@@ -1422,7 +1422,7 @@ public:
                 DyingStruct dying = data.value<DyingStruct>();
                 if (dying.who != shenzhaoyun) return QStringList();
             }
-            return QStringList(objectName());
+            return nameList();
         }
         return QStringList();
     }
@@ -1687,7 +1687,7 @@ public:
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer * &) const
     {
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play && TriggerSkill::triggerable(player))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1804,14 +1804,14 @@ public:
             QList<ServerPlayer *> liubeis = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *liubei, liubeis) {
                 if (!liubei->isChained())
-                    skill_list.insert(liubei, QStringList(objectName()));
+                    skill_list.insert(liubei, nameList());
             }
 
         } else if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Finish) {
             QList<ServerPlayer *> players = room->getAlivePlayers();
             foreach (ServerPlayer *p, players) {
                 if (!p->isChained()) {
-                    skill_list.insert(player, QStringList(objectName()));
+                    skill_list.insert(player, nameList());
                     break;
                 }
             }
@@ -2037,7 +2037,7 @@ public:
         if (target && target->isAlive() && target != player && !target->hasFlag("Global_DebutFlag")) {
             if (player->getMark("WeaponSealed") == 0 || player->getMark("ArmorSealed") == 0 || player->getMark("TreasureSealed") == 0
                     || player->getMark("DefensiveHorseSealed") == 0 || player->getMark("OffensiveHorseSealed") == 0)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -2137,7 +2137,7 @@ public:
         if (target && target->isAlive() && player->inMyAttackRange(target) && target->isWounded()) {
             if (player->getMark("WeaponSealed") > 0 || player->getMark("ArmorSealed") > 0 || player->getMark("TreasureSealed") > 0
                     || player->getMark("DefensiveHorseSealed") > 0 || player->getMark("OffensiveHorseSealed") > 0)
-                return QStringList(objectName());
+                return nameList();
         }
 
         return QStringList();
@@ -2339,7 +2339,7 @@ public:
                 QList<ServerPlayer *> shengannings = room->findPlayersBySkillName(objectName());
                 foreach (ServerPlayer *shenganning, shengannings) {
                     if (shenganning == player)
-                        skill_list.insert(player, QStringList(objectName()));
+                        skill_list.insert(player, nameList());
                     else
                         skill_list.insert(shenganning, QStringList("robying!"));
                 }
@@ -2449,7 +2449,7 @@ public:
         if (player->isAlive()) {
             QList<ServerPlayer *> shencaopis = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *shencaopi, shencaopis)
-                skill_list.insert(shencaopi, QStringList(objectName()));
+                skill_list.insert(shencaopi, nameList());
         }
         return skill_list;
     }

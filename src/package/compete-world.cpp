@@ -131,7 +131,7 @@ public:
                         if (move.from_places[i] != Player::PlaceEquip) continue;
                         const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
                         if (card->objectName() == objectName()) {
-                            return QStringList(objectName());
+                            return nameList();
                         }
                     }
                 }
@@ -139,7 +139,7 @@ public:
                     for (int i = 0; i < move.card_ids.size(); i++) {
                         const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
                         if (card->objectName() == objectName()) {
-                            return QStringList(objectName());
+                            return nameList();
                         }
                     }
                 }
@@ -193,7 +193,7 @@ public:
         if ((triggerEvent == TurnStart && room->getTag("FirstRound").toBool())) {
             QList<ServerPlayer *> zhangqiyings = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *zhangqiying, zhangqiyings)
-                skill_list.insert(zhangqiying, QStringList(objectName()));
+                skill_list.insert(zhangqiying, nameList());
 
         } else if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player)) {
             QVariantList move_datas = data.toList();
@@ -208,7 +208,7 @@ public:
                         if (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip) {
                             int suit = (int) Sanguosha->getCard(id)->getSuit();
                             if (player->getMark(names.at(suit)) == 0) {
-                                skill_list.insert(player, QStringList(objectName()));
+                                skill_list.insert(player, nameList());
                                 return skill_list;
                             }
                         }
@@ -306,12 +306,12 @@ public:
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == AskForRetrial) {
-            if (player->getMark("@ziwei") > 0) return QStringList(objectName());
+            if (player->getMark("@ziwei") > 0) return nameList();
         } else if (triggerEvent == DamageCaused) {
-            if (player->getMark("@yuqing") > 0) return QStringList(objectName());
+            if (player->getMark("@yuqing") > 0) return nameList();
         } else if (triggerEvent == Damaged) {
             DamageStruct damage = data.value<DamageStruct>();
-            if (damage.nature != DamageStruct::Normal && player->getMark("@gouchen") > 0) return QStringList(objectName());
+            if (damage.nature != DamageStruct::Normal && player->getMark("@gouchen") > 0) return nameList();
         }
         return QStringList();
     }
@@ -422,7 +422,7 @@ public:
     {
         if (PhaseChangeSkill::triggerable(target) && getGuanxingNum(target) > 0
                 && (target->getPhase() == Player::Start || target->getPhase() == Player::Finish))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -839,7 +839,7 @@ public:
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *target, QVariant &, ServerPlayer* &) const
     {
         if (TriggerSkill::triggerable(target) && (triggerEvent == Damaged || target->getPhase() == Player::Finish))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -1191,7 +1191,7 @@ public:
                 if (card) {
                     int id = card->getEffectiveId();
                     if (room->getCardOwner(id) == player && room->getCardPlace(id) == Player::PlaceHand)
-                        skill_list.insert(player, QStringList(objectName()));
+                        skill_list.insert(player, nameList());
                 }
                 break;
             }
@@ -1199,13 +1199,13 @@ public:
                 QList<ServerPlayer *> players = room->getOtherPlayers(player);
                 foreach (ServerPlayer *p, players) {
                     if (p->hasFlag("bijingLostCard"))
-                        skill_list.insert(p, QStringList(objectName()));
+                        skill_list.insert(p, nameList());
                 }
                 break;
             }
             case Player::Finish: {
                 if (TriggerSkill::triggerable(player) && !player->isKongcheng())
-                    skill_list.insert(player, QStringList(objectName()));
+                    skill_list.insert(player, nameList());
                 break;
             }
             default: break;
@@ -1345,7 +1345,7 @@ public:
         if (player->isAlive() && player->getMark("@puppet") > 0) {
             QList<ServerPlayer *> beimihus = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *beimihu, beimihus)
-                skill_list.insert(beimihu, QStringList(objectName()));
+                skill_list.insert(beimihu, nameList());
         }
         return skill_list;
     }
@@ -1415,7 +1415,7 @@ public:
             QList<ServerPlayer *> available_targets = player->getUseExtraTargets(use, false);
             foreach (ServerPlayer *p, available_targets) {
                 if (p->getMark("@puppet") > 0)
-                    return QStringList(objectName());
+                    return nameList();
             }
 
         } else if (triggerEvent == TargetConfirming) {
@@ -1423,7 +1423,7 @@ public:
                 foreach (ServerPlayer *to, use.to)
                     if (to->isAlive() && to != player) return QStringList();
 
-                return QStringList(objectName());
+                return nameList();
             }
 
         }
@@ -1490,7 +1490,7 @@ public:
             if (card == NULL) return QStringList();
 
             if (card->getTypeId() != Card::TypeSkill && player->getCardUsedTimes(".")+player->getCardRespondedTimes(".") == player->getAttackRange()) {
-                return QStringList(objectName());
+                return nameList();
             }
         }
         return QStringList();
@@ -1519,7 +1519,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (triggerEvent == DamageCaused && TriggerSkill::triggerable(player) && player->isWounded()) {
             if (damage.flags.contains("FirstCauseDamge")) {
-                return QStringList(objectName());
+                return nameList();
             }
         } else if (triggerEvent == Damage && player->isAlive()) {
             if (damage.to && damage.to->isAlive()) {
@@ -1575,7 +1575,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == EventPhaseStart) {
             if (player->getPhase() == Player::Finish && !player->isNude()) {
-                return QStringList(objectName());
+                return nameList();
             } else if (player->getPhase() == Player::Start && !player->getPile("biao").isEmpty()) {
                 return QStringList("biaozhao!");
             }
@@ -1690,7 +1690,7 @@ public:
             QList<ServerPlayer *> players = room->getAlivePlayers();
             foreach (ServerPlayer *p, players) {
                 if (p->getLostHp() > 1) {
-                    skill_list.insert(player, QStringList(objectName()));
+                    skill_list.insert(player, nameList());
                     return skill_list;
                 }
             }
@@ -1699,7 +1699,7 @@ public:
                 QList<ServerPlayer *> players = room->getAlivePlayers();
                 foreach (ServerPlayer *p, players) {
                     if (p->getMark("#yechou") > 0) {
-                        skill_list.insert(p, QStringList(objectName()));
+                        skill_list.insert(p, nameList());
                     }
                 }
             }
@@ -1862,7 +1862,7 @@ public:
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() != Player::Play) return QStringList();
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool onPhaseChange(ServerPlayer *caochun) const
@@ -1904,7 +1904,7 @@ public:
         }else if (triggerEvent == Damaged && TriggerSkill::triggerable(player) && !player->hasFlag("chijieUsed")) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card) {
-                skill_list.insert(player, QStringList(objectName()));
+                skill_list.insert(player, nameList());
                 return skill_list;
             }
         } else if (triggerEvent == CardFinished) {
@@ -1913,7 +1913,7 @@ public:
 //                QList<ServerPlayer *> xinpis = room->findPlayersBySkillName(objectName());
 //                foreach (ServerPlayer *xinpi, xinpis)
 //                    if (xinpi != player && use.to.contains(xinpi) && !xinpi->hasFlag("chijieUsed"))
-//                        skill_list.insert(xinpi, QStringList(objectName()));
+//                        skill_list.insert(xinpi, nameList());
 //                return skill_list;
 //            }
 
@@ -1927,7 +1927,7 @@ public:
             QList<ServerPlayer *> xinpis = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *xinpi, xinpis)
                 if (xinpi != player && use.to.contains(xinpi) && !xinpi->hasFlag("chijieUsed"))
-                    skill_list.insert(xinpi, QStringList(objectName()));
+                    skill_list.insert(xinpi, nameList());
             return skill_list;
         }
         return skill_list;
@@ -2052,7 +2052,7 @@ public:
             QStringList assignee_list = damage.from->tag["YinjuTarget"].toStringList();
             if (assignee_list.contains(player->objectName()) && player->isAlive() && player->getMark("#yinju") > 0){
                 ask_who = damage.from;
-                return QStringList(objectName());
+                return nameList();
             }
         } else if (triggerEvent == TargetSpecified) {
             CardUseStruct use = data.value<CardUseStruct>();
@@ -2060,7 +2060,7 @@ public:
                 QStringList assignee_list = player->tag["YinjuTarget"].toStringList();
                 ServerPlayer *to = use.to.at(use.index);
                 if (to && to->isAlive() && assignee_list.contains(to->objectName()) && to->getMark("#yinju") > 0)
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -2171,7 +2171,7 @@ public:
         if (triggerEvent == Dying) {
             DyingStruct dying_data = data.value<DyingStruct>();
             if (dying_data.who && dying_data.who->isAlive())
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == CardsMoveOneTime) {
             QVariantList move_datas = data.toList();
             foreach(QVariant move_data, move_datas) {
@@ -2179,7 +2179,7 @@ public:
                 if ((move.reason.m_reason == CardMoveReason::S_REASON_GIVE || move.reason.m_reason == CardMoveReason::S_REASON_PREVIEWGIVE) &&
                         move.reason.m_playerId == player->objectName()) {
                     if (move.to && move.to != move.from && move.to != player && move.to_place == Player::PlaceHand && move.to->isAlive()) {
-                        return QStringList(objectName());
+                        return nameList();
                     }
                 }
             }
@@ -2388,7 +2388,7 @@ public:
             if (player->getPhase() != Player::Play || player->getMark("#pearl") == 0)
                 return QStringList();
         }
-        return QStringList(objectName());
+        return nameList();
     }
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
@@ -2478,7 +2478,7 @@ public:
     virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &, ServerPlayer * &) const
     {
         if (player->getPhase() == Player::Play && TriggerSkill::triggerable(player))
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

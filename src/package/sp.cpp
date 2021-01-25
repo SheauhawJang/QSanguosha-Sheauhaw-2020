@@ -1044,7 +1044,7 @@ public:
             QList<ServerPlayer *> lvbus = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *lvbu, lvbus) {
                 if (lvbu->getHandcardNum() <= lvbu->getMaxHp())
-                    skill_list.insert(lvbu, QStringList(objectName()));
+                    skill_list.insert(lvbu, nameList());
             }
         } else if (triggerEvent == Damaged && TriggerSkill::triggerable(player))
             skill_list.insert(player, QStringList("shenqu!"));
@@ -1450,7 +1450,7 @@ public:
             QList<ServerPlayer *> yuejins = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *yuejin, yuejins) {
                 if (!yuejin->isKongcheng() && yuejin != player)
-                    skill_list.insert(yuejin, QStringList(objectName()));
+                    skill_list.insert(yuejin, nameList());
             }
 
         }
@@ -1713,7 +1713,7 @@ public:
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Play) {
             foreach (ServerPlayer *sunluyu, room->getOtherPlayers(player))
                 if (!player->inMyAttackRange(sunluyu) && TriggerSkill::triggerable(sunluyu))
-                    skill_list.insert(sunluyu, QStringList(objectName()));
+                    skill_list.insert(sunluyu, nameList());
             return skill_list;
         }
         return skill_list;
@@ -2026,7 +2026,7 @@ public:
         QList<ServerPlayer *> hetaihous = room->findPlayersBySkillName(objectName());
         foreach (ServerPlayer *hetaihou, hetaihous) {
             if (!hetaihou->isKongcheng())
-                skill_list.insert(hetaihou, QStringList(objectName()));
+                skill_list.insert(hetaihou, nameList());
         }
 
         return skill_list;
@@ -2077,7 +2077,7 @@ public:
             QList<ServerPlayer *> hetaihous = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *hetaihou, hetaihous) {
                 if (hetaihou->getMark("GlobalKilledCount") > 0 || room->getTag("GlobalDeathCount").toInt() > 0) {
-                    skill_list.insert(hetaihou, QStringList(objectName()));
+                    skill_list.insert(hetaihou, nameList());
                 }
             }
         }
@@ -2113,7 +2113,7 @@ public:
             foreach(QVariant move_data, move_datas) {
                 CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
                 if (move.to == player && move.to_place == Player::PlaceHand && move.reason.m_skillName != objectName()) {
-                    skill_list.insert(player, QStringList(objectName()));
+                    skill_list.insert(player, nameList());
                     return skill_list;
                 }
             }
@@ -2126,7 +2126,7 @@ public:
                 foreach (QString card_data, card_list) {
                     int id = card_data.toInt();
                     if (room->getCardOwner(id) == maliang && room->getCardPlace(id) == Player::PlaceHand) {
-                        skill_list.insert(maliang, QStringList(objectName()));
+                        skill_list.insert(maliang, nameList());
                         break;
                     }
                 }
@@ -2180,7 +2180,7 @@ public:
                 QString classname = card->getClassName();
                 if (card->isKindOf("Slash")) classname = "Slash";
                 if (!player->hasFlag("yingyuanUsed" + classname))
-                    return QStringList(objectName());
+                    return nameList();
             }
 
         }
@@ -2359,7 +2359,7 @@ public:
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players) {
                 if (player->inMyAttackRange(p) && !p->isNude())
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
 

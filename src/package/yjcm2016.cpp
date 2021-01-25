@@ -80,7 +80,7 @@ public:
             if (!room->getTag("FirstRound").toBool()) return skill_list;
             QList<ServerPlayer *> liuyus = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *liuyu, liuyus)
-                skill_list.insert(liuyu, QStringList(objectName()));
+                skill_list.insert(liuyu, nameList());
 
         } else if (triggerEvent == DeathAfter) {
             foreach(ServerPlayer *p, room->getAlivePlayers()) {
@@ -89,7 +89,7 @@ public:
             }
             QList<ServerPlayer *> liuyus = room->findPlayersBySkillName(objectName());
             foreach (ServerPlayer *liuyu, liuyus)
-                skill_list.insert(liuyu, QStringList(objectName()));
+                skill_list.insert(liuyu, nameList());
         }
         return skill_list;
     }
@@ -204,7 +204,7 @@ public:
             QList<ServerPlayer *> all_players = room->getAlivePlayers();
             foreach (ServerPlayer *p, all_players) {
                 if (!p->isChained())
-                    return QStringList(objectName());
+                    return nameList();
             }
         }
         return QStringList();
@@ -255,7 +255,7 @@ public:
     {
         DamageStruct damage = data.value<DamageStruct>();
         if (TriggerSkill::triggerable(player) && damage.nature == DamageStruct::Fire && player->isChained() && !damage.chain)
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 

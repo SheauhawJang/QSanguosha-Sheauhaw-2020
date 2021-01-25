@@ -2119,6 +2119,11 @@ public:
     {
 
     }
+    
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        
+    }
 
     virtual bool onPhaseChange(ServerPlayer *player) const
     {

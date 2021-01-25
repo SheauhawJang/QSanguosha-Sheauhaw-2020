@@ -106,7 +106,7 @@ public:
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (WeaponSkill::triggerable(player) && use.card->objectName() == "slash")
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -145,7 +145,7 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash") && damage.by_user && !damage.chain && !damage.transfer
             && damage.to && damage.to->isAlive() && damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0 && damage.to->isKongcheng())
-            return QStringList(objectName());
+            return nameList();
         return QStringList();
     }
 
@@ -190,11 +190,11 @@ public:
         if (triggerEvent == CardEffected) {
             CardEffectStruct effect = data.value<CardEffectStruct>();
             if (effect.card->isKindOf("AOE") || effect.card->objectName() == "slash")
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == DamageInflicted) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.nature == DamageStruct::Fire)
-                return QStringList(objectName());
+                return nameList();
         }
         return QStringList();
     }
@@ -250,7 +250,7 @@ public:
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.from && damage.from->ingoreArmor(player)) return QStringList();
             if (ArmorSkill::triggerable(player) && damage.damage > 1)
-                return QStringList(objectName());
+                return nameList();
         } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->getMark("Armor_Nullified") == 0) {
             QVariantList move_datas = data.toList();
             foreach(QVariant move_data, move_datas) {
@@ -264,7 +264,7 @@ public:
                     const Card *card = Sanguosha->getEngineCard(move.card_ids[i]);
                     if (card->objectName() == objectName()) {
                         if (player->isWounded()) {
-                            return QStringList(objectName());
+                            return nameList();
                         }
                     }
                 }
