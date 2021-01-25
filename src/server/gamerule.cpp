@@ -17,7 +17,7 @@ GameRule::GameRule(QObject *)
     // a way to do it.
     //setParent(parent);
 
-    events << GameStart << TurnStart
+    events << GameStart << TurnStart << RoundStart
         << EventPhaseStart << EventPhaseProceeding << EventPhaseEnd << EventPhaseChanging
         << PreCardUsed<< TargetChosed << CardUsed << TargetConfirmed << CardFinished << CardEffected
         << HpChanged
@@ -348,6 +348,46 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
     }
 
     switch (triggerEvent) {
+    case RoundStart: {
+        if (room->getTurn() < 3 || room->getMode() != "08_dragonboat") break;
+        foreach (ServerPlayer *tangzi, room->getAllPlayers())
+            if (tangzi->hasSkill("xingzhao") && tangzi->getMark("boat2") && room->getBoatTreasure(tangzi->getKingdom()) == 12)
+            {
+                room->broadcastSkillInvoke("xingzhao", tangzi);
+                QStringList kingdoms;
+                kingdoms << "wei" << "shu" << "wu" << "qun";
+                QString tKingdom = tangzi->getKingdom();
+                int nRank = room->getTreasureRank(tKingdom);
+                foreach (QString kingdomeach, kingdoms)
+                {
+                    if (kingdomeach == tKingdom) continue;
+                    if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(tKingdom))
+                        foreach (ServerPlayer *other, room->getOtherPlayers(tangzi, true))
+                            if (other->getMark("boat2") < tangzi->getMark("boat2"))
+                                room->addPlayerMark(other, "boat2", 1);
+                }
+                room->setPlayerMark(tangzi, "boat2", 0);
+                foreach (ServerPlayer *mate, room->getOtherPlayers(tangzi, true))
+                    if (mate->getKingdom() == tKingdom)
+                        room->setPlayerMark(mate, "boat2", 0);
+                if (room->getTreasureRank(tKingdom) != nRank)
+                {
+                    LogMessage log;
+                    log.type = "#xingzhao-changed";
+                    room->sendLog(log);
+                }
+            }
+        room->speakRanks(true);
+        QString winkingdom = room->getRankKingdom(1);
+        if (winkingdom == "ZeroKingdom")
+            room->gameOver(".");
+        else
+        {
+            QString winner = "dragon_" + winkingdom;
+            room->gameOver(winner);
+        }
+        break;
+    }
     case TurnStart: {
         player = room->getCurrent();
         if (room->getTag("FirstRound").toBool()) {
@@ -733,6 +773,48 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
 
         room->setPlayerProperty(damage.to, "hp", new_hp);
 
+        if (room->getMode() == "08_dragonboat" && damage.from)
+        {
+            ServerPlayer *from = damage.from;
+            QString kingdom = from->getKingdom();
+            if (damage.to->getKingdom() == kingdom)
+                return false;
+            QStringList kingdoms;
+            kingdoms << "wei" << "shu" << "wu" << "qun";
+            bool twt = true;
+            if (room->getBoatTreasure(kingdom) != 12)
+            {
+                foreach (QString kingdomeach, kingdoms)
+                {
+                    if (kingdomeach == kingdom) continue;
+                    if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(kingdom))
+                        foreach (ServerPlayer *other, room->getOtherPlayers(from, true))
+                            if (other->getMark("boat2") > from->getMark("boat2"))
+                                room->addPlayerMark(other, "boat2", -1);
+                    room->setPlayerMark(from, "boat2", 0);
+                    foreach (ServerPlayer *mate, room->getOtherPlayers(from, true))
+                        if (mate->getKingdom() == kingdom)
+                            room->setPlayerMark(mate, "boat2", 0);
+                }
+                twt = false;
+            }
+            if (room->getBoatTreasure(kingdom) + damage.damage <= 12)
+                room->addPlayerMark(from, "@boattreasure", damage.damage, true);
+            else if (room->getBoatTreasure(kingdom) < 12)
+                room->addPlayerMark(from, "@boattreasure", 12 - room->getBoatTreasure(kingdom), true);
+            foreach (QString kingdomeach, kingdoms)
+            {
+                if (kingdomeach == kingdom) continue;
+                if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(kingdom))
+                {
+                    room->addPlayerMark(from, "boat2", 1);
+                    foreach (ServerPlayer *mate, room->getOtherPlayers(from, true))
+                        if (mate->getKingdom() == kingdom)
+                            room->addPlayerMark(mate, "boat2", 1);
+                }
+            }
+            if (!twt) room->speakRanks();
+        }
         break;
     }
     case DamageComplete: {

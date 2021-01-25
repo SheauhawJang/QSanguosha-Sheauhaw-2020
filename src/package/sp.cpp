@@ -1427,11 +1427,57 @@ public:
         frequency = Compulsory;
     }
 
-    bool triggerable(const ServerPlayer *) const
+    QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
     {
-        return false;
+        if (triggerEvent == EventLoseSkill)
+        {
+            if (data.toString() == objectName())
+                return nameList();
+        }
+        else if (triggerEvent == EventAcquireSkill)
+        {
+            if (data.toString() == objectName() && !player->getPile("xingwu").isEmpty())
+                return nameList();
+        }
+        else if (triggerEvent == CardsMoveOneTime)
+        {
+            if (player->isAlive() && player->hasSkill(this, true))
+            {
+                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                if (move.to == player && move.to_place == Player::PlaceSpecial &&
+                        move.to_pile_name == "xingwu" && player->getPile("xingwu").length() == 1)
+                    return nameList();
+                if (move.from == player && move.from_places.contains(Player::PlaceSpecial) &&
+                        move.from_pile_names.contains("xingwu") && player->getPile("xingwu").isEmpty())
+                    return nameList();
+            }
+        }
+        return QStringList();
     }
 
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == EventLoseSkill && data.toString() == objectName()) {
+            room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
+        } else if (triggerEvent == EventAcquireSkill && data.toString() == objectName()) {
+            if (!player->getPile("xingwu").isEmpty()) {
+                room->notifySkillInvoked(player, objectName());
+                room->handleAcquireDetachSkills(player, "tianxiang|liuli");
+            }
+        } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->hasSkill(this, true)) {
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (move.to == player && move.to_place == Player::PlaceSpecial && move.to_pile_name == "xingwu") {
+                if (player->getPile("xingwu").length() == 1) {
+                    room->notifySkillInvoked(player, objectName());
+                    room->handleAcquireDetachSkills(player, "tianxiang|liuli");
+                }
+            } else if (move.from == player && move.from_places.contains(Player::PlaceSpecial)
+                && move.from_pile_names.contains("xingwu")) {
+                if (player->getPile("xingwu").isEmpty())
+                    room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
+            }
+        }
+    }
 };
 
 class Xiaoguo : public TriggerSkill

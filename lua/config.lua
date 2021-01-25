@@ -371,10 +371,9 @@ config = {
     },
 	
 	dragon_ban = {
-		"zuoci", "yuanshu", "sp_jiaxu", "buzhi", "lingju", "as_lingju", "huanghao",
+		"zuoci", "yuanshu", "sp_jiaxu", "buzhi", "lingju", "huanghao",
 		"xunyou", "guohuanghou", "zhangrang", "yuanshao", "liru", "caopi", "manchong",
-		"caiwenji", "xuhuang", "nos_xuhuang", "daqiao", "nos_daqiao", "zhangchunhua",
-		"miansha_zhangchunhua", "zhugeke", "nos_huanggai", "hanhaoshihuan", "xiahoujuan",
-		"twyj_xiahouba", "liuqi",
+		"caiwenji", "xuhuang", "daqiao", "nos_daqiao", "zhangchunhua",
+		"zhugeke", "nos_huanggai", "hanhaoshihuan", "liuqi",
 	},
 }

@@ -22,120 +22,6 @@ public:
     }
 };
 
-class AiyeGainMark : public TriggerSkill
-{
-public :
-    AiyeGainMark() : TriggerSkill("#aiyegainmark")
-    {
-        events << Damage;
-        frequency = Compulsory;
-        global = true;
-    }
-
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (room->getMode() != "08_dragonboat")
-            return false;
-        DamageStruct damage = data.value<DamageStruct>();
-        QString kingdom = player->getKingdom();
-        if (damage.to->getKingdom() == kingdom)
-            return false;
-        QStringList kingdoms;
-        kingdoms << "wei" << "shu" << "wu" << "qun";
-        bool twt = true;
-        if (room->getBoatTreasure(kingdom) != 12)
-        {
-            foreach (QString kingdomeach, kingdoms)
-            {
-                if (kingdomeach == kingdom) continue;
-                if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(kingdom))
-                    foreach (ServerPlayer *other, room->getOtherPlayers(player, true))
-                        if (other->getMark("boat2") > player->getMark("boat2"))
-                            room->addPlayerMark(other, "boat2", -1);
-                room->setPlayerMark(player, "boat2", 0);
-                foreach (ServerPlayer *mate, room->getOtherPlayers(player, true))
-                    if (mate->getKingdom() == kingdom)
-                        room->setPlayerMark(mate, "boat2", 0);
-            }
-            twt = false;
-        }
-        if (room->getBoatTreasure(kingdom) + damage.damage <= 12)
-            room->addPlayerMark(player, "@boattreasure", damage.damage, true);
-        else if (room->getBoatTreasure(kingdom) < 12)
-            room->addPlayerMark(player, "@boattreasure", 12 - room->getBoatTreasure(kingdom), true);
-        foreach (QString kingdomeach, kingdoms)
-        {
-            if (kingdomeach == kingdom) continue;
-            if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(kingdom))
-            {
-                room->addPlayerMark(player, "boat2", 1);
-                foreach (ServerPlayer *mate, room->getOtherPlayers(player, true))
-                    if (mate->getKingdom() == kingdom)
-                        room->addPlayerMark(mate, "boat2", 1);
-            }
-        }
-        if (!twt) room->speakRanks();
-        return false;
-    }
-};
-
-class DragonBoatGameover : public TriggerSkill
-{
-public :
-    DragonBoatGameover() : TriggerSkill("dragonboat_over")
-    {
-        events << RoundStart;
-        global = true;
-        frequency = Compulsory;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return false;
-    }
-
-    virtual void record(TriggerEvent, Room *room, ServerPlayer *, QVariant &) const
-    {
-        if (room->getTurn() < 3 || room->getMode() != "08_dragonboat") return;
-        foreach (ServerPlayer *tangzi, room->getAllPlayers())
-            if (tangzi->hasSkill("xingzhao") && tangzi->getMark("boat2") && room->getBoatTreasure(tangzi->getKingdom()) == 12)
-            {
-                room->broadcastSkillInvoke("xingzhao", tangzi);
-                QStringList kingdoms;
-                kingdoms << "wei" << "shu" << "wu" << "qun";
-                QString tKingdom = tangzi->getKingdom();
-                int nRank = room->getTreasureRank(tKingdom);
-                foreach (QString kingdomeach, kingdoms)
-                {
-                    if (kingdomeach == tKingdom) continue;
-                    if (room->getBoatTreasure(kingdomeach) == room->getBoatTreasure(tKingdom))
-                        foreach (ServerPlayer *other, room->getOtherPlayers(tangzi, true))
-                            if (other->getMark("boat2") < tangzi->getMark("boat2"))
-                                room->addPlayerMark(other, "boat2", 1);
-                }
-                room->setPlayerMark(tangzi, "boat2", 0);
-                foreach (ServerPlayer *mate, room->getOtherPlayers(tangzi, true))
-                    if (mate->getKingdom() == tKingdom)
-                        room->setPlayerMark(mate, "boat2", 0);
-                if (room->getTreasureRank(tKingdom) != nRank)
-                {
-                    LogMessage log;
-                    log.type = "#xingzhao-changed";
-                    room->sendLog(log);
-                }
-            }
-        room->speakRanks(true);
-        QString winkingdom = room->getRankKingdom(1);
-        if (winkingdom == "ZeroKingdom")
-            room->gameOver(".");
-        else
-        {
-            QString winner = "dragon_" + winkingdom;
-            room->gameOver(winner);
-        }
-    }
-};
-
 class Lianpian : public TriggerSkill
 {
 public :
@@ -788,8 +674,6 @@ DragonBoatPackage::DragonBoatPackage()
     qd_liuqi->addSkill("d_tunjiang");
 
     addMetaObject<JianjiCard>();
-
-    skills << new AiyeGainMark << new DragonBoatGameover;
 }
 
 DragonBoatCardPackage::DragonBoatCardPackage()

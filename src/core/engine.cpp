@@ -945,7 +945,7 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const
 #ifndef USE_BUILDBOT
 QString Engine::getVersionNumber() const
 {
-    return "20210124";
+    return "20210125";
 }
 #endif
 
