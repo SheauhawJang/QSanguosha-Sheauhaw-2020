@@ -427,7 +427,7 @@ TriggerList LuaTriggerSkill::triggerable(TriggerEvent event, Room *room, ServerP
         if (SWIG_IsOK(result))
         {
             ServerPlayer *target = static_cast<ServerPlayer *>(player_ptr);
-            if (return_result.count(target))
+            if (return_result.find(target) != return_result.end())
                 return_result[target] << objectName();
             else
                 return_result.insert(static_cast<ServerPlayer *>(player_ptr), nameList());
