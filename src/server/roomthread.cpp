@@ -777,7 +777,6 @@ static bool compareByPriority(const TriggerSkill *a, const TriggerSkill *b)
 
 bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data)
 {
-    qDebug() << triggerEvent;
     // push it to event stack
     EventTriplet triplet(triggerEvent, room, target);
     event_stack.push_back(triplet);
