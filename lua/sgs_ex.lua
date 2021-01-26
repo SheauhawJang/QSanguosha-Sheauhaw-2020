@@ -3,7 +3,7 @@
 -- trigger skills
 function sgs.CreateTriggerSkill(spec)
 	assert(type(spec.name) == "string")
-	assert(type(spec.on_trigger) == "function")
+	if spec.on_trigger then assert(type(spec.on_trigger) == "function") end
 	if spec.frequency then assert(type(spec.frequency) == "number") end
 	if spec.limit_mark then assert(type(spec.limit_mark) == "string") end
 	
@@ -23,10 +23,20 @@ function sgs.CreateTriggerSkill(spec)
 
 	if type(spec.global) == "boolean" then skill:setGlobal(spec.global) end
 
-	skill.on_trigger = spec.on_trigger
-
+	if spec.on_trigger then
+		skill.on_trigger = spec.on_trigger
+	end
+	if spec.on_trigger_effect then
+		skill.on_trigger_effect = spec.on_trigger_effect
+	end
+	if spec.on_trigger_record then
+		skill.on_trigger_record = spec.on_trigger_record
+	end
 	if spec.can_trigger then
 		skill.can_trigger = spec.can_trigger
+	end
+	if spec.can_trigger_list then
+		skill.can_trigger_list = spec.can_trigger_list
 	end
 	if spec.view_as_skill then
 		skill:setViewAsSkill(spec.view_as_skill)
