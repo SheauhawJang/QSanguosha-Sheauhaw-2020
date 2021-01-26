@@ -65,7 +65,7 @@ public:
 		view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         if (TriggerSkill::triggerable(player)) {
             if (triggerEvent == FinishJudge) {
@@ -770,7 +770,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *zhoutai, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *zhoutai, QVariant &data, ServerPlayer* &) const
     {
         DyingStruct dying_data = data.value<DyingStruct>();
         if (!TriggerSkill::triggerable(zhoutai) || dying_data.who != zhoutai) return QStringList();
@@ -846,7 +846,7 @@ public:
 
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         if (!TriggerSkill::triggerable(player) || player->getHp() < 1) return QStringList();
         QVariantList move_datas = data.toList();

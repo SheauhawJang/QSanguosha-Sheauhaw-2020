@@ -2218,7 +2218,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         if (TriggerSkill::triggerable(player) && player->getPhase() != Player::NotActive) {
             const Card *card = data.value<CardUseStruct>().card;
@@ -2398,7 +2398,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() == Player::Finish && player->getHandcardNum() < player->getHp()) {

@@ -1742,15 +1742,14 @@ SWIG_Lua_dostring(lua_State *L, const char* str) {
 #define SWIGTYPE_p_TargetModSkill swig_types[95]
 #define SWIGTYPE_p_Treasure swig_types[96]
 #define SWIGTYPE_p_TrickCard swig_types[97]
-#define SWIGTYPE_p_TriggerList swig_types[98]
-#define SWIGTYPE_p_TriggerSkill swig_types[99]
-#define SWIGTYPE_p_TrustAI swig_types[100]
-#define SWIGTYPE_p_ViewAsSkill swig_types[101]
-#define SWIGTYPE_p_Weapon swig_types[102]
-#define SWIGTYPE_p_WrappedCard swig_types[103]
-#define SWIGTYPE_p_lua_State swig_types[104]
-static swig_type_info *swig_types[106];
-static swig_module_info swig_module = {swig_types, 105, 0, 0, 0, 0};
+#define SWIGTYPE_p_TriggerSkill swig_types[98]
+#define SWIGTYPE_p_TrustAI swig_types[99]
+#define SWIGTYPE_p_ViewAsSkill swig_types[100]
+#define SWIGTYPE_p_Weapon swig_types[101]
+#define SWIGTYPE_p_WrappedCard swig_types[102]
+#define SWIGTYPE_p_lua_State swig_types[103]
+static swig_type_info *swig_types[105];
+static swig_module_info swig_module = {swig_types, 104, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2187,72 +2186,6 @@ bool LuaTriggerSkill::triggerable(const ServerPlayer *target, Room *room) const
     }
 }
 
-TriggerList LuaTriggerSkill::triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
-{
-    if (can_trigger_list == 0)
-        return TriggerSkill::triggerable(event, room, player, data);
-    
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, can_trigger_list);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 5, 1, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
-        
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-
-    if (!lua_istable(L, -1)) {
-        lua_pop(L, 1);
-        room->output(QString("The result of function %1 should all a table!").arg(__FUNCTION__));
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-
-    TriggerList return_result;
-
-    size_t len = lua_rawlen(L, -1);
-    size_t i;
-    int fails = 0;
-    for (i = 0; i < len; i++) {
-        lua_rawgeti(L, -1, i + 1);
-        void *player_ptr;
-        int result = SWIG_ConvertPtr(L, -1, &player_ptr, SWIGTYPE_p_ServerPlayer, 0);
-        lua_pop(L, 1);
-        if (SWIG_IsOK(result))
-            return_result.insert(static_cast<ServerPlayer *>(player_ptr), nameList());
-        else
-            ++fails;
-    }
-
-    lua_pop(L, 1);
-
-    if (fails > 0) {
-        room->output(QString("The result of function %1 should all be ServerPlayers!").arg(__FUNCTION__));
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-    return return_result;
-}
-
 bool LuaTriggerSkill::trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
 {
     if (on_trigger == 0)
@@ -2290,83 +2223,6 @@ bool LuaTriggerSkill::trigger(TriggerEvent event, Room *room, ServerPlayer *play
         bool result = lua_toboolean(L, -1);
         lua_pop(L, 1);
         return result;
-    }
-}
-
-bool LuaTriggerSkill::effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *caller) const
-{
-    if (on_trigger_effect == 0)
-        return TriggerSkill::effect(triggerEvent, room, player, data, caller);
-
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    // the callback
-    lua_rawgeti(L, LUA_REGISTRYINDEX, on_trigger_effect);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the third argument: caller
-    SWIG_NewPointerObj(L, caller, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 6, 1, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
-        return TriggerSkill::effect(triggerEvent, room, player, data, caller);
-    } else {
-        bool result = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-        return result;
-    }
-}
-
-void LuaTriggerSkill::record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-{
-    if (on_trigger_record == 0) return;
-
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    // the callback
-    lua_rawgeti(L, LUA_REGISTRYINDEX, on_trigger_effect);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 5, 0, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
     }
 }
 
@@ -62220,105 +62076,7 @@ fail:
 }
 
 
-static int _wrap_LuaTriggerSkill_record(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  TriggerEvent arg2 ;
-  Room *arg3 = (Room *) 0 ;
-  ServerPlayer *arg4 = (ServerPlayer *) 0 ;
-  QVariant *arg5 = 0 ;
-  
-  SWIG_check_num_args("LuaTriggerSkill::record",5,5)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::record",1,"LuaTriggerSkill const *");
-  if(!lua_isnumber(L,2)) SWIG_fail_arg("LuaTriggerSkill::record",2,"TriggerEvent");
-  if(!SWIG_isptrtype(L,3)) SWIG_fail_arg("LuaTriggerSkill::record",3,"Room *");
-  if(!SWIG_isptrtype(L,4)) SWIG_fail_arg("LuaTriggerSkill::record",4,"ServerPlayer *");
-  if(!lua_isuserdata(L,5)) SWIG_fail_arg("LuaTriggerSkill::record",5,"QVariant &");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_record",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  arg2 = (TriggerEvent)(int)lua_tonumber(L, 2);
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,3,(void**)&arg3,SWIGTYPE_p_Room,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_record",3,SWIGTYPE_p_Room);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,4,(void**)&arg4,SWIGTYPE_p_ServerPlayer,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_record",4,SWIGTYPE_p_ServerPlayer);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,5,(void**)&arg5,SWIGTYPE_p_QVariant,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_record",5,SWIGTYPE_p_QVariant);
-  }
-  
-  ((LuaTriggerSkill const *)arg1)->record(arg2,arg3,arg4,*arg5);
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_triggerable__SWIG_0(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  TriggerEvent arg2 ;
-  Room *arg3 = (Room *) 0 ;
-  ServerPlayer *arg4 = (ServerPlayer *) 0 ;
-  QVariant *arg5 = 0 ;
-  TriggerList result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::triggerable",5,5)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::triggerable",1,"LuaTriggerSkill const *");
-  if(!lua_isnumber(L,2)) SWIG_fail_arg("LuaTriggerSkill::triggerable",2,"TriggerEvent");
-  if(!SWIG_isptrtype(L,3)) SWIG_fail_arg("LuaTriggerSkill::triggerable",3,"Room *");
-  if(!SWIG_isptrtype(L,4)) SWIG_fail_arg("LuaTriggerSkill::triggerable",4,"ServerPlayer *");
-  if(!lua_isuserdata(L,5)) SWIG_fail_arg("LuaTriggerSkill::triggerable",5,"QVariant &");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_triggerable",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  arg2 = (TriggerEvent)(int)lua_tonumber(L, 2);
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,3,(void**)&arg3,SWIGTYPE_p_Room,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_triggerable",3,SWIGTYPE_p_Room);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,4,(void**)&arg4,SWIGTYPE_p_ServerPlayer,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_triggerable",4,SWIGTYPE_p_ServerPlayer);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,5,(void**)&arg5,SWIGTYPE_p_QVariant,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_triggerable",5,SWIGTYPE_p_QVariant);
-  }
-  
-  result = ((LuaTriggerSkill const *)arg1)->triggerable(arg2,arg3,arg4,*arg5);
-  {
-    TriggerList * resultptr = new TriggerList((const TriggerList &) result);
-    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_TriggerList,1); SWIG_arg++;
-  }
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_triggerable__SWIG_1(lua_State* L) {
+static int _wrap_LuaTriggerSkill_triggerable(lua_State* L) {
   int SWIG_arg = 0;
   LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
   ServerPlayer *arg2 = (ServerPlayer *) 0 ;
@@ -62353,105 +62111,6 @@ static int _wrap_LuaTriggerSkill_triggerable__SWIG_1(lua_State* L) {
 fail:
   lua_error(L);
   return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_triggerable(lua_State* L) {
-  int argc;
-  int argv[6]={
-    1,2,3,4,5,6
-  };
-  
-  argc = lua_gettop(L);
-  if (argc == 3) {
-    int _v;
-    {
-      void *ptr;
-      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_LuaTriggerSkill, 0)) {
-        _v = 0;
-      } else {
-        _v = 1;
-      }
-    }
-    if (_v) {
-      {
-        void *ptr;
-        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_ServerPlayer, 0)) {
-          _v = 0;
-        } else {
-          _v = 1;
-        }
-      }
-      if (_v) {
-        {
-          void *ptr;
-          if (SWIG_isptrtype(L,argv[2])==0 || SWIG_ConvertPtr(L,argv[2], (void **) &ptr, SWIGTYPE_p_Room, 0)) {
-            _v = 0;
-          } else {
-            _v = 1;
-          }
-        }
-        if (_v) {
-          return _wrap_LuaTriggerSkill_triggerable__SWIG_1(L);
-        }
-      }
-    }
-  }
-  if (argc == 5) {
-    int _v;
-    {
-      void *ptr;
-      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_LuaTriggerSkill, 0)) {
-        _v = 0;
-      } else {
-        _v = 1;
-      }
-    }
-    if (_v) {
-      {
-        _v = lua_isnumber(L,argv[1]);
-      }
-      if (_v) {
-        {
-          void *ptr;
-          if (SWIG_isptrtype(L,argv[2])==0 || SWIG_ConvertPtr(L,argv[2], (void **) &ptr, SWIGTYPE_p_Room, 0)) {
-            _v = 0;
-          } else {
-            _v = 1;
-          }
-        }
-        if (_v) {
-          {
-            void *ptr;
-            if (SWIG_isptrtype(L,argv[3])==0 || SWIG_ConvertPtr(L,argv[3], (void **) &ptr, SWIGTYPE_p_ServerPlayer, 0)) {
-              _v = 0;
-            } else {
-              _v = 1;
-            }
-          }
-          if (_v) {
-            {
-              void *ptr;
-              if (lua_isuserdata(L,argv[4])==0 || SWIG_ConvertPtr(L,argv[4], (void **) &ptr, SWIGTYPE_p_QVariant, 0)) {
-                _v = 0;
-              } else {
-                _v = 1;
-              }
-            }
-            if (_v) {
-              return _wrap_LuaTriggerSkill_triggerable__SWIG_0(L);
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  lua_pushstring(L,"Wrong arguments for overloaded function 'LuaTriggerSkill_triggerable'\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    LuaTriggerSkill::triggerable(TriggerEvent,Room *,ServerPlayer *,QVariant &) const\n"
-    "    LuaTriggerSkill::triggerable(ServerPlayer const *,Room *) const\n");
-  lua_error(L);return 0;
 }
 
 
@@ -62500,233 +62159,6 @@ static int _wrap_LuaTriggerSkill_trigger(lua_State* L) {
 fail:
   lua_error(L);
   return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_effect__SWIG_0(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  TriggerEvent arg2 ;
-  Room *arg3 = (Room *) 0 ;
-  ServerPlayer *arg4 = (ServerPlayer *) 0 ;
-  QVariant *arg5 = 0 ;
-  ServerPlayer *arg6 = (ServerPlayer *) 0 ;
-  bool result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::effect",6,6)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::effect",1,"LuaTriggerSkill const *");
-  if(!lua_isnumber(L,2)) SWIG_fail_arg("LuaTriggerSkill::effect",2,"TriggerEvent");
-  if(!SWIG_isptrtype(L,3)) SWIG_fail_arg("LuaTriggerSkill::effect",3,"Room *");
-  if(!SWIG_isptrtype(L,4)) SWIG_fail_arg("LuaTriggerSkill::effect",4,"ServerPlayer *");
-  if(!lua_isuserdata(L,5)) SWIG_fail_arg("LuaTriggerSkill::effect",5,"QVariant &");
-  if(!SWIG_isptrtype(L,6)) SWIG_fail_arg("LuaTriggerSkill::effect",6,"ServerPlayer *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  arg2 = (TriggerEvent)(int)lua_tonumber(L, 2);
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,3,(void**)&arg3,SWIGTYPE_p_Room,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",3,SWIGTYPE_p_Room);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,4,(void**)&arg4,SWIGTYPE_p_ServerPlayer,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",4,SWIGTYPE_p_ServerPlayer);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,5,(void**)&arg5,SWIGTYPE_p_QVariant,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",5,SWIGTYPE_p_QVariant);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,6,(void**)&arg6,SWIGTYPE_p_ServerPlayer,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",6,SWIGTYPE_p_ServerPlayer);
-  }
-  
-  result = (bool)((LuaTriggerSkill const *)arg1)->effect(arg2,arg3,arg4,*arg5,arg6);
-  lua_pushboolean(L,(int)(result!=0)); SWIG_arg++;
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_effect__SWIG_1(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  TriggerEvent arg2 ;
-  Room *arg3 = (Room *) 0 ;
-  ServerPlayer *arg4 = (ServerPlayer *) 0 ;
-  QVariant *arg5 = 0 ;
-  bool result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::effect",5,5)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::effect",1,"LuaTriggerSkill const *");
-  if(!lua_isnumber(L,2)) SWIG_fail_arg("LuaTriggerSkill::effect",2,"TriggerEvent");
-  if(!SWIG_isptrtype(L,3)) SWIG_fail_arg("LuaTriggerSkill::effect",3,"Room *");
-  if(!SWIG_isptrtype(L,4)) SWIG_fail_arg("LuaTriggerSkill::effect",4,"ServerPlayer *");
-  if(!lua_isuserdata(L,5)) SWIG_fail_arg("LuaTriggerSkill::effect",5,"QVariant &");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  arg2 = (TriggerEvent)(int)lua_tonumber(L, 2);
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,3,(void**)&arg3,SWIGTYPE_p_Room,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",3,SWIGTYPE_p_Room);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,4,(void**)&arg4,SWIGTYPE_p_ServerPlayer,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",4,SWIGTYPE_p_ServerPlayer);
-  }
-  
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,5,(void**)&arg5,SWIGTYPE_p_QVariant,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_effect",5,SWIGTYPE_p_QVariant);
-  }
-  
-  result = (bool)((LuaTriggerSkill const *)arg1)->effect(arg2,arg3,arg4,*arg5);
-  lua_pushboolean(L,(int)(result!=0)); SWIG_arg++;
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_effect(lua_State* L) {
-  int argc;
-  int argv[7]={
-    1,2,3,4,5,6,7
-  };
-  
-  argc = lua_gettop(L);
-  if (argc == 5) {
-    int _v;
-    {
-      void *ptr;
-      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_LuaTriggerSkill, 0)) {
-        _v = 0;
-      } else {
-        _v = 1;
-      }
-    }
-    if (_v) {
-      {
-        _v = lua_isnumber(L,argv[1]);
-      }
-      if (_v) {
-        {
-          void *ptr;
-          if (SWIG_isptrtype(L,argv[2])==0 || SWIG_ConvertPtr(L,argv[2], (void **) &ptr, SWIGTYPE_p_Room, 0)) {
-            _v = 0;
-          } else {
-            _v = 1;
-          }
-        }
-        if (_v) {
-          {
-            void *ptr;
-            if (SWIG_isptrtype(L,argv[3])==0 || SWIG_ConvertPtr(L,argv[3], (void **) &ptr, SWIGTYPE_p_ServerPlayer, 0)) {
-              _v = 0;
-            } else {
-              _v = 1;
-            }
-          }
-          if (_v) {
-            {
-              void *ptr;
-              if (lua_isuserdata(L,argv[4])==0 || SWIG_ConvertPtr(L,argv[4], (void **) &ptr, SWIGTYPE_p_QVariant, 0)) {
-                _v = 0;
-              } else {
-                _v = 1;
-              }
-            }
-            if (_v) {
-              return _wrap_LuaTriggerSkill_effect__SWIG_1(L);
-            }
-          }
-        }
-      }
-    }
-  }
-  if (argc == 6) {
-    int _v;
-    {
-      void *ptr;
-      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_LuaTriggerSkill, 0)) {
-        _v = 0;
-      } else {
-        _v = 1;
-      }
-    }
-    if (_v) {
-      {
-        _v = lua_isnumber(L,argv[1]);
-      }
-      if (_v) {
-        {
-          void *ptr;
-          if (SWIG_isptrtype(L,argv[2])==0 || SWIG_ConvertPtr(L,argv[2], (void **) &ptr, SWIGTYPE_p_Room, 0)) {
-            _v = 0;
-          } else {
-            _v = 1;
-          }
-        }
-        if (_v) {
-          {
-            void *ptr;
-            if (SWIG_isptrtype(L,argv[3])==0 || SWIG_ConvertPtr(L,argv[3], (void **) &ptr, SWIGTYPE_p_ServerPlayer, 0)) {
-              _v = 0;
-            } else {
-              _v = 1;
-            }
-          }
-          if (_v) {
-            {
-              void *ptr;
-              if (lua_isuserdata(L,argv[4])==0 || SWIG_ConvertPtr(L,argv[4], (void **) &ptr, SWIGTYPE_p_QVariant, 0)) {
-                _v = 0;
-              } else {
-                _v = 1;
-              }
-            }
-            if (_v) {
-              {
-                void *ptr;
-                if (SWIG_isptrtype(L,argv[5])==0 || SWIG_ConvertPtr(L,argv[5], (void **) &ptr, SWIGTYPE_p_ServerPlayer, 0)) {
-                  _v = 0;
-                } else {
-                  _v = 1;
-                }
-              }
-              if (_v) {
-                return _wrap_LuaTriggerSkill_effect__SWIG_0(L);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  lua_pushstring(L,"Wrong arguments for overloaded function 'LuaTriggerSkill_effect'\n"
-    "  Possible C/C++ prototypes are:\n"
-    "    LuaTriggerSkill::effect(TriggerEvent,Room *,ServerPlayer *,QVariant &,ServerPlayer *) const\n"
-    "    LuaTriggerSkill::effect(TriggerEvent,Room *,ServerPlayer *,QVariant &) const\n");
-  lua_error(L);return 0;
 }
 
 
@@ -62789,124 +62221,6 @@ fail:
 }
 
 
-static int _wrap_LuaTriggerSkill_on_trigger_record_set(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction arg2 ;
-  
-  SWIG_check_num_args("LuaTriggerSkill::on_trigger_record",2,2)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::on_trigger_record",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_on_trigger_record_set",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  
-  if (lua_isfunction(L, 2)) {
-    lua_pushvalue(L, 2);
-    arg2 = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-    arg2 = 0;
-  }
-  
-  if (arg1) (arg1)->on_trigger_record = arg2;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_on_trigger_record_get(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::on_trigger_record",1,1)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::on_trigger_record",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_on_trigger_record_get",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  result =  ((arg1)->on_trigger_record);
-  
-  lua_rawgeti(L, LUA_REGISTRYINDEX, result);
-  SWIG_arg ++;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_on_trigger_effect_set(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction arg2 ;
-  
-  SWIG_check_num_args("LuaTriggerSkill::on_trigger_effect",2,2)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::on_trigger_effect",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_on_trigger_effect_set",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  
-  if (lua_isfunction(L, 2)) {
-    lua_pushvalue(L, 2);
-    arg2 = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-    arg2 = 0;
-  }
-  
-  if (arg1) (arg1)->on_trigger_effect = arg2;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_on_trigger_effect_get(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::on_trigger_effect",1,1)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::on_trigger_effect",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_on_trigger_effect_get",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  result =  ((arg1)->on_trigger_effect);
-  
-  lua_rawgeti(L, LUA_REGISTRYINDEX, result);
-  SWIG_arg ++;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
 static int _wrap_LuaTriggerSkill_can_trigger_set(lua_State* L) {
   int SWIG_arg = 0;
   LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
@@ -62952,65 +62266,6 @@ static int _wrap_LuaTriggerSkill_can_trigger_get(lua_State* L) {
   }
   
   result =  ((arg1)->can_trigger);
-  
-  lua_rawgeti(L, LUA_REGISTRYINDEX, result);
-  SWIG_arg ++;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_can_trigger_list_set(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction arg2 ;
-  
-  SWIG_check_num_args("LuaTriggerSkill::can_trigger_list",2,2)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::can_trigger_list",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_can_trigger_list_set",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  
-  if (lua_isfunction(L, 2)) {
-    lua_pushvalue(L, 2);
-    arg2 = luaL_ref(L, LUA_REGISTRYINDEX);
-  } else {
-    arg2 = 0;
-  }
-  
-  if (arg1) (arg1)->can_trigger_list = arg2;
-  
-  return SWIG_arg;
-  
-  if(0) SWIG_fail;
-  
-fail:
-  lua_error(L);
-  return SWIG_arg;
-}
-
-
-static int _wrap_LuaTriggerSkill_can_trigger_list_get(lua_State* L) {
-  int SWIG_arg = 0;
-  LuaTriggerSkill *arg1 = (LuaTriggerSkill *) 0 ;
-  LuaFunction result;
-  
-  SWIG_check_num_args("LuaTriggerSkill::can_trigger_list",1,1)
-  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("LuaTriggerSkill::can_trigger_list",1,"LuaTriggerSkill *");
-  
-  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_LuaTriggerSkill,0))){
-    SWIG_fail_ptr("LuaTriggerSkill_can_trigger_list_get",1,SWIGTYPE_p_LuaTriggerSkill);
-  }
-  
-  result =  ((arg1)->can_trigger_list);
   
   lua_rawgeti(L, LUA_REGISTRYINDEX, result);
   SWIG_arg ++;
@@ -63145,18 +62400,13 @@ static swig_lua_method swig_LuaTriggerSkill_methods[] = {
     {"insertPriorityTable", _wrap_LuaTriggerSkill_insertPriorityTable}, 
     {"setGuhuoDialog", _wrap_LuaTriggerSkill_setGuhuoDialog}, 
     {"getFrequency", _wrap_LuaTriggerSkill_getFrequency}, 
-    {"record", _wrap_LuaTriggerSkill_record}, 
     {"triggerable", _wrap_LuaTriggerSkill_triggerable}, 
     {"trigger", _wrap_LuaTriggerSkill_trigger}, 
-    {"effect", _wrap_LuaTriggerSkill_effect}, 
     {0,0}
 };
 static swig_lua_attribute swig_LuaTriggerSkill_attributes[] = {
     { "on_trigger", _wrap_LuaTriggerSkill_on_trigger_get, _wrap_LuaTriggerSkill_on_trigger_set},
-    { "on_trigger_record", _wrap_LuaTriggerSkill_on_trigger_record_get, _wrap_LuaTriggerSkill_on_trigger_record_set},
-    { "on_trigger_effect", _wrap_LuaTriggerSkill_on_trigger_effect_get, _wrap_LuaTriggerSkill_on_trigger_effect_set},
     { "can_trigger", _wrap_LuaTriggerSkill_can_trigger_get, _wrap_LuaTriggerSkill_can_trigger_set},
-    { "can_trigger_list", _wrap_LuaTriggerSkill_can_trigger_list_get, _wrap_LuaTriggerSkill_can_trigger_list_set},
     { "dynamic_frequency", _wrap_LuaTriggerSkill_dynamic_frequency_get, _wrap_LuaTriggerSkill_dynamic_frequency_set},
     { "priority", _wrap_LuaTriggerSkill_priority_get, _wrap_LuaTriggerSkill_priority_set},
     {0,0,0}
@@ -73853,7 +73103,6 @@ static swig_type_info _swigt__p_SlashEffectStruct = {"_p_SlashEffectStruct", "Sl
 static swig_type_info _swigt__p_TargetModSkill = {"_p_TargetModSkill", "TargetModSkill *", 0, 0, (void*)&_wrap_class_TargetModSkill, 0};
 static swig_type_info _swigt__p_Treasure = {"_p_Treasure", "Treasure *", 0, 0, (void*)&_wrap_class_Treasure, 0};
 static swig_type_info _swigt__p_TrickCard = {"_p_TrickCard", "TrickCard *", 0, 0, (void*)&_wrap_class_TrickCard, 0};
-static swig_type_info _swigt__p_TriggerList = {"_p_TriggerList", "TriggerList *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_TriggerSkill = {"_p_TriggerSkill", "TriggerSkill *", 0, 0, (void*)&_wrap_class_TriggerSkill, 0};
 static swig_type_info _swigt__p_TrustAI = {"_p_TrustAI", "TrustAI *", 0, 0, (void*)&_wrap_class_TrustAI, 0};
 static swig_type_info _swigt__p_ViewAsSkill = {"_p_ViewAsSkill", "ViewAsSkill *", 0, 0, (void*)&_wrap_class_ViewAsSkill, 0};
@@ -73960,7 +73209,6 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_TargetModSkill,
   &_swigt__p_Treasure,
   &_swigt__p_TrickCard,
-  &_swigt__p_TriggerList,
   &_swigt__p_TriggerSkill,
   &_swigt__p_TrustAI,
   &_swigt__p_ViewAsSkill,
@@ -74067,7 +73315,6 @@ static swig_cast_info _swigc__p_SlashEffectStruct[] = {  {&_swigt__p_SlashEffect
 static swig_cast_info _swigc__p_TargetModSkill[] = {  {&_swigt__p_TargetModSkill, 0, 0, 0},  {&_swigt__p_LuaTargetModSkill, _p_LuaTargetModSkillTo_p_TargetModSkill, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_Treasure[] = {  {&_swigt__p_Treasure, 0, 0, 0},  {&_swigt__p_LuaTreasure, _p_LuaTreasureTo_p_Treasure, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TrickCard[] = {  {&_swigt__p_DelayedTrick, _p_DelayedTrickTo_p_TrickCard, 0, 0},  {&_swigt__p_TrickCard, 0, 0, 0},  {&_swigt__p_LuaTrickCard, _p_LuaTrickCardTo_p_TrickCard, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_TriggerList[] = {  {&_swigt__p_TriggerList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TriggerSkill[] = {  {&_swigt__p_TriggerSkill, 0, 0, 0},  {&_swigt__p_LuaTriggerSkill, _p_LuaTriggerSkillTo_p_TriggerSkill, 0, 0},  {&_swigt__p_GameStartSkill, _p_GameStartSkillTo_p_TriggerSkill, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TrustAI[] = {  {&_swigt__p_TrustAI, 0, 0, 0},  {&_swigt__p_LuaAI, _p_LuaAITo_p_TrustAI, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_ViewAsSkill[] = {  {&_swigt__p_FilterSkill, _p_FilterSkillTo_p_ViewAsSkill, 0, 0},  {&_swigt__p_LuaFilterSkill, _p_LuaFilterSkillTo_p_ViewAsSkill, 0, 0},  {&_swigt__p_ViewAsSkill, 0, 0, 0},  {&_swigt__p_LuaViewAsSkill, _p_LuaViewAsSkillTo_p_ViewAsSkill, 0, 0},  {&_swigt__p_OneCardViewAsSkill, _p_OneCardViewAsSkillTo_p_ViewAsSkill, 0, 0},{0, 0, 0, 0}};
@@ -74174,7 +73421,6 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_TargetModSkill,
   _swigc__p_Treasure,
   _swigc__p_TrickCard,
-  _swigc__p_TriggerList,
   _swigc__p_TriggerSkill,
   _swigc__p_TrustAI,
   _swigc__p_ViewAsSkill,

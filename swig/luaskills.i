@@ -9,17 +9,11 @@ public:
     
     virtual Frequency getFrequency(const Player *target) const;
 
-    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual TriggerList triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual bool triggerable(const ServerPlayer *target, Room *room) const;
     virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *caller = NULL) const;
 
     LuaFunction on_trigger;
-    LuaFunction on_trigger_record;
-    LuaFunction on_trigger_effect;
     LuaFunction can_trigger;
-    LuaFunction can_trigger_list;
     LuaFunction dynamic_frequency;
     
     int priority;
@@ -373,72 +367,6 @@ bool LuaTriggerSkill::triggerable(const ServerPlayer *target, Room *room) const
     }
 }
 
-TriggerList LuaTriggerSkill::triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
-{
-    if (can_trigger_list == 0)
-        return TriggerSkill::triggerable(event, room, player, data);
-    
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    lua_rawgeti(L, LUA_REGISTRYINDEX, can_trigger_list);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 5, 1, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
-        
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-
-    if (!lua_istable(L, -1)) {
-        lua_pop(L, 1);
-        room->output(QString("The result of function %1 should all a table!").arg(__FUNCTION__));
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-
-    TriggerList return_result;
-
-    size_t len = lua_rawlen(L, -1);
-    size_t i;
-    int fails = 0;
-    for (i = 0; i < len; i++) {
-        lua_rawgeti(L, -1, i + 1);
-        void *player_ptr;
-        int result = SWIG_ConvertPtr(L, -1, &player_ptr, SWIGTYPE_p_ServerPlayer, 0);
-        lua_pop(L, 1);
-        if (SWIG_IsOK(result))
-            return_result.insert(static_cast<ServerPlayer *>(player_ptr), nameList());
-        else
-            ++fails;
-    }
-
-    lua_pop(L, 1);
-
-    if (fails > 0) {
-        room->output(QString("The result of function %1 should all be ServerPlayers!").arg(__FUNCTION__));
-        return TriggerSkill::triggerable(event, room, player, data);
-    }
-    return return_result;
-}
-
 bool LuaTriggerSkill::trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
 {
     if (on_trigger == 0)
@@ -476,83 +404,6 @@ bool LuaTriggerSkill::trigger(TriggerEvent event, Room *room, ServerPlayer *play
         bool result = lua_toboolean(L, -1);
         lua_pop(L, 1);
         return result;
-    }
-}
-
-bool LuaTriggerSkill::effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *caller) const
-{
-    if (on_trigger_effect == 0)
-        return TriggerSkill::effect(triggerEvent, room, player, data, caller);
-
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    // the callback
-    lua_rawgeti(L, LUA_REGISTRYINDEX, on_trigger_effect);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the third argument: caller
-    SWIG_NewPointerObj(L, caller, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 6, 1, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
-        return TriggerSkill::effect(triggerEvent, room, player, data, caller);
-    } else {
-        bool result = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-        return result;
-    }
-}
-
-void LuaTriggerSkill::record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-{
-    if (on_trigger_record == 0) return;
-
-    lua_State *L = room->getLuaState();
-
-    int e = static_cast<int>(event);
-
-    // the callback
-    lua_rawgeti(L, LUA_REGISTRYINDEX, on_trigger_effect);
-
-    LuaTriggerSkill *self = const_cast<LuaTriggerSkill *>(this);
-    SWIG_NewPointerObj(L, self, SWIGTYPE_p_LuaTriggerSkill, 0);
-
-    // the first argument: event
-    lua_pushinteger(L, e);
-
-    // the second argument: player
-    SWIG_NewPointerObj(L, player, SWIGTYPE_p_ServerPlayer, 0);
-
-    // the last event: data
-    SWIG_NewPointerObj(L, &data, SWIGTYPE_p_QVariant, 0);
-
-    // append Room as an argument
-    SWIG_NewPointerObj(L, room, SWIGTYPE_p_Room, 0);
-
-    int error = lua_pcall(L, 5, 0, 0);
-    if (error) {
-        const char *error_msg = lua_tostring(L, -1);
-        lua_pop(L, 1);
-        room->output(error_msg);
     }
 }
 

@@ -40,21 +40,14 @@ public:
     }
 
     virtual int getPriority(TriggerEvent triggerEvent) const;
+    virtual bool triggerable(const ServerPlayer *target, Room *room) const;
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
     virtual QString getSelectBox() const;
     virtual GuhuoDialog *getDialog() const;
     virtual Frequency getFrequency(const Player *target) const;
 
-    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual TriggerList triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual bool triggerable(const ServerPlayer *target, Room *room) const;
-    virtual bool trigger(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const;
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *caller = NULL) const;
-
     LuaFunction on_trigger;
-    LuaFunction on_trigger_record;
-    LuaFunction on_trigger_effect;
     LuaFunction can_trigger;
-    LuaFunction can_trigger_list;
     LuaFunction dynamic_frequency;
 
     int priority;

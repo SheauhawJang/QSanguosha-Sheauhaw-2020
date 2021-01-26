@@ -350,7 +350,7 @@ public:
         limit_mark = "@laoji";
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer* &) const
     {
         if (!TriggerSkill::triggerable(target) || target->getMark("@laoji") == 0) return QStringList();
         DyingStruct dying_data = data.value<DyingStruct>();
@@ -506,7 +506,7 @@ public:
         view_as_skill = new FuhunViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
         DamageStruct damage = data.value<DamageStruct>();
@@ -685,7 +685,7 @@ public:
         events << Death;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         if (player == NULL || !player->hasSkill(objectName())) return QStringList();
         DeathStruct death = data.value<DeathStruct>();
@@ -729,7 +729,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         if (triggerEvent == ConfirmCardUsed && TriggerSkill::triggerable(player) && use.card->objectName() == "slash")
@@ -872,7 +872,7 @@ public:
         view_as_skill = new ChunlaoViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer* &) const
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Finish

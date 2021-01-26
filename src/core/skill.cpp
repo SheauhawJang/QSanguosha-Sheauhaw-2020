@@ -374,7 +374,7 @@ TriggerList TriggerSkill::triggerable(TriggerEvent triggerEvent, Room *room, Ser
     return skill_lists;
 }
 
-QStringList TriggerSkill::triggerable(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer *&) const
+QStringList TriggerSkill::triggerable(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer* &) const
 {
     if (triggerable(target, room))
         return nameList();
