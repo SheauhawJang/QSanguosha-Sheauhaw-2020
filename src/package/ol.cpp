@@ -455,7 +455,7 @@ public:
         view_as_skill = new BenyuViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (MasochismSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
@@ -496,7 +496,7 @@ public:
         events << DrawNCards << CardUsed << CardResponded;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (triggerEvent == DrawNCards && TriggerSkill::triggerable(player)) {
             foreach (ServerPlayer *p, room->getAllPlayers()) {
@@ -555,7 +555,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player) && player->isKongcheng()) {
             DamageStruct damage = data.value<DamageStruct>();
@@ -587,7 +587,7 @@ public:
 
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player) || player->isNude()) return QStringList();
         if (player->getPhase() == Player::Finish) {
@@ -830,7 +830,7 @@ public:
         events << Dying;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player)) {
             DyingStruct dying = data.value<DyingStruct>();
@@ -1358,7 +1358,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if ((triggerEvent == Damage || triggerEvent == Damaged) && TriggerSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
@@ -3097,7 +3097,7 @@ public:
         events << CardsMoveOneTime;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (!TriggerSkill::triggerable(player) || player->getHp() <= player->getHandcardNum()) return QStringList();
         QVariantList move_datas = data.toList();
@@ -3229,7 +3229,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
 
@@ -3346,7 +3346,7 @@ public:
 
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (player->getPhase() == Player::Play && PhaseChangeSkill::triggerable(player) && !player->isKongcheng())
             return nameList();
@@ -3524,7 +3524,7 @@ public:
         view_as_skill = new BusuanViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (player->getPhase() == Player::Draw && player->getMark("#busuan") > 0) {
             return QStringList("busuan!");
@@ -3832,7 +3832,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (triggerEvent == CardFinished && TriggerSkill::triggerable(player)) {
             const Card *card = data.value<CardUseStruct>().card;
@@ -3987,7 +3987,7 @@ public:
         events << DamageCaused << DamageInflicted;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player) && !player->hasFlag("SouyingInvoked") && !player->isKongcheng()) {
             DamageStruct damage = data.value<DamageStruct>();

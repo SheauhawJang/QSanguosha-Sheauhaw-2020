@@ -66,7 +66,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (player == NULL || !player->hasSkill(objectName())) return QStringList();
         DeathStruct death = data.value<DeathStruct>();
@@ -99,7 +99,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (player == NULL || !player->hasSkill(objectName())) return QStringList();
         DeathStruct death = data.value<DeathStruct>();
@@ -195,7 +195,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (player == NULL || !player->hasSkill(objectName())) return QStringList();
         DeathStruct death = data.value<DeathStruct>();
@@ -266,7 +266,7 @@ public:
 		view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() == Player::Finish) {
@@ -381,7 +381,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() == Player::Finish) {
@@ -418,7 +418,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
         if (player->getPhase() == Player::Start) {
@@ -505,7 +505,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *, QVariant &, ServerPlayer *&) const
     {
         return QStringList();
     }
@@ -577,7 +577,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
             QVariantList move_datas = data.toList();
@@ -653,7 +653,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
             QVariantList move_datas = data.toList();
@@ -717,7 +717,7 @@ public:
 		frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (!TriggerSkill::triggerable(player)) return QStringList();
         if (triggerEvent == EventPhaseChanging) {
@@ -858,7 +858,7 @@ public:
 		frequency = Compulsory;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (!TriggerSkill::triggerable(player) || !player->isWounded()) return QStringList();
         QVariantList move_datas = data.toList();
@@ -943,7 +943,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer* &) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (triggerEvent == DrawNCards && TriggerSkill::triggerable(player)) return nameList();
         return QStringList();
