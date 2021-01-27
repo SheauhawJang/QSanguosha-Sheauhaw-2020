@@ -820,7 +820,6 @@ class Card: public QObject {
 public:
     // enumeration type
     enum Suit { Spade, Club, Heart, Diamond, NoSuitBlack, NoSuitRed, NoSuit, SuitToBeDecided = -1 };
-    enum Color { Red, Black, Colorless };
     enum HandlingMethod { MethodNone, MethodUse, MethodResponse, MethodDiscard, MethodRecast, MethodPindian, MethodGet};
     static const Suit AllSuits[4];
 
@@ -838,20 +837,17 @@ public:
     void setId(int id);
     int getEffectiveId() const;
 
-    bool sameNumberWith(const Card *other) const;
     int getNumber() const;
     void setNumber(int number);
     QString getNumberString() const;
 
-    bool sameSuitWith(const Card *other) const;
     Suit getSuit() const;
     void setSuit(Suit suit);
 
     bool sameColorWith(const Card *other) const;
-    Color getColor() const;
+    bool isEquipped() const;
 
     QString getPackage() const;
-    QString getClassName() const;
     QString getFullName(bool include_suit = false) const;
     QString getLogName() const;
     QString getName() const;
@@ -860,67 +856,45 @@ public:
     QString getDescription() const;
 
     bool isVirtualCard() const;
-    bool isEquipped() const;
-    virtual QString getCommonEffectName() const;
     virtual bool match(const char *pattern) const;
 
     void addSubcard(int card_id);
     void addSubcard(const Card *card);
-    void addCostcard(int card_id);
-    void addCostcard(const Card *card);
     QList<int> getSubcards() const;
-    QList<int> getCostcards() const;
     void clearSubcards();
-    bool usecontains(int card_id) const;
-    bool usecontains(const Card *card) const;
     QString subcardString() const;
-    QString costcardString() const;
     void addSubcards(const QList<const Card *> &cards);
     void addSubcards(const QList<int> &subcards_list);
-    void addCostcards(const QList<const Card *> &cards);
-    void addCostcards(const QList<int> &subcards_list);
     int subcardsLength() const;
 
     virtual QString getType() const = 0;
     virtual QString getSubtype() const = 0;
     virtual CardType getTypeId() const = 0;
     virtual QString toString(bool hidden = false) const;
-    virtual QString toRealString() const;
-
     bool isNDTrick() const;
 
     // card target selection
     bool targetFixed() const;
     virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *self) const;
-    virtual bool targetRated(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *self) const;
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self, int &maxVotes) const;
     virtual bool isAvailable(const Player *player) const;
     virtual const Card *validate(CardUseStruct &card_use) const;
     virtual const Card *validateInResponse(ServerPlayer *user) const;
-    virtual const Card *validateInResponse(ServerPlayer *user, QList<ServerPlayer *> &targets) const;
-    virtual void validateAfter(CardUseStruct &cardUse) const;
-    virtual void validateInResponseAfter(ServerPlayer *user, const Card *card) const;
 
     bool isMute() const;
     bool willThrow() const;
     bool canRecast() const;
     bool hasPreAction() const;
-	bool willSort() const;
     Card::HandlingMethod getHandlingMethod() const;
     void setCanRecast(bool can);
 
     void setFlags(const char *flag) const;
-    void setFlags(const QStringList &fs);
     bool hasFlag(const char *flag) const;
     void clearFlags() const;
 
     void setTag(const char *key, const QVariant &data) const;
     void removeTag(const char *key) const;
-    void copyFrom(const Card *card);
 
-    virtual void doPreAction(Room *room, const CardUseStruct &card_use) const;
-    virtual QList<ServerPlayer *> defaultTargets(Room *room, ServerPlayer *source) const;
     virtual void onUse(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
@@ -929,7 +903,6 @@ public:
     virtual bool isKindOf(const char *cardType) const;
     virtual QStringList getFlags() const;
     virtual bool isModified() const;
-    virtual void onNullified(ServerPlayer *player) const;
     virtual QString getClassName() const;
     virtual const Card *getRealCard() const;
 
@@ -1089,102 +1062,7 @@ public:
     bool isGeneralHidden(const char *general_name) const;
 };
 
-class Engine: public QObject {
-public:
-    void addTranslationEntry(const char *key, const char *value);
-    QString translate(const char *to_translate) const;
-
-    void addPackage(Package *package);
-    void addBanPackage(const char *package_name);
-    QStringList getBanPackages() const;
-    Card *cloneCard(const Card *card) const;
-    Card *cloneCard(const char *name, Card::Suit suit = Card::SuitToBeDecided, int number = -1, QStringList flags = QStringList()) const;
-    SkillCard *cloneSkillCard(const char *name) const;
-    QString getVersion() const;
-    QString getVersionName() const;
-    QString getVersionNumber() const;
-    QString getMODName() const;
-    QStringList getExtensions() const;
-    QStringList getKingdoms() const;
-    QColor getKingdomColor(const char *kingdom) const;
-    QStringList getChattingEasyTexts() const;
-    QString getSetupString() const;
-
-    QMap<QString, QString> getAvailableModes() const;
-    QString getModeName(const char *mode) const;
-    int getPlayerCount(const char *mode) const;
-    QString getRoles(const char *mode) const;
-    QStringList getRoleList(const char *mode) const;
-    int getRoleIndex() const;
-
-    const CardPattern *getPattern(const char *name) const;
-    bool matchExpPattern(const char *pattern, const Player *player, const Card *card) const;
-    Card::HandlingMethod getCardHandlingMethod(const char *method_name) const;
-    QList<const Skill *> getRelatedSkills(const char *skill_name) const;
-    const Skill *getMainSkill(const char *skill_name) const;
-
-    QStringList getModScenarioNames() const;
-    void addScenario(Scenario *scenario);
-    const Scenario *getScenario(const char *name) const;
-
-    const General *getGeneral(const char *name) const;
-    int getGeneralCount(bool include_banned = false, const char *kingdom = "") const;
-    const Skill *getSkill(const char *skill_name) const;
-    const Skill *getSkill(const EquipCard *card) const;
-    QStringList getSkillNames() const;
-    const TriggerSkill *getTriggerSkill(const char *skill_name) const;
-    const ViewAsSkill *getViewAsSkill(const char *skill_name) const;
-    QList<const DistanceSkill *> getDistanceSkills() const;
-    QList<const MaxCardsSkill *> getMaxCardsSkills() const;
-    QList<const TargetModSkill *> getTargetModSkills() const;
-    QList<const InvaliditySkill *> getInvaliditySkills() const;
-    QList<const TriggerSkill *> getGlobalTriggerSkills() const;
-    QList<const AttackRangeSkill *> getAttackRangeSkills() const;
-    void addSkills(const QList<const Skill *> &skills);
-
-    int getCardCount() const;
-    const Card *getEngineCard(int cardId) const;
-    Card *getCard(int cardId);
-    WrappedCard *getWrappedCard(int cardId);
-
-    QStringList getLords(bool contain_banned = false) const;
-    QStringList getRandomLords() const;
-    QStringList getRandomFemaleLords(bool zuoci = true) const;
-    QStringList getRandomGenerals(int count, const QSet<QString> &ban_set = QSet<QString>(), const char *kingdom = "") const;
-    QStringList getRandomFemaleGenerals(int count = 0, const QSet<QString> &ban_set = QSet<QString>(), const char *kingdom = "", bool zuoci = true) const;
-    QList<int> getRandomCards() const;
-    QString getRandomGeneralName() const;
-    QStringList getLimitedGeneralNames(const char *kingdom = "") const;
-    QList<const General *> getAllGenerals() const;
-
-    void playSystemAudioEffect(const char *name, bool superpose = true) const;
-    void playAudioEffect(const char *filename, bool superpose = true) const;
-    void playSkillAudioEffect(const char *skill_name, int index, bool superpose = true) const;
-
-    const ProhibitSkill *isProhibited(const Player *from, const Player *to, const Card *card, const QList<const Player *> &others = QList<const Player *>()) const;
-    const FixCardSkill *isCardFixed(const Player *from, const Player *to, const char *flags, Card::HandlingMethod method) const;
-    const CardLimitedSkill *isCardLimited(const Player *player, const Card *card, Card::HandlingMethod method) const;
-    const HideCardSkill *isCardHided(const Player *player, const Card *card) const;
-    const ViewHasSkill *ViewHas(const Player *player, const char *skill_name, const char *flag) const;
-    
-    int correctDistance(const Player *from, const Player *to) const;
-    int correctMaxCards(const Player *target, bool fixed = false) const;
-    int correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card, const Player *to = NULL) const;
-    bool correctSkillValidity(const Player *player, const Skill *skill) const;
-    int correctAttackRange(const Player *target, bool include_weapon = true, bool fixed = false) const;
-
-    Room *currentRoom();
-
-    QString getCurrentCardUsePattern();
-    CardUseStruct::CardUseReason getCurrentCardUseReason();
-
-    bool isGeneralHidden(const char *general_name) const;
-	QStringList getConvertGenerals(const char *general_name) const;
-    QString getMainGeneral(const char *general_name) const;
-    bool isGeneralHidden(const char *general_name) const;
-    void setExtraGeneralsBan();
-    QStringList getExtraGeneralsBan() const;
-};
+extern Engine *Sanguosha;
 
 class Skill: public QObject {
 public:
