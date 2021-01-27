@@ -973,7 +973,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
                                 continue; // dont assign them to some person.
                             } else {
                                 room->tryPause();
-                                if (skill->getDynamicPriority(triggerEvent) == triggered.first()->getDynamicPriority(triggerEvent)) {
+                                if (skill->getDynamicPriority(triggerEvent) == triggered.last()->getDynamicPriority(triggerEvent)) {
 
                                     TriggerList triggerSkillList = skill->triggerable(triggerEvent, room, target, data);
 
@@ -990,8 +990,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
                                             }
                                         }
                                     }
-                                } else
-                                    break;
+                                }
                             }
                         }
 
