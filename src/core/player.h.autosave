@@ -134,11 +134,11 @@ public:
     void setFaceUp(bool face_up);
 
     virtual int aliveCount() const = 0;
+    int distanceTo(const Player *other, int distance_fix = 0) const;
     void setFixedDistance(const Player *player, int distance);
     void removeFixedDistance(const Player *player, int distance);
     void insertAttackRangePair(const Player *player);
     void removeAttackRangePair(const Player *player);
-    int distanceTo(const Player *other, int distance_fix = 0) const;
     const General *getAvatarGeneral() const;
     const General *getGeneral() const;
 
@@ -188,10 +188,8 @@ public:
 
     bool hasWeapon(const QString &weapon_name) const;
     bool hasArmorEffect(const QString &armor_name) const;
-    bool ingoreArmor(const Player *to) const;
-
-
     bool hasTreasure(const QString &treasure_name) const;
+    bool ingoreArmor(const Player *to) const;
 
     bool isKongcheng() const;
     bool isNude() const;

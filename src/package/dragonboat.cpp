@@ -390,7 +390,7 @@ public:
 
             if (room->askForSkillInvoke(player, objectName()))
                 foreach (ServerPlayer *target, targets) {
-                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), player->objectName());
+                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
                     player->broadcastSkillInvoke(objectName());
                     const Card *card = room->askForExchange(target, objectName(), 1, 1, true, "@wenji-give:" + player->objectName());
 
@@ -465,7 +465,8 @@ public:
         if (targets.isEmpty()) return false;
         ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(), QString(), true, true);
         if (target) {
-            target->broadcastSkillInvoke(objectName());
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
+            player->broadcastSkillInvoke(objectName());
             target->drawCards(2, objectName());
         }
         return false;
