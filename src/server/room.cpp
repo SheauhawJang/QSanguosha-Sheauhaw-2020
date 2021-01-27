@@ -7578,7 +7578,7 @@ void Room::returnCardToDrawPile(int card_id, int index)
     doBroadcastNotify(S_COMMAND_UPDATE_PILE, QVariant(m_drawPile->length()));
 }
 
-int Room::getRandomCardInPile(QString pattern, bool drawpile)
+int Room::getRandomCardInPile(const QString &pattern, bool drawpile)
 {
     QList<int> card_ids, all_ids = (drawpile ? getDrawPile() : getDiscardPile());
 
@@ -7596,7 +7596,7 @@ int Room::getRandomCardInPile(QString pattern, bool drawpile)
     return -1;
 }
 
-int Room::doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids, QString skill_name)
+int Room::doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids, const QString &skill_name)
 {
     Q_ASSERT(!target->isKongcheng());
     tryPause();

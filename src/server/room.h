@@ -119,8 +119,8 @@ public:
     AskForMoveCardsStruct askForYanjiao(ServerPlayer *zhuge, const QList<int> &cards, bool visible, const QString &reason, const QString &pattern);
     void returnToTopDrawPile(const QList<int> &cards);
 	void returnCardToDrawPile(int card_id, int index = 0);
-    int getRandomCardInPile(QString pattern, bool drawpile);
-    int doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids = QList<int>(), QString skill_name = "gongxin");
+    int getRandomCardInPile(const QString &pattern, bool drawpile);
+    int doGongxin(ServerPlayer *shenlvmeng, ServerPlayer *target, QList<int> enabled_ids = QList<int>(), const QString &skill_name = "gongxin");
     int drawCard(bool from_up = true);
     void fillAG(const QList<int> &card_ids, ServerPlayer *who = NULL, const QList<int> &disabled_ids = QList<int>());
 	void fillAG(const QList<int> &card_ids, QList<ServerPlayer *> to_notify, const QList<int> &disabled_ids = QList<int>());
