@@ -862,7 +862,6 @@ public:
     Color getColor() const;
 
     QString getPackage() const;
-    QString getClassName() const;
     QString getFullName(bool include_suit = false) const;
     QString getLogName() const;
     QString getName() const;
@@ -1112,7 +1111,6 @@ public:
     bool isGeneralHidden(const char *general_name) const;
 	QStringList getConvertGenerals(const char *general_name) const;
     QString getMainGeneral(const char *general_name) const;
-    bool isGeneralHidden(const char *general_name) const;
     void setExtraGeneralsBan();
     QStringList getExtraGeneralsBan() const;
 };
@@ -1308,7 +1306,6 @@ public:
     ServerPlayer *getFront(ServerPlayer *a, ServerPlayer *b) const;
     void signup(ServerPlayer *player, const char *screen_name, const char *avatar, bool is_robot);
     ServerPlayer *getOwner() const;
-    void updateStateItem();
 
     void sortByActionOrder(QList<ServerPlayer *> &players);
 
@@ -1390,7 +1387,7 @@ public:
                      QList<ServerPlayer *> players = QList<ServerPlayer *>(), CardMoveReason reason = CardMoveReason(),
                      const char *prompt = NULL, const char *expand_pile = NULL, bool notify_skill = false);
     QList<const Card *> askForFurong(ServerPlayer *from, ServerPlayer *to, const char *reason);
-    QStringList askForJixu(const QList<ServerPlayer *> &targets, const char *skill_name, const char *choices, const QVariant &data = QVariant(), const char *prompt = NULL, const char all_choices = NULL);
+    QStringList askForJixu(const QList<ServerPlayer *> &targets, const char *skill_name, const char *choices, const QVariant &data = QVariant(), const char *prompt = NULL, const char *all_choices = NULL);
     QList<const Card *> askForPindianRace(ServerPlayer *from, const QList<ServerPlayer *> &to, const char *reason, const Card *card = NULL);
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const char *reason,
                                      const char *prompt = NULL, bool optional = false, bool notify_skill = false);

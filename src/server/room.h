@@ -365,7 +365,7 @@ public:
     Card::Suit askForSuit(ServerPlayer *player, const QString &reason);
     QString askForKingdom(ServerPlayer *player, const QString &reason = QString());
     bool askForSkillInvoke(ServerPlayer *player, const QString &skill_name, const QVariant &data = QVariant());
-    QString askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices, const QVariant &data = QVariant(), const QString &prompt = QString(), QString all_choices = QString());
+    QString askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices, const QVariant &data = QVariant(), const QString &prompt = QString(), QString all_choices = QString(), bool trigger = true);
     bool askForDiscard(ServerPlayer *target, const QString &reason, int discard_num, int min_num, bool optional = false,
         bool include_equip = false, const QString &prompt = QString(), const QString &pattern = ".", const QString &pattern2 = ".");
 	const Card *askForExchange(ServerPlayer *player, const QString &reason, int discard_num, int min_num,
@@ -618,13 +618,15 @@ private:
     static QString generatePlayerName();
     void prepareForStart();
     void assignKingdomForPlayers();
+    void askForDizhuForPlayers();
     void assignGeneralsForPlayers(const QList<ServerPlayer *> &to_assign);
     void assignGeneralsForPlayersOfJianGeDefenseMode(const QList<ServerPlayer *> &to_assign);
     void assignGeneralsForPlayersOfHongyanRace(const QList<ServerPlayer *> &to_assign);
     void assignGeneralsForPlayersOfDragonBoatRace(const QList<ServerPlayer *> &to_assign);
-    void assignGeneralsForPlayerOfGodsReturnMode(ServerPlayer *to_assign, const QStringList &gods = QStringList());
+    void assignGeneralsForPlayersOfGodsReturnMode(ServerPlayer *to_assign, const QStringList &gods = QStringList());
     void assignGeneralsForPlayersOfAttackDongMode(const QList<ServerPlayer *> &to_assign, const QString &bossname);
     void assignGeneralsForPlayersOfYearBossMode(const QList<ServerPlayer *> &to_assign, const int &sclass);
+    void assignGeneralsForPlayersOfDizhuMode(const QList<ServerPlayer *> &to_assign, bool again = true);
     void chooseGenerals(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     void chooseGeneralsOfJianGeDefenseMode();
     void chooseGeneralsOfBestLoyalistMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
@@ -633,6 +635,7 @@ private:
     void chooseGeneralsOfGodsReturnMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     void chooseGeneralsOfAttackDongMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     void chooseGeneralsOfYearBossMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
+    void chooseGeneralsOfDizhuMode(QList<ServerPlayer *> players = QList<ServerPlayer *>());
     AI *cloneAI(ServerPlayer *player);
     void broadcast(const QByteArray &message, ServerPlayer *except = NULL);
     void initCallbacks();

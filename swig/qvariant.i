@@ -126,15 +126,7 @@ public:
     CardResponseStruct toCardResponse() const{
         return $self->value<CardResponseStruct>();
     }
-
-    void setValue(PhaseStruct *resp) {
-        $self->setValue(QVariant::fromValue(*resp));
-    }
-
-    PhaseStruct toPhase() const{
-        return $self->value<PhaseStruct>();
-    }
-
+    
     void setValue(MarkStruct *resp) {
         $self->setValue(QVariant::fromValue(*resp));
     }
@@ -150,15 +142,7 @@ public:
     TurnStruct toTurn() const{
         return $self->value<TurnStruct>();
     }
-
-    void setValue(AskForMoveCardsStruct *resp) {
-        $self->setValue(QVariant::fromValue(*resp));
-    }
-
-    AskForMoveCardsStruct toAskForMoveCards() const{
-        return $self->value<AskForMoveCardsStruct>();
-    }
-
+    
     void setValue(QList<int> intlist) {
         QVariantList varlist;
         for (int i = 0; i < intlist.length(); i++)

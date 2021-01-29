@@ -1048,7 +1048,7 @@ bool Room::askForSkillInvoke(ServerPlayer *player, const QString &skill_name, co
     return invoked;
 }
 
-QString Room::askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices, const QVariant &data, const QString &prompt, QString all_choices)
+QString Room::askForChoice(ServerPlayer *player, const QString &skill_name, const QString &choices, const QVariant &data, const QString &prompt, QString all_choices, bool trigger)
 {
     tryPause();
     notifyMoveFocus(player, S_COMMAND_MULTIPLE_CHOICE);
@@ -1082,7 +1082,8 @@ QString Room::askForChoice(ServerPlayer *player, const QString &skill_name, cons
         answer = validChoices.at(qrand() % validChoices.length());
 
     QVariant decisionData = QVariant::fromValue("skillChoice:" + skill_name + ":" + answer);
-    thread->trigger(ChoiceMade, this, player, decisionData);
+    if (trigger)
+        thread->trigger(ChoiceMade, this, player, decisionData);
     return answer;
 }
 
@@ -3334,7 +3335,7 @@ void Room::assignGeneralsForPlayersOfDragonBoatRace(const QList<ServerPlayer *> 
     }
 }
 
-void Room::assignGeneralsForPlayerOfGodsReturnMode(ServerPlayer *to_assign, const QStringList &gods)
+void Room::assignGeneralsForPlayersOfGodsReturnMode(ServerPlayer *to_assign, const QStringList &gods)
 {
     QSet<QString> existed;
     foreach (ServerPlayer *player, m_players) {
@@ -3751,6 +3752,77 @@ void Room::assignGeneralsForPlayersOfYearBossMode(const QList<ServerPlayer *> &t
     }
 }
 
+void Room::assignGeneralsForPlayersOfDizhuMode(const QList<ServerPlayer *> &to_assign, bool again)
+{
+    QSet<QString> existed;
+    foreach (ServerPlayer *player, m_players) {
+        if (player->getGeneral()) {
+            QString m_name = Sanguosha->getMainGeneral(player->getGeneralName());
+            existed << m_name;
+            foreach (QString _sp, Sanguosha->getConvertGenerals(m_name)) {
+                existed << _sp;
+            }
+        }
+        if (player->getGeneral2()) {
+            QString m_name = Sanguosha->getMainGeneral(player->getGeneral2Name());
+            existed << m_name;
+            foreach (QString _sp, Sanguosha->getConvertGenerals(m_name)) {
+                existed << _sp;
+            }
+        }
+    }
+
+    const int max_choice = (Config.EnableHegemony && Config.Enable2ndGeneral) ?
+        Config.value("HegemonyMaxChoice", 7).toInt() :
+        Config.value("MaxChoice", 5).toInt();
+
+    QStringList all_choices = Sanguosha->getRandomGenerals(0, existed);
+    QStringList choices = Sanguosha->getMainGenerals(all_choices);
+
+    foreach (ServerPlayer *player, to_assign) {
+        if (!again)
+            player->clearSelected();
+
+        int choice_count = 0;
+        if (!again)
+            choice_count = max_choice;
+        else if (player->getRole() == "lord")
+            choice_count = Config.value("NonLordMaxChoice", 2).toInt();
+
+        for (int i = 0; i < choice_count; i++) {
+            qShuffle(choices);
+            QStringList ai_ban = QStringList();
+            if (player->getState() == "robot")
+                ai_ban = Config.value("Banlist/AI", "").toStringList();
+            QString choice;
+            foreach (QString name, choices) {
+                QStringList all_name = Sanguosha->getConvertGenerals(name);
+                all_name << name;
+                QStringList temp = all_name;
+                foreach (QString name1, temp) {
+                    if (ai_ban.contains(name1))
+                        all_name.removeOne(name1);
+                }
+                QString _name = player->findReasonable(all_name, true);
+                if (!_name.isEmpty()) {
+                    choice = name;
+                    break;
+                }
+            }
+
+            if (choice.isEmpty()) break;
+            if (all_choices.contains(choice) && !ai_ban.contains(choice))
+                player->addToSelected(choice);
+            foreach (QString sp, Sanguosha->getConvertGenerals(choice)) {
+                if (all_choices.contains(sp) && !ai_ban.contains(sp))
+                    player->addToSelected(sp);
+            }
+
+            choices.removeOne(choice);
+        }
+    }
+}
+
 void Room::assignKingdomForPlayers()
 {
     QStringList kingdomM;
@@ -4148,7 +4220,7 @@ void Room::chooseGeneralsOfGodsReturnMode(QList<ServerPlayer *> players)
         foreach (ServerPlayer *ato_assign, to_assign)
             if (ato_assign->getSeat() == seat_rank[seat])
             {
-                assignGeneralsForPlayerOfGodsReturnMode(ato_assign, gods_use);
+                assignGeneralsForPlayersOfGodsReturnMode(ato_assign, gods_use);
                 _setupChooseGeneralRequestArgs(ato_assign, true, true);
                 QList<ServerPlayer *> temp_to_assign;
                 temp_to_assign << ato_assign;
@@ -4172,7 +4244,7 @@ void Room::chooseGeneralsOfGodsReturnMode(QList<ServerPlayer *> players)
             foreach (ServerPlayer *ato_assign, to_assign)
                 if (ato_assign->getSeat() == seat_rank[seat])
                 {
-                    assignGeneralsForPlayerOfGodsReturnMode(ato_assign);
+                    assignGeneralsForPlayersOfGodsReturnMode(ato_assign);
                     _setupChooseGeneralRequestArgs(ato_assign, true, true);
                     QList<ServerPlayer *> temp_to_assign;
                     temp_to_assign << ato_assign;
@@ -4386,6 +4458,92 @@ void Room::chooseGeneralsOfYearBossMode(QList<ServerPlayer *> players)
     }
 }
 
+void Room::chooseGeneralsOfDizhuMode(QList<ServerPlayer *> players)
+{
+    if (players.isEmpty()) players = m_players;
+
+    QList<ServerPlayer *> to_assign = players;
+
+    assignGeneralsForPlayersOfDizhuMode(to_assign, true);
+    foreach(ServerPlayer *player, to_assign)
+        _setupChooseGeneralRequestArgs(player, true, true);
+
+    doBroadcastRequest(to_assign, S_COMMAND_CHOOSE_GENERAL);
+    foreach (ServerPlayer *player, to_assign) {
+        if (player->getGeneral() != NULL) continue;
+        QString generalName = player->getClientReply().toString();
+        if (!player->m_isClientResponseReady ||  !_setPlayerGeneral(player, generalName, true))
+            _setPlayerGeneral(player, _chooseDefaultGeneral(player), true);
+    }
+
+    if (Config.Enable2ndGeneral) {
+        QList<ServerPlayer *> to_assign = players;
+        assignGeneralsForPlayers(to_assign);
+        foreach(ServerPlayer *player, to_assign)
+            _setupChooseGeneralRequestArgs(player, true, true);
+
+        doBroadcastRequest(to_assign, S_COMMAND_CHOOSE_GENERAL);
+        foreach (ServerPlayer *player, to_assign) {
+            if (player->getGeneral2() != NULL) continue;
+            QString generalName = player->getClientReply().toString();
+            if (!player->m_isClientResponseReady || !_setPlayerGeneral(player, generalName, false))
+                _setPlayerGeneral(player, _chooseDefaultGeneral(player), false);
+        }
+    }
+
+}
+
+void Room::askForDizhuForPlayers()
+{
+    assignGeneralsForPlayersOfDizhuMode(m_players, false);
+
+    int n = m_players.count();
+    for (int i = 0; i < n; ++i)
+    {
+        ServerPlayer *player = m_players[i];
+        foreach (QString own_choice, player->getSelected())
+        {
+            LogMessage log;
+            log.type = "#your_choices";
+            log.from = player;
+            log.arg = own_choice;
+            sendLog(log, player);
+        }
+    }
+    int ask = 0, dizhu = -1;
+    for (int i = 0; i < n; ++i)
+    {
+        ServerPlayer *player = m_players[i];
+        QStringList choices, all_choices;
+        for (int j = 1; j <= 3; ++j)
+        {
+            if (j > ask)
+                choices << QString::number(j);
+            all_choices << QString::number(j);
+        }
+        choices << "cancel";
+        all_choices << "cancel";
+        QString choice = askForChoice(player, QString(), choices.join('+'), QVariant(), "@doudizhu", all_choices.join('+'), false);
+        if (choice == "cancel")
+            continue;
+        dizhu = i;
+        ask = choice.toInt();
+        if (ask == 3) break;
+    }
+    QStringList roles = Sanguosha->getRoleList(mode);
+    qSwap(roles[0], roles[dizhu < 0 ? 2 : dizhu]);
+
+    for (int i = 0; i < n; i++) {
+        ServerPlayer *player = m_players[i];
+        QString role = roles.at(i);
+
+        player->setRole(role);
+
+        broadcastProperty(player, "role", player->getRole());
+    }
+    adjustSeats();
+}
+
 void Room::run()
 {
     playSystemAudio("prerun");
@@ -4524,6 +4682,10 @@ void Room::run()
         }
         chooseGeneralsOfYearBossMode();
         startGame();
+    } else if (mode == "03_1v2") {
+        askForDizhuForPlayers();
+        chooseGeneralsOfDizhuMode();
+        startGame();
     } else {
         chooseGenerals();
         startGame();
@@ -4562,7 +4724,7 @@ void Room::assignRoles()
     else
         roles = Sanguosha->getRoleList(mode);
 
-    if (mode != "08_defense" && mode != "08_dragonboat" && mode != "06_swzs" && mode != "05_zhfd" && mode != "04_year")
+    if (mode != "08_defense" && mode != "08_dragonboat" && mode != "06_swzs" && mode != "05_zhfd" && mode != "04_year" && mode != "03_1v2")
         qShuffle(roles);
 
     bool first_role_showed = false;
@@ -5400,7 +5562,8 @@ void Room::startGame()
     }
 
     foreach (ServerPlayer *player, m_players) {
-        Q_ASSERT(player->getGeneral());if ((mode == "06_swzs" || mode == "05_zhfd") && player->isLord())
+        Q_ASSERT(player->getGeneral());
+        if ((mode == "06_swzs" || mode == "05_zhfd") && player->isLord())
             player->setMaxHp(player->getGeneralMaxHp() - 1);
         else if (mode == "05_zhfd" && Config.value("zhfd/Mode", "NormalMode").toString() == "BossMode" && player->getRole() == "loyalist")
         {
@@ -5419,7 +5582,7 @@ void Room::startGame()
 
     foreach (ServerPlayer *player, m_players) {
         if (!Config.EnableBasara
-            && (mode == "06_3v3" || mode == "02_1v1" || mode == "06_XMode" || !player->isLord()))
+            && (mode == "06_3v3" || mode == "02_1v1" || mode == "06_XMode" || mode == "03_1v2" || !player->isLord()))
             broadcastProperty(player, "general");
 
         if (mode == "02_1v1")

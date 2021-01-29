@@ -1397,8 +1397,14 @@ void GameRule::rewardAndPunish(ServerPlayer *killer, ServerPlayer *victim) const
         if (victim->getRole() == "rebel")
             foreach (ServerPlayer *sp, room->getOtherPlayers(victim))
                 if (sp->getRole() == "rebel")
-                    if (room->askForChoice(sp, NULL, "draw+cancel") == "draw")
+                {
+                    QString choices = "recover+draw+cancel", short_choices = "draw+cancel";
+                    QString choice = room->askForChoice(sp, NULL, !sp->isWounded() ? choices : short_choices, QVariant(), NULL, choices);
+                    if (choice == "draw")
                         room->drawCards(sp, 2);
+                    if (choice == "recover")
+                        room->recover(sp, RecoverStruct(sp));
+                }
     }
     else if (room->getMode() == "08_zdyj" && Config.value("zdyj/Rule", "2017").toString() == "2017" && victim->getMark("shown_loyalist"))
     {
