@@ -3323,15 +3323,8 @@ void Room::assignGeneralsForPlayersOfDragonBoatRace(const QList<ServerPlayer *> 
             if (p->getRole() == player->getRole())
                 mates << p;
 
-        foreach (QString own_choice, own_choices)
-        {
-            LogMessage log;
-            log.type = "#mate_choices";
-            log.from = player;
-            log.arg = own_choice;
-            log.arg2 = QString::number(player->getSeat());
-            sendLog(log, mates);
-        }
+
+        showCardContainerGeneral(own_choices, mates, tr("mate_choices"));
     }
 }
 
@@ -3464,15 +3457,7 @@ void Room::assignGeneralsForPlayersOfGodsReturnMode(ServerPlayer *to_assign, con
     if (to_assign->getRole() == "rebel")
         foreach (ServerPlayer *player, getOtherPlayers(to_assign))
             if (player->getRole() == to_assign->getRole())
-                foreach (QString own_choice, own_choices)
-                {
-                    LogMessage log;
-                    log.type = "#mate_choices";
-                    log.from = to_assign;
-                    log.arg = own_choice;
-                    log.arg2 = QString::number(to_assign->getSeat());
-                    sendLog(log, player);
-                }
+                showCardContainerGeneral(own_choices, player, tr("mate_choices"));
 }
 
 void Room::assignGeneralsForPlayersOfAttackDongMode(const QList<ServerPlayer *> &to_assign, const QString &bossname)
@@ -3606,15 +3591,7 @@ void Room::assignGeneralsForPlayersOfAttackDongMode(const QList<ServerPlayer *> 
         if (player->getRole() == "rebel" && !choices.contains("sp_sunjian"))
             foreach (ServerPlayer *p, getOtherPlayers(player))
                 if (p->getRole() == player->getRole())
-                    foreach (QString own_choice, own_choices)
-                    {
-                        LogMessage log;
-                        log.type = "#mate_choices";
-                        log.from = player;
-                        log.arg = own_choice;
-                        log.arg2 = QString::number(player->getSeat());
-                        sendLog(log, p);
-                    }
+                    showCardContainerGeneral(own_choices, p, tr("mate_choices"));
     }
 }
 
@@ -3738,17 +3715,7 @@ void Room::assignGeneralsForPlayersOfYearBossMode(const QList<ServerPlayer *> &t
 
         if (sclass == 1)
             foreach (ServerPlayer *p, to_assign)
-                foreach (QString own_choice, own_choices)
-                {
-                    if (p == player)
-                        break;
-                    LogMessage log;
-                    log.type = "#mate_choices";
-                    log.from = player;
-                    log.arg = own_choice;
-                    log.arg2 = QString::number(player->getSeat());
-                    sendLog(log, p);
-                }
+                showCardContainerGeneral(own_choices, p, tr("mate_choices"));
     }
 }
 
@@ -4139,18 +4106,6 @@ void Room::chooseGeneralsOfDragonBoatRace(QList<ServerPlayer *> players)
         QString generalName = player->getClientReply().toString();
         if (!player->m_isClientResponseReady ||  !_setPlayerGeneral(player, generalName, true))
             _setPlayerGeneral(player, _chooseDefaultGeneral(player), true);
-
-        QList<ServerPlayer *> mates;
-        foreach (ServerPlayer *p, getOtherPlayers(player, true))
-            if (p->getRole() == player->getRole())
-                mates << p;
-
-        LogMessage log;
-        log.type = "#mate_chosen";
-        log.from = player;
-        log.arg = player->getGeneralName();
-        log.arg2 = QString::number(player->getSeat());
-        sendLog(log, mates);
     }
 
     if (Config.Enable2ndGeneral) {
@@ -4165,18 +4120,6 @@ void Room::chooseGeneralsOfDragonBoatRace(QList<ServerPlayer *> players)
             QString generalName = player->getClientReply().toString();
             if (!player->m_isClientResponseReady || !_setPlayerGeneral(player, generalName, false))
                 _setPlayerGeneral(player, _chooseDefaultGeneral(player), false);
-
-            QList<ServerPlayer *> mates;
-            foreach (ServerPlayer *p, getOtherPlayers(player, true))
-                if (p->getRole() == player->getRole())
-                    mates << p;
-
-            LogMessage log;
-            log.type = "#mate_chosen";
-            log.from = player;
-            log.arg = player->getGeneral2Name();
-            log.arg2 = QString::number(player->getSeat());
-            sendLog(log, mates);
         }
     }
 
@@ -4501,14 +4444,7 @@ void Room::askForDizhuForPlayers()
     for (int i = 0; i < n; ++i)
     {
         ServerPlayer *player = m_players[i];
-        foreach (QString own_choice, player->getSelected())
-        {
-            LogMessage log;
-            log.type = "#your_choices";
-            log.from = player;
-            log.arg = own_choice;
-            sendLog(log, player);
-        }
+        showCardContainerGeneral(player->getSelected(), player, tr("your_choices"));
     }
     int ask = 0, dizhu = -1;
     for (int i = 0; i < n; ++i)
@@ -8359,6 +8295,7 @@ void Room::makeReviving(const QString &name)
     setPlayerProperty(player, "hp", player->getMaxHp());
 }
 
+
 void Room::fillAG(const QList<int> &card_ids, ServerPlayer *who, const QList<int> &disabled_ids)
 {
     JsonArray arg;
@@ -8480,6 +8417,71 @@ void Room::clearAG(ServerPlayer *player)
         doNotify(player, S_COMMAND_CLEAR_AMAZING_GRACE, QVariant());
     else
         doBroadcastNotify(S_COMMAND_CLEAR_AMAZING_GRACE, QVariant());
+}
+
+void Room::showCardContainerCard(const QList<int> &card_ids, ServerPlayer *who, const QString &title)
+{
+    JsonArray arg;
+    arg << false;
+    arg << JsonUtils::toJsonArray(card_ids);
+    arg << title;
+
+    if (who)
+        doNotify(who, S_COMMAND_SHOW_CARD_CONTAINER, arg);
+    else
+        doBroadcastNotify(S_COMMAND_SHOW_CARD_CONTAINER, arg);
+}
+
+void Room::showCardContainerCard(const QList<int> &card_ids, QList<ServerPlayer *> to_notify, const QString &title)
+{
+    JsonArray arg;
+    arg << false;
+    arg << JsonUtils::toJsonArray(card_ids);
+    arg << title;
+
+    if (to_notify.empty())
+        doBroadcastNotify(S_COMMAND_SHOW_CARD_CONTAINER, arg);
+    else
+        doBroadcastNotify(to_notify, S_COMMAND_SHOW_CARD_CONTAINER, arg);
+}
+
+void Room::showCardContainerGeneral(const QStringList &generals, ServerPlayer *who, const QString &title)
+{
+    JsonArray arg;
+    arg << true;
+    arg << JsonUtils::toJsonArray(generals);
+    arg << title;
+
+    if (who)
+        doNotify(who, S_COMMAND_SHOW_CARD_CONTAINER, arg);
+    else
+        doBroadcastNotify(S_COMMAND_SHOW_CARD_CONTAINER, arg);
+}
+
+void Room::showCardContainerGeneral(const QStringList &generals, QList<ServerPlayer *> to_notify, const QString &title)
+{
+    JsonArray arg;
+    arg << true;
+    arg << JsonUtils::toJsonArray(generals);
+    arg << title;
+
+    if (to_notify.empty())
+        doBroadcastNotify(S_COMMAND_SHOW_CARD_CONTAINER, arg);
+    else
+        doBroadcastNotify(to_notify, S_COMMAND_SHOW_CARD_CONTAINER, arg);
+}
+
+void Room::showCardContainer(bool type, const QStringList infos, QList<ServerPlayer *> to_notify, const QString &title)
+{
+    JsonArray arg;
+    arg << type;
+    arg << JsonUtils::toJsonArray(infos);
+    arg << title;
+
+    if (to_notify.empty())
+        doBroadcastNotify(S_COMMAND_SHOW_CARD_CONTAINER, arg);
+    else
+        doBroadcastNotify(to_notify, S_COMMAND_SHOW_CARD_CONTAINER, arg);
 }
 
 void Room::provide(const Card *card)

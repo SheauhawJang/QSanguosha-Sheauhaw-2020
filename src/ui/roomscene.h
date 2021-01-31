@@ -184,6 +184,7 @@ public slots:
     void keepGetCardLog(const CardsMoveStruct &move);
     // choice dialog
     void chooseGeneral(const QStringList &generals, bool single_result, const QString &reason, bool convert_enabled);
+    void showCardContainer(bool is_general, const QStringList &cards, const QString &title);
     void chooseSuit(const QStringList &suits);
     void chooseCard(const ClientPlayer *playerName, const QString &flags, const QString &reason,
         bool handcard_visible, Card::HandlingMethod method, QList<int> disabled_ids, QList<int> handcards, int min_num, int max_num);

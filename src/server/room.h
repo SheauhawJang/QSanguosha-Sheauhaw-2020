@@ -126,6 +126,11 @@ public:
 	void fillAG(const QList<int> &card_ids, QList<ServerPlayer *> to_notify, const QList<int> &disabled_ids = QList<int>());
     void takeAG(ServerPlayer *player, int card_id, bool move_cards = true, QList<ServerPlayer *> to_notify = QList<ServerPlayer *>());
     void clearAG(ServerPlayer *player = NULL);
+    void showCardContainerCard(const QList<int> &card_ids, ServerPlayer *who = NULL, const QString &title = QString());
+    void showCardContainerGeneral(const QStringList &generals, ServerPlayer *who = NULL, const QString &title = QString());
+    void showCardContainerCard(const QList<int> &card_ids, QList<ServerPlayer *> to_notify, const QString &title = QString());
+    void showCardContainerGeneral(const QStringList &generals, QList<ServerPlayer *> to_notify, const QString &title = QString());
+    void showCardContainer(bool type, const QStringList infos, QList<ServerPlayer *> to_notify, const QString &title = QString());
     void provide(const Card *card);
     QList<ServerPlayer *> getLieges(const QString &kingdom, ServerPlayer *lord) const;
     void sendLog(const LogMessage &log, QList<ServerPlayer *> players = QList<ServerPlayer *>());

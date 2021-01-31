@@ -64,6 +64,5 @@ return {
 	["against_water"] = "逆水行舟",
 	[":against_water"] = "普通锦囊牌\n\n使用时机：出牌阶段。\n使用目标：一名与你势力不同的其他角色。\n作用效果：对目标角色造成1点伤害。之后若你所属势力的“龙船至宝”的数目为：最多且不为0，弃一张牌；最少，摸一张牌。",
 
-	["#mate_choices"] = "你的<b> %arg2 </b>号位队友的选将框里有<b><color=\"green\"> %arg </color></b>！",
-	["#mate_chosen"] = "你的<b> %arg2 </b>号位队友已经选择了<b><color=\"green\"> %arg </color></b>作为自己的武将！",
+	["mate_choices"] = "队友的选将",
 }

@@ -118,6 +118,7 @@ Client::Client(QObject *parent, const QString &filename)
     m_callbacks[S_COMMAND_FILL_AMAZING_GRACE] = &Client::fillAG;
     m_callbacks[S_COMMAND_TAKE_AMAZING_GRACE] = &Client::takeAG;
     m_callbacks[S_COMMAND_CLEAR_AMAZING_GRACE] = &Client::clearAG;
+    m_callbacks[S_COMMAND_SHOW_CARD_CONTAINER] = &Client::showCardContainer;
 
     // 3v3 mode & 1v1 mode
     m_interactions[S_COMMAND_ASK_GENERAL] = &Client::askForGeneral3v3;
@@ -1497,6 +1498,28 @@ void Client::askForGeneral(const QVariant &arg)
 	bool convert_enabled = args[3].toBool();
     emit generals_got(generals, single_result, reason, convert_enabled);
     setStatus(AskForGeneralChosen);
+}
+
+void Client::showCardContainer(const QVariant &arg)
+{
+    JsonArray args = arg.value<JsonArray>();
+    if (args.size() != 3 || !JsonUtils::isBool(args[0]) || !JsonUtils::isString(args[2]))
+        return;
+    bool is_generals = args[0].toBool();
+    QString title = args[2].toString();
+    QStringList generals;
+    if (is_generals)
+    {
+        if (!JsonUtils::tryParse(args[1], generals)) return;
+    }
+    else
+    {
+        QList<int> cards;
+        if (!JsonUtils::tryParse(args[1], cards)) return;
+        foreach (int id, cards)
+            generals.append(QString::number(id));
+    }
+    emit card_container_show(is_generals, generals, title);
 }
 
 void Client::askForSuit(const QVariant &)

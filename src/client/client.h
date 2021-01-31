@@ -187,6 +187,7 @@ public:
     void askForSurrender(const QVariant &);
     void askForLuckCard(const QVariant &);
     void handleGameEvent(const QVariant &);
+    void showCardContainer(const QVariant &);
     //3v3 & 1v1
     void askForOrder(const QVariant &);
     void askForRole3v3(const QVariant &);
@@ -330,6 +331,7 @@ signals:
     void player_removed(const QString &player_name);
     // choice signal
     void generals_got(const QStringList &generals, bool single_result, const QString &reason, bool convert_enabled);
+    void card_container_show(bool is_general, const QStringList &cards, const QString &title);
     void kingdoms_got(const QStringList &kingdoms);
     void suits_got(const QStringList &suits);
     void options_got(const QString &skillName, const QStringList &options, const QStringList &all_options);

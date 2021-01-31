@@ -123,6 +123,6 @@ return {
 	["bahu"] = "跋扈",
 	[":bahu"] = "锁定技，准备阶段开始时，你额外摸一张牌；你使用【杀】的次数上限+1",
 	["@doudizhu"] = "选择你的叫分倍数",
-	["#your_choices"] = "你的选将框里有<b><color=\"green\"> %arg </color></b>！",
+	["your_choices"] = "你的选将",
 	
 }

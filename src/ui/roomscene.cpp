@@ -190,6 +190,7 @@ RoomScene::RoomScene(QMainWindow *main_window)
     connect(ClientInstance, SIGNAL(animated(int, QStringList)), this, SLOT(doAnimation(int, QStringList)));
     connect(ClientInstance, SIGNAL(role_state_changed(QString)), this, SLOT(updateRoles(QString)));
     connect(ClientInstance, SIGNAL(event_received(const QVariant)), this, SLOT(handleGameEvent(const QVariant)));
+    connect(ClientInstance, SIGNAL(card_container_show(bool, QStringList, QString)), this, SLOT(showCardContainer(bool, QStringList, QString)));
 
     connect(ClientInstance, SIGNAL(game_started()), this, SLOT(onGameStart()));
     connect(ClientInstance, SIGNAL(game_over()), this, SLOT(onGameOver()));
@@ -1710,6 +1711,36 @@ void RoomScene::chooseGeneral(const QStringList &generals, bool single_result, c
     } else {
         m_chooseGeneralBox->chooseGeneral(generals, false, single_result, reason, convert_enabled);
     }
+}
+
+void RoomScene::showCardContainer(bool is_general, const QStringList &cards, const QString &title)
+{
+    if (is_general)
+    {
+        QList<CardItem *> generals;
+        foreach (QString arg, cards) {
+            CardItem *item = new CardItem(arg);
+            addItem(item);
+            item->setParentItem(m_cardContainer);
+            generals.append(item);
+        }
+        m_cardContainer->fillGeneralCards(generals);
+        m_cardContainer->setPos(m_tableCenterPos - QPointF(m_cardContainer->boundingRect().width() / 2, 3 * m_cardContainer->boundingRect().height() / 2));
+    }
+    else
+    {
+        QList<int> ids;
+        foreach (QString name, cards)
+            ids.append(name.toInt());
+        bringToFront(m_cardContainer);
+        m_cardContainer->fillCards(ids);
+        m_cardContainer->setPos(m_tableCenterPos - QPointF(m_cardContainer->boundingRect().width() / 2, 3 * m_cardContainer->boundingRect().height() / 2));
+    }
+    m_cardContainer->setTile(tr("QSanguosha"));
+    if (title != "")
+        m_cardContainer->setTile(title);
+    m_cardContainer->addConfirmButton();
+    m_cardContainer->show();
 }
 
 void RoomScene::chooseSuit(const QStringList &suits)
