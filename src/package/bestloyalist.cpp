@@ -252,12 +252,26 @@ public:
         frequency = Compulsory;
     }
 
-    bool triggerable(const ServerPlayer *target) const
+    QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
-        return target != NULL && target->isAlive();
+        if (player != NULL && player->isAlive())
+            if (triggerEvent == EventPhaseStart)
+                if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw)
+                    return nameList();
+        return QStringList();
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventPhaseChanging) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to != Player::NotActive)
+                return;
+            room->setPlayerMark(player, "#yawang", 0);
+        }
+    }
+
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
     {
         if (triggerEvent == EventPhaseStart) {
             if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw) {
@@ -275,11 +289,6 @@ public:
                 room->setPlayerMark(player, "#yawang", n);
                 return true;
             }
-        } else if (triggerEvent == EventPhaseChanging) {
-            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to != Player::NotActive)
-                return false;
-            room->setPlayerMark(player, "#yawang", 0);
         }
         return false;
     }
@@ -710,7 +719,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (room->getTag("FirstRound").toBool())
         {
@@ -760,7 +769,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList list;
         if (player->hasFlag("Global_Dying") && player->getHp() <= 0 && player->getRoleEnum() == Player::Lord)
@@ -770,7 +779,7 @@ public:
         return list;
     }
 
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *loyalist) const
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *loyalist) const
     {
         room->sendCompulsoryTriggerLog(loyalist, objectName());
         room->notifySkillInvoked(loyalist, objectName());

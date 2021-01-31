@@ -36,7 +36,7 @@
 
 using namespace QSanProtocol;
 
-const int lrSp = 12; // Balence left part and right part
+const int lrSp = 14; // Balence left part and right part
 
 static QLayout *HLay(QWidget *left, QWidget *right)
 {

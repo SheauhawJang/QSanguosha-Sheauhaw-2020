@@ -4340,12 +4340,45 @@ public:
         events << CardAsked << CardsMoveOneTime << EventAcquireSkill << EventLoseSkill << GameStart;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *yueying, QVariant &data) const
     {
-        return target != NULL;
+        TriggerList list;
+        switch (triggerEvent)
+        {
+        case CardAsked:
+            if (yueying->hasSkill("linglong") && !yueying->getArmor() && yueying->hasArmorEffect("eight_diagram") && data.toStringList().first() == "jink")
+                list.insert(yueying, nameList());
+            break;
+        case EventLoseSkill:
+        case EventAcquireSkill:
+            if (data.toString() == "linglong")
+                list.insert(yueying, nameList());
+            break;
+        case GameStart:
+            if (yueying->hasSkill("linglong"))
+                list.insert(yueying, nameList());
+            break;
+        case CardsMoveOneTime:
+            if (yueying->isAlive() && yueying->hasSkill(this, true))
+            {
+                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                if (move.to == yueying && move.to_place == Player::PlaceEquip) {
+                    if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
+                        list.insert(yueying, nameList());
+                    }
+                } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
+                    if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
+                        list.insert(yueying, nameList());
+                    }
+                }
+            }
+            break;
+        default: break;
+        }
+        return list;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *yueying, QVariant &data) const
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &data, ServerPlayer *yueying) const
     {
         if (triggerEvent == CardAsked && yueying->hasSkill("linglong") && !yueying->getArmor() && yueying->hasArmorEffect("eight_diagram")){
             QString pattern = data.toStringList().first();
