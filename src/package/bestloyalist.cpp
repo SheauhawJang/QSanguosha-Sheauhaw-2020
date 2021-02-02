@@ -248,7 +248,7 @@ class Yawang : public TriggerSkill
 public:
     Yawang() : TriggerSkill("yawang")
     {
-        events << EventPhaseStart << EventPhaseChanging;
+        events << EventPhaseStart << EventPhaseChanging << EventPhaseEnd << CardUsed << CardResponded;
         frequency = Compulsory;
     }
 
@@ -265,61 +265,12 @@ public:
     {
         if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
-            if (change.to != Player::NotActive)
-                return;
-            room->setPlayerMark(player, "#yawang", 0);
+            if (change.to == Player::NotActive)
+                room->setPlayerMark(player, "#yawang", 0);
         }
-    }
 
-    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
-    {
-        if (triggerEvent == EventPhaseStart) {
-            if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw) {
-                room->sendCompulsoryTriggerLog(player, objectName());
-                player->broadcastSkillInvoke(objectName());
-                int n = 0;
-                foreach(ServerPlayer *p, room->getAllPlayers())
-                {
-                    if (p->getHp() == player->getHp())
-                        ++n;
-                }
-                player->setFlags(objectName());
-                if (n > 0)
-                    player->drawCards(n, objectName());
-                room->setPlayerMark(player, "#yawang", n);
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
-class YawangLimitation : public TriggerSkill
-{
-public:
-    YawangLimitation() : TriggerSkill("#yawang")
-    {
-        events << EventPhaseStart << EventPhaseEnd << CardUsed << CardResponded;
-    }
-
-    int getPriority(TriggerEvent triggerEvent) const
-    {
-        if (triggerEvent == EventPhaseEnd)
-            return -6;
-        else
-            return 6;
-        return TriggerSkill::getPriority(triggerEvent);
-    }
-
-    bool triggerable(const ServerPlayer *target) const
-    {
-        return target != NULL && target->isAlive();
-    }
-
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
         if (player->getPhase() != Player::Play || !player->hasFlag("yawang"))
-            return false;
+            return;
         if (triggerEvent == EventPhaseStart) {
             if (player->getMark("#yawang") < 1) {
                 room->setPlayerCardLimitation(player, "use", ".|.|.|.", true);
@@ -345,6 +296,27 @@ public:
                     room->setPlayerCardLimitation(player, "use", ".|.|.|.", true);
                     room->setPlayerFlag(player, "YawangLimitation");
                 }
+            }
+        }
+    }
+
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Draw) {
+                room->sendCompulsoryTriggerLog(player, objectName());
+                player->broadcastSkillInvoke(objectName());
+                int n = 0;
+                foreach(ServerPlayer *p, room->getAllPlayers())
+                {
+                    if (p->getHp() == player->getHp())
+                        ++n;
+                }
+                player->setFlags(objectName());
+                if (n > 0)
+                    player->drawCards(n, objectName());
+                room->setPlayerMark(player, "#yawang", n);
+                return true;
             }
         }
         return false;
@@ -870,10 +842,8 @@ BestLoyalistPackage::BestLoyalistPackage()
 {
     General *cuiyan = new General(this, "cuiyan", "wei", 3);
     cuiyan->addSkill(new Yawang);
-    cuiyan->addSkill(new YawangLimitation);
     cuiyan->addSkill(new Xunzhi);
     cuiyan->addSkill(new XunzhiKeep);
-    related_skills.insertMulti("yawang", "#yawang");
     related_skills.insertMulti("xunzhi", "#xunzhi");
 
     General *huangfusong = new General(this, "huangfusong", "qun");

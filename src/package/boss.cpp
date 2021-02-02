@@ -1830,6 +1830,7 @@ public:
         boss->broadcastSkillInvoke(objectName());
         room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, boss->objectName(), player->objectName());
         room->addPlayerMark(player, "#bossduqu");
+		return false;
     }
 };
 

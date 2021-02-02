@@ -4107,8 +4107,7 @@ void Room::chooseGeneralsOfDragonBoatRace(QList<ServerPlayer *> players)
         if (!player->m_isClientResponseReady ||  !_setPlayerGeneral(player, generalName, true))
             _setPlayerGeneral(player, _chooseDefaultGeneral(player), true);
     }
-    foreach(ServerPlayer *player, to_assign)
-        clearAG(player);
+
     if (Config.Enable2ndGeneral) {
         QList<ServerPlayer *> to_assign = players;
         assignGeneralsForPlayersOfDragonBoatRace(to_assign);
@@ -4412,8 +4411,6 @@ void Room::chooseGeneralsOfDizhuMode(QList<ServerPlayer *> players)
     foreach(ServerPlayer *player, to_assign)
         _setupChooseGeneralRequestArgs(player, true, true);
 
-    foreach(ServerPlayer *player, to_assign)
-        clearAG(player);
     doBroadcastRequest(to_assign, S_COMMAND_CHOOSE_GENERAL);
     foreach (ServerPlayer *player, to_assign) {
         if (player->getGeneral() != NULL) continue;
@@ -5067,6 +5064,7 @@ bool Room::useCard(const CardUseStruct &use, bool add_history)
     card = card_use.card->validate(card_use);
     if (card == NULL)
         return false;
+    qDebug() << card << "use" << card->tag["addcardinality"].toInt();
 
     if (card_use.from->getPhase() == Player::Play && add_history) {
         card_use.m_addHistory = true;

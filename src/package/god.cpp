@@ -1495,7 +1495,7 @@ const Card *LonghunCard::validateInResponse(ServerPlayer *) const
         card->setSkillName("longhun");
         if (card->subcardsLength() == 2) {
             if (card->isKindOf("Slash") || card->isKindOf("Peach"))
-                card->setTag("addcardinality", 1);
+                card->setTag("addcardinality", card->tag["addcardinality"].toInt() + 1);
         }
     }
 

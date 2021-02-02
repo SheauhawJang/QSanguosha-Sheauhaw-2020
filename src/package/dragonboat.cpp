@@ -354,18 +354,6 @@ public:
                 }
             }
         }
-        else if (triggerEvent == CardUsed)
-        {
-            CardUseStruct use = data.value<CardUseStruct>();
-            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
-                QStringList wenji_list = player->tag[objectName()].toStringList();
-
-                QString classname = use.card->getClassName();
-                if (use.card->isKindOf("Slash")) classname = "Slash";
-                if (wenji_list.contains(classname))
-                    return nameList();
-            }
-        }
         return QStringList();
     }
 
@@ -376,9 +364,30 @@ public:
                 p->tag.remove(objectName());
             }
         }
+
+        if (triggerEvent == CardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
+                QStringList wenji_list = player->tag[objectName()].toStringList();
+
+                QString classname = use.card->getClassName();
+                if (use.card->isKindOf("Slash")) classname = "Slash";
+                if (!wenji_list.contains(classname)) return;
+
+
+                QStringList fuji_tag = use.card->tag["Fuji_tag"].toStringList();
+
+                QList<ServerPlayer *> players = room->getOtherPlayers(player);
+                foreach (ServerPlayer *p, players) {
+                    fuji_tag << p->objectName();
+                }
+                use.card->setTag("Fuji_tag", fuji_tag);
+            }
+        }
+
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (triggerEvent == EventPhaseStart) {
             QList<ServerPlayer *> targets;
@@ -410,26 +419,7 @@ public:
                     player->tag[objectName()] = list;
 
                 }
-        } else if (triggerEvent == CardUsed) {
-            CardUseStruct use = data.value<CardUseStruct>();
-            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
-                QStringList wenji_list = player->tag[objectName()].toStringList();
-
-                QString classname = use.card->getClassName();
-                if (use.card->isKindOf("Slash")) classname = "Slash";
-                if (!wenji_list.contains(classname)) return false;
-
-
-                QStringList fuji_tag = use.card->tag["Fuji_tag"].toStringList();
-
-                QList<ServerPlayer *> players = room->getOtherPlayers(player);
-                foreach (ServerPlayer *p, players) {
-                    fuji_tag << p->objectName();
-                }
-                use.card->setTag("Fuji_tag", fuji_tag);
-            }
         }
-
         return false;
     }
 };
@@ -442,7 +432,7 @@ public:
 
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList list;
         if (player->getPhase() != Player::Finish) return list;

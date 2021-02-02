@@ -2057,16 +2057,6 @@ public:
                 if (!targets.isEmpty())
                     return nameList();
             }
-        } else if (triggerEvent == CardUsed) {
-            CardUseStruct use = data.value<CardUseStruct>();
-            if (use.card->isKindOf("Slash") || use.card->isNDTrick()) {
-                QStringList wenji_list = player->tag[objectName()].toStringList();
-
-                QString classname = use.card->getClassName();
-                if (use.card->isKindOf("Slash")) classname = "Slash";
-                if (wenji_list.contains(classname))
-                    return nameList();
-            }
         }
         return QStringList();
     }
@@ -2080,6 +2070,24 @@ public:
                     p->tag.remove(objectName());
                 }
             }
+        }
+
+        if (triggerEvent == CardUsed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            QStringList wenji_list = player->tag[objectName()].toStringList();
+
+            QString classname = use.card->getClassName();
+            if (use.card->isKindOf("Slash")) classname = "Slash";
+            if (!wenji_list.contains(classname)) return;
+
+
+            QStringList fuji_tag = use.card->tag["Fuji_tag"].toStringList();
+
+            QList<ServerPlayer *> players = room->getOtherPlayers(player);
+            foreach (ServerPlayer *p, players) {
+                fuji_tag << p->objectName();
+            }
+            use.card->setTag("Fuji_tag", fuji_tag);
         }
     }
 
@@ -2114,22 +2122,6 @@ public:
                 player->tag[objectName()] = list;
 
             }
-        } else if (triggerEvent == CardUsed) {
-            CardUseStruct use = data.value<CardUseStruct>();
-            QStringList wenji_list = player->tag[objectName()].toStringList();
-
-            QString classname = use.card->getClassName();
-            if (use.card->isKindOf("Slash")) classname = "Slash";
-            if (!wenji_list.contains(classname)) return false;
-
-
-            QStringList fuji_tag = use.card->tag["Fuji_tag"].toStringList();
-
-            QList<ServerPlayer *> players = room->getOtherPlayers(player);
-            foreach (ServerPlayer *p, players) {
-                fuji_tag << p->objectName();
-            }
-            use.card->setTag("Fuji_tag", fuji_tag);
         }
 
         return false;

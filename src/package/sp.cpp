@@ -1477,6 +1477,7 @@ public:
                     room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
             }
         }
+		return false;
     }
 };
 

@@ -1260,6 +1260,7 @@ public:
             room->throwCard(card_id, player, player);
             room->setPlayerFlag(player, "FeiyangUsed");
         }
+		return false;
     }
 };
 
@@ -1282,6 +1283,7 @@ public:
         player->broadcastSkillInvoke(objectName());
         room->sendCompulsoryTriggerLog(player, objectName());
         room->drawCards(player, 1, objectName());
+		return false;
     }
 };
 
