@@ -34,6 +34,7 @@ public:
 %template(SkillList) QList<const Skill *>;
 %template(DelayedTrickList) QList<const DelayedTrick *>;
 %template(CardsMoveList) QList<CardsMoveStruct>;
+%template(CardsMoveOneTimeList) QList<CardsMoveOneTimeStruct>;
 %template(PlaceList) QList<Player::Place>;
 %template(PhaseList) QList<Player::Phase>;
 %template(GeneralList) QList<const General *>;

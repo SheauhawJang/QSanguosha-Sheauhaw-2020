@@ -118,7 +118,7 @@ public :
         return list;
     }
 
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *quan) const
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *quan) const
     {
         if (triggerEvent == TurnStart)
         {
@@ -265,6 +265,7 @@ public:
                     if (p->hasSkill(objectName()) && p->getKingdom() == target->getKingdom() && room->getBoatTreasure(p->getKingdom()) > 5)
                         list.insert(p, nameList());
         }
+        return list;
     }
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *target) const
@@ -344,7 +345,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (triggerEvent == EventPhaseStart) {
             if (player->getPhase() == Player::Play && TriggerSkill::triggerable(player)) {

@@ -4449,7 +4449,7 @@ void Room::askForDizhuForPlayers()
         ServerPlayer *player = m_players[i];
         showCardContainerGeneral(player->getSelected(), player, tr("your_choices"));
     }
-    int ask = 0, dizhu = -1;
+    int ask = 0, dizhu = 0;
     for (int i = 0; i < n; ++i)
     {
         ServerPlayer *player = m_players[i];
@@ -4470,7 +4470,7 @@ void Room::askForDizhuForPlayers()
         if (ask == 3) break;
     }
     QStringList roles = Sanguosha->getRoleList(mode);
-    qSwap(roles[0], roles[dizhu < 0 ? 2 : dizhu]);
+    qSwap(roles[0], roles[dizhu]);
 
     for (int i = 0; i < n; i++) {
         ServerPlayer *player = m_players[i];

@@ -112,11 +112,34 @@ public:
     }
 
     void setValue(CardsMoveOneTimeStruct *move) {
-        $self->setValue(QVariant::fromValue(*move));
+        QVariantList varlist;
+        varlist.append(QVariant::fromValue(*move));
+        $self->setValue(QVariant::fromValue(varlist));
     }
 
-    CardsMoveOneTimeStruct toMoveOneTime() const{
-        return $self->value<CardsMoveOneTimeStruct>();
+    CardsMoveOneTimeStruct toMoveOneTime() const {
+        if (!$self->canConvert<QVariantList>() || $self->toList().empty())
+            return $self->value<CardsMoveOneTimeStruct>();
+        return $self->toList().first().value<CardsMoveOneTimeStruct>();
+    }
+
+    void setValue(QList<CardsMoveOneTimeStruct> move) {
+        QVariantList varlist;
+        for (int i = 0; i < move.length(); i++)
+            varlist.append(QVariant::fromValue(move.at(i)));
+        $self->setValue(QVariant::fromValue(varlist));
+    }
+
+    QList<CardsMoveOneTimeStruct> toMoveOneTimeList() const {
+        QList<CardsMoveOneTimeStruct> result;
+        if ($self->canConvert<QVariantList>()) {
+            QVariantList res_var = $self->toList();
+            for (int i = 0; i < res_var.length(); i++)
+                result.append(res_var.at(i).value<CardsMoveOneTimeStruct>());
+        }
+        else
+            result.append($self->value<CardsMoveOneTimeStruct>());
+        return result;
     }
 
     void setValue(CardResponseStruct *resp) {

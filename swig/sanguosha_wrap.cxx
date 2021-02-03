@@ -1711,56 +1711,57 @@ SWIG_Lua_dostring(lua_State *L, const char* str) {
 #define SWIGTYPE_p_QDialog swig_types[64]
 #define SWIGTYPE_p_QListT_AttackRangeSkill_const_p_t swig_types[65]
 #define SWIGTYPE_p_QListT_Card_const_p_t swig_types[66]
-#define SWIGTYPE_p_QListT_CardsMoveStruct_t swig_types[67]
-#define SWIGTYPE_p_QListT_DelayedTrick_const_p_t swig_types[68]
-#define SWIGTYPE_p_QListT_DistanceSkill_const_p_t swig_types[69]
-#define SWIGTYPE_p_QListT_General_const_p_t swig_types[70]
-#define SWIGTYPE_p_QListT_InvaliditySkill_const_p_t swig_types[71]
-#define SWIGTYPE_p_QListT_MaxCardsSkill_const_p_t swig_types[72]
-#define SWIGTYPE_p_QListT_Player__Phase_t swig_types[73]
-#define SWIGTYPE_p_QListT_Player__Place_t swig_types[74]
-#define SWIGTYPE_p_QListT_Player_const_p_t swig_types[75]
-#define SWIGTYPE_p_QListT_ServerPlayer_p_t swig_types[76]
-#define SWIGTYPE_p_QListT_Skill_const_p_t swig_types[77]
-#define SWIGTYPE_p_QListT_TargetModSkill_const_p_t swig_types[78]
-#define SWIGTYPE_p_QListT_TriggerEvent_t swig_types[79]
-#define SWIGTYPE_p_QListT_TriggerSkill_const_p_t swig_types[80]
-#define SWIGTYPE_p_QListT_bool_t swig_types[81]
-#define SWIGTYPE_p_QListT_int_t swig_types[82]
-#define SWIGTYPE_p_QMapT_QString_QString_t swig_types[83]
-#define SWIGTYPE_p_QObject swig_types[84]
-#define SWIGTYPE_p_QSetT_QString_t swig_types[85]
-#define SWIGTYPE_p_QSetT_Skill_const_p_t swig_types[86]
-#define SWIGTYPE_p_QSetT_TriggerSkill_const_p_t swig_types[87]
-#define SWIGTYPE_p_QString swig_types[88]
-#define SWIGTYPE_p_QStringList swig_types[89]
-#define SWIGTYPE_p_QThread swig_types[90]
-#define SWIGTYPE_p_QVariant swig_types[91]
-#define SWIGTYPE_p_RecoverStruct swig_types[92]
-#define SWIGTYPE_p_Room swig_types[93]
-#define SWIGTYPE_p_RoomThread swig_types[94]
-#define SWIGTYPE_p_Scenario swig_types[95]
-#define SWIGTYPE_p_ServerPlayer swig_types[96]
-#define SWIGTYPE_p_Skill swig_types[97]
-#define SWIGTYPE_p_SkillCard swig_types[98]
-#define SWIGTYPE_p_Slash swig_types[99]
-#define SWIGTYPE_p_SlashEffectStruct swig_types[100]
-#define SWIGTYPE_p_TargetModSkill swig_types[101]
-#define SWIGTYPE_p_Treasure swig_types[102]
-#define SWIGTYPE_p_TrickCard swig_types[103]
-#define SWIGTYPE_p_TriggerList swig_types[104]
-#define SWIGTYPE_p_TriggerSkill swig_types[105]
-#define SWIGTYPE_p_TrustAI swig_types[106]
-#define SWIGTYPE_p_TurnStruct swig_types[107]
-#define SWIGTYPE_p_ViewAsSkill swig_types[108]
-#define SWIGTYPE_p_ViewHasSkill swig_types[109]
-#define SWIGTYPE_p_Weapon swig_types[110]
-#define SWIGTYPE_p_WrappedCard swig_types[111]
-#define SWIGTYPE_p_int swig_types[112]
-#define SWIGTYPE_p_lua_State swig_types[113]
-#define SWIGTYPE_p_p_ServerPlayer swig_types[114]
-static swig_type_info *swig_types[116];
-static swig_module_info swig_module = {swig_types, 115, 0, 0, 0, 0};
+#define SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t swig_types[67]
+#define SWIGTYPE_p_QListT_CardsMoveStruct_t swig_types[68]
+#define SWIGTYPE_p_QListT_DelayedTrick_const_p_t swig_types[69]
+#define SWIGTYPE_p_QListT_DistanceSkill_const_p_t swig_types[70]
+#define SWIGTYPE_p_QListT_General_const_p_t swig_types[71]
+#define SWIGTYPE_p_QListT_InvaliditySkill_const_p_t swig_types[72]
+#define SWIGTYPE_p_QListT_MaxCardsSkill_const_p_t swig_types[73]
+#define SWIGTYPE_p_QListT_Player__Phase_t swig_types[74]
+#define SWIGTYPE_p_QListT_Player__Place_t swig_types[75]
+#define SWIGTYPE_p_QListT_Player_const_p_t swig_types[76]
+#define SWIGTYPE_p_QListT_ServerPlayer_p_t swig_types[77]
+#define SWIGTYPE_p_QListT_Skill_const_p_t swig_types[78]
+#define SWIGTYPE_p_QListT_TargetModSkill_const_p_t swig_types[79]
+#define SWIGTYPE_p_QListT_TriggerEvent_t swig_types[80]
+#define SWIGTYPE_p_QListT_TriggerSkill_const_p_t swig_types[81]
+#define SWIGTYPE_p_QListT_bool_t swig_types[82]
+#define SWIGTYPE_p_QListT_int_t swig_types[83]
+#define SWIGTYPE_p_QMapT_QString_QString_t swig_types[84]
+#define SWIGTYPE_p_QObject swig_types[85]
+#define SWIGTYPE_p_QSetT_QString_t swig_types[86]
+#define SWIGTYPE_p_QSetT_Skill_const_p_t swig_types[87]
+#define SWIGTYPE_p_QSetT_TriggerSkill_const_p_t swig_types[88]
+#define SWIGTYPE_p_QString swig_types[89]
+#define SWIGTYPE_p_QStringList swig_types[90]
+#define SWIGTYPE_p_QThread swig_types[91]
+#define SWIGTYPE_p_QVariant swig_types[92]
+#define SWIGTYPE_p_RecoverStruct swig_types[93]
+#define SWIGTYPE_p_Room swig_types[94]
+#define SWIGTYPE_p_RoomThread swig_types[95]
+#define SWIGTYPE_p_Scenario swig_types[96]
+#define SWIGTYPE_p_ServerPlayer swig_types[97]
+#define SWIGTYPE_p_Skill swig_types[98]
+#define SWIGTYPE_p_SkillCard swig_types[99]
+#define SWIGTYPE_p_Slash swig_types[100]
+#define SWIGTYPE_p_SlashEffectStruct swig_types[101]
+#define SWIGTYPE_p_TargetModSkill swig_types[102]
+#define SWIGTYPE_p_Treasure swig_types[103]
+#define SWIGTYPE_p_TrickCard swig_types[104]
+#define SWIGTYPE_p_TriggerList swig_types[105]
+#define SWIGTYPE_p_TriggerSkill swig_types[106]
+#define SWIGTYPE_p_TrustAI swig_types[107]
+#define SWIGTYPE_p_TurnStruct swig_types[108]
+#define SWIGTYPE_p_ViewAsSkill swig_types[109]
+#define SWIGTYPE_p_ViewHasSkill swig_types[110]
+#define SWIGTYPE_p_Weapon swig_types[111]
+#define SWIGTYPE_p_WrappedCard swig_types[112]
+#define SWIGTYPE_p_int swig_types[113]
+#define SWIGTYPE_p_lua_State swig_types[114]
+#define SWIGTYPE_p_p_ServerPlayer swig_types[115]
+static swig_type_info *swig_types[117];
+static swig_module_info swig_module = {swig_types, 116, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2016,30 +2017,51 @@ SWIGINTERN PhaseChangeStruct QVariant_toPhaseChange(QVariant const *self){
         return self->value<PhaseChangeStruct>();
     }
 SWIGINTERN void QVariant_setValue__SWIG_13(QVariant *self,CardsMoveOneTimeStruct *move){
-        self->setValue(QVariant::fromValue(*move));
+        QVariantList varlist;
+        varlist.append(QVariant::fromValue(*move));
+        self->setValue(QVariant::fromValue(varlist));
     }
 SWIGINTERN CardsMoveOneTimeStruct QVariant_toMoveOneTime(QVariant const *self){
-        return self->value<CardsMoveOneTimeStruct>();
+        if (!self->canConvert<QVariantList>() || self->toList().empty())
+            return self->value<CardsMoveOneTimeStruct>();
+        return self->toList().first().value<CardsMoveOneTimeStruct>();
     }
-SWIGINTERN void QVariant_setValue__SWIG_14(QVariant *self,CardResponseStruct *resp){
+SWIGINTERN void QVariant_setValue__SWIG_14(QVariant *self,QList< CardsMoveOneTimeStruct > move){
+        QVariantList varlist;
+        for (int i = 0; i < move.length(); i++)
+            varlist.append(QVariant::fromValue(move.at(i)));
+        self->setValue(QVariant::fromValue(varlist));
+    }
+SWIGINTERN QList< CardsMoveOneTimeStruct > QVariant_toMoveOneTimeList(QVariant const *self){
+        QList<CardsMoveOneTimeStruct> result;
+        if (self->canConvert<QVariantList>()) {
+            QVariantList res_var = self->toList();
+            for (int i = 0; i < res_var.length(); i++)
+                result.append(res_var.at(i).value<CardsMoveOneTimeStruct>());
+        }
+        else
+            result.append(self->value<CardsMoveOneTimeStruct>());
+        return result;
+    }
+SWIGINTERN void QVariant_setValue__SWIG_15(QVariant *self,CardResponseStruct *resp){
         self->setValue(QVariant::fromValue(*resp));
     }
 SWIGINTERN CardResponseStruct QVariant_toCardResponse(QVariant const *self){
         return self->value<CardResponseStruct>();
     }
-SWIGINTERN void QVariant_setValue__SWIG_15(QVariant *self,MarkStruct *resp){
+SWIGINTERN void QVariant_setValue__SWIG_16(QVariant *self,MarkStruct *resp){
         self->setValue(QVariant::fromValue(*resp));
     }
 SWIGINTERN MarkStruct QVariant_toMark(QVariant const *self){
         return self->value<MarkStruct>();
     }
-SWIGINTERN void QVariant_setValue__SWIG_16(QVariant *self,TurnStruct *resp){
+SWIGINTERN void QVariant_setValue__SWIG_17(QVariant *self,TurnStruct *resp){
         self->setValue(QVariant::fromValue(*resp));
     }
 SWIGINTERN TurnStruct QVariant_toTurn(QVariant const *self){
         return self->value<TurnStruct>();
     }
-SWIGINTERN void QVariant_setValue__SWIG_17(QVariant *self,QList< int > intlist){
+SWIGINTERN void QVariant_setValue__SWIG_18(QVariant *self,QList< int > intlist){
         QVariantList varlist;
         for (int i = 0; i < intlist.length(); i++)
             varlist.append(QVariant::fromValue(intlist.at(i)));
@@ -2076,6 +2098,9 @@ SWIGINTERN DelayedTrick const *QList_Sl_DelayedTrick_SS_const_Sm__Sg__at(QList< 
         return self->value(i);
     }
 SWIGINTERN CardsMoveStruct QList_Sl_CardsMoveStruct_Sg__at(QList< CardsMoveStruct > const *self,int i){
+        return self->value(i);
+    }
+SWIGINTERN CardsMoveOneTimeStruct QList_Sl_CardsMoveOneTimeStruct_Sg__at(QList< CardsMoveOneTimeStruct > const *self,int i){
         return self->value(i);
     }
 SWIGINTERN Player::Place QList_Sl_Player_Place_Sg__at(QList< Player::Place > const *self,int i){
@@ -5080,6 +5105,65 @@ fail:
 static int _wrap_QVariant_setValue__SWIG_14(lua_State* L) {
   int SWIG_arg = 0;
   QVariant *arg1 = (QVariant *) 0 ;
+  QList< CardsMoveOneTimeStruct > arg2 ;
+  QList< CardsMoveOneTimeStruct > *argp2 ;
+  
+  SWIG_check_num_args("QVariant::setValue",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QVariant::setValue",1,"QVariant *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QVariant::setValue",2,"QList< CardsMoveOneTimeStruct >");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QVariant,0))){
+    SWIG_fail_ptr("QVariant_setValue",1,SWIGTYPE_p_QVariant);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&argp2,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("QVariant_setValue",2,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  arg2 = *argp2;
+  
+  QVariant_setValue__SWIG_14(arg1,arg2);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_QVariant_toMoveOneTimeList(lua_State* L) {
+  int SWIG_arg = 0;
+  QVariant *arg1 = (QVariant *) 0 ;
+  QList< CardsMoveOneTimeStruct > result;
+  
+  SWIG_check_num_args("QVariant::toMoveOneTimeList",1,1)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QVariant::toMoveOneTimeList",1,"QVariant const *");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QVariant,0))){
+    SWIG_fail_ptr("QVariant_toMoveOneTimeList",1,SWIGTYPE_p_QVariant);
+  }
+  
+  result = QVariant_toMoveOneTimeList((QVariant const *)arg1);
+  {
+    QList< CardsMoveOneTimeStruct > * resultptr = new QList< CardsMoveOneTimeStruct >((const QList< CardsMoveOneTimeStruct > &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_QVariant_setValue__SWIG_15(lua_State* L) {
+  int SWIG_arg = 0;
+  QVariant *arg1 = (QVariant *) 0 ;
   CardResponseStruct *arg2 = (CardResponseStruct *) 0 ;
   
   SWIG_check_num_args("QVariant::setValue",2,2)
@@ -5095,7 +5179,7 @@ static int _wrap_QVariant_setValue__SWIG_14(lua_State* L) {
     SWIG_fail_ptr("QVariant_setValue",2,SWIGTYPE_p_CardResponseStruct);
   }
   
-  QVariant_setValue__SWIG_14(arg1,arg2);
+  QVariant_setValue__SWIG_15(arg1,arg2);
   
   return SWIG_arg;
   
@@ -5134,7 +5218,7 @@ fail:
 }
 
 
-static int _wrap_QVariant_setValue__SWIG_15(lua_State* L) {
+static int _wrap_QVariant_setValue__SWIG_16(lua_State* L) {
   int SWIG_arg = 0;
   QVariant *arg1 = (QVariant *) 0 ;
   MarkStruct *arg2 = (MarkStruct *) 0 ;
@@ -5152,7 +5236,7 @@ static int _wrap_QVariant_setValue__SWIG_15(lua_State* L) {
     SWIG_fail_ptr("QVariant_setValue",2,SWIGTYPE_p_MarkStruct);
   }
   
-  QVariant_setValue__SWIG_15(arg1,arg2);
+  QVariant_setValue__SWIG_16(arg1,arg2);
   
   return SWIG_arg;
   
@@ -5191,7 +5275,7 @@ fail:
 }
 
 
-static int _wrap_QVariant_setValue__SWIG_16(lua_State* L) {
+static int _wrap_QVariant_setValue__SWIG_17(lua_State* L) {
   int SWIG_arg = 0;
   QVariant *arg1 = (QVariant *) 0 ;
   TurnStruct *arg2 = (TurnStruct *) 0 ;
@@ -5209,7 +5293,7 @@ static int _wrap_QVariant_setValue__SWIG_16(lua_State* L) {
     SWIG_fail_ptr("QVariant_setValue",2,SWIGTYPE_p_TurnStruct);
   }
   
-  QVariant_setValue__SWIG_16(arg1,arg2);
+  QVariant_setValue__SWIG_17(arg1,arg2);
   
   return SWIG_arg;
   
@@ -5248,7 +5332,7 @@ fail:
 }
 
 
-static int _wrap_QVariant_setValue__SWIG_17(lua_State* L) {
+static int _wrap_QVariant_setValue__SWIG_18(lua_State* L) {
   int SWIG_arg = 0;
   QVariant *arg1 = (QVariant *) 0 ;
   QList< int > arg2 ;
@@ -5268,7 +5352,7 @@ static int _wrap_QVariant_setValue__SWIG_17(lua_State* L) {
   }
   arg2 = *argp2;
   
-  QVariant_setValue__SWIG_17(arg1,arg2);
+  QVariant_setValue__SWIG_18(arg1,arg2);
   
   return SWIG_arg;
   
@@ -5612,7 +5696,7 @@ static int _wrap_QVariant_setValue(lua_State* L) {
     if (_v) {
       {
         void *ptr;
-        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_CardResponseStruct, 0)) {
+        if (lua_isuserdata(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t, 0)) {
           _v = 0;
         } else {
           _v = 1;
@@ -5636,7 +5720,7 @@ static int _wrap_QVariant_setValue(lua_State* L) {
     if (_v) {
       {
         void *ptr;
-        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_MarkStruct, 0)) {
+        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_CardResponseStruct, 0)) {
           _v = 0;
         } else {
           _v = 1;
@@ -5660,7 +5744,7 @@ static int _wrap_QVariant_setValue(lua_State* L) {
     if (_v) {
       {
         void *ptr;
-        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_TurnStruct, 0)) {
+        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_MarkStruct, 0)) {
           _v = 0;
         } else {
           _v = 1;
@@ -5684,7 +5768,7 @@ static int _wrap_QVariant_setValue(lua_State* L) {
     if (_v) {
       {
         void *ptr;
-        if (lua_isuserdata(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_QListT_int_t, 0)) {
+        if (SWIG_isptrtype(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_TurnStruct, 0)) {
           _v = 0;
         } else {
           _v = 1;
@@ -5692,6 +5776,30 @@ static int _wrap_QVariant_setValue(lua_State* L) {
       }
       if (_v) {
         return _wrap_QVariant_setValue__SWIG_17(L);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    {
+      void *ptr;
+      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_QVariant, 0)) {
+        _v = 0;
+      } else {
+        _v = 1;
+      }
+    }
+    if (_v) {
+      {
+        void *ptr;
+        if (lua_isuserdata(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_QListT_int_t, 0)) {
+          _v = 0;
+        } else {
+          _v = 1;
+        }
+      }
+      if (_v) {
+        return _wrap_QVariant_setValue__SWIG_18(L);
       }
     }
   }
@@ -5731,6 +5839,7 @@ static int _wrap_QVariant_setValue(lua_State* L) {
     "    QVariant::setValue(PindianStruct *)\n"
     "    QVariant::setValue(PhaseChangeStruct *)\n"
     "    QVariant::setValue(CardsMoveOneTimeStruct *)\n"
+    "    QVariant::setValue(QList< CardsMoveOneTimeStruct >)\n"
     "    QVariant::setValue(CardResponseStruct *)\n"
     "    QVariant::setValue(MarkStruct *)\n"
     "    QVariant::setValue(TurnStruct *)\n"
@@ -5788,6 +5897,7 @@ static swig_lua_method swig_QVariant_methods[] = {
     {"toPindian", _wrap_QVariant_toPindian}, 
     {"toPhaseChange", _wrap_QVariant_toPhaseChange}, 
     {"toMoveOneTime", _wrap_QVariant_toMoveOneTime}, 
+    {"toMoveOneTimeList", _wrap_QVariant_toMoveOneTimeList}, 
     {"toCardResponse", _wrap_QVariant_toCardResponse}, 
     {"toMark", _wrap_QVariant_toMark}, 
     {"toTurn", _wrap_QVariant_toTurn}, 
@@ -10998,6 +11108,681 @@ static swig_lua_attribute swig_QList_Sl_CardsMoveStruct_Sg__attributes[] = {
 static swig_lua_class *swig_QList_Sl_CardsMoveStruct_Sg__bases[] = {0};
 static const char *swig_QList_Sl_CardsMoveStruct_Sg__base_names[] = {0};
 static swig_lua_class _wrap_class_QList_Sl_CardsMoveStruct_Sg_ = { "CardsMoveList", &SWIGTYPE_p_QListT_CardsMoveStruct_t,_wrap_new_CardsMoveList, swig_delete_CardsMoveList, swig_QList_Sl_CardsMoveStruct_Sg__methods, swig_QList_Sl_CardsMoveStruct_Sg__attributes, swig_QList_Sl_CardsMoveStruct_Sg__bases, swig_QList_Sl_CardsMoveStruct_Sg__base_names };
+
+static int _wrap_new_CardsMoveOneTimeList(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *result = 0 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::QList",0,0)
+  result = (QList< CardsMoveOneTimeStruct > *)new QList< CardsMoveOneTimeStruct >();
+  SWIG_NewPointerObj(L,result,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,1); SWIG_arg++; 
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_length(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::length",1,1)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::length",1,"QList< CardsMoveOneTimeStruct > const *");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_length",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  result = (int)((QList< CardsMoveOneTimeStruct > const *)arg1)->length();
+  lua_pushnumber(L, (lua_Number) result); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_append(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::append",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::append",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::append",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_append",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_append",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  (arg1)->append((CardsMoveOneTimeStruct const &)*arg2);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_prepend(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::prepend",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::prepend",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::prepend",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_prepend",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_prepend",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  (arg1)->prepend((CardsMoveOneTimeStruct const &)*arg2);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_isEmpty(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  bool result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::isEmpty",1,1)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::isEmpty",1,"QList< CardsMoveOneTimeStruct > const *");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_isEmpty",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  result = (bool)((QList< CardsMoveOneTimeStruct > const *)arg1)->isEmpty();
+  lua_pushboolean(L,(int)(result!=0)); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_contains(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  bool result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::contains",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::contains",1,"QList< CardsMoveOneTimeStruct > const *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::contains",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_contains",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_contains",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  result = (bool)((QList< CardsMoveOneTimeStruct > const *)arg1)->contains((CardsMoveOneTimeStruct const &)*arg2);
+  lua_pushboolean(L,(int)(result!=0)); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_first(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::first",1,1)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::first",1,"QList< CardsMoveOneTimeStruct > const *");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_first",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  result = ((QList< CardsMoveOneTimeStruct > const *)arg1)->first();
+  {
+    CardsMoveOneTimeStruct * resultptr = new CardsMoveOneTimeStruct((const CardsMoveOneTimeStruct &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_CardsMoveOneTimeStruct,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_last(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::last",1,1)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::last",1,"QList< CardsMoveOneTimeStruct > const *");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_last",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  result = ((QList< CardsMoveOneTimeStruct > const *)arg1)->last();
+  {
+    CardsMoveOneTimeStruct * resultptr = new CardsMoveOneTimeStruct((const CardsMoveOneTimeStruct &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_CardsMoveOneTimeStruct,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_removeAt(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::removeAt",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeAt",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeAt",2,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_removeAt",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  (arg1)->removeAt(arg2);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_removeAll(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  int result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::removeAll",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeAll",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeAll",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_removeAll",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_removeAll",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  result = (int)(arg1)->removeAll((CardsMoveOneTimeStruct const &)*arg2);
+  lua_pushnumber(L, (lua_Number) result); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_removeOne(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  bool result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::removeOne",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeOne",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::removeOne",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_removeOne",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_removeOne",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  result = (bool)(arg1)->removeOne((CardsMoveOneTimeStruct const &)*arg2);
+  lua_pushboolean(L,(int)(result!=0)); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_mid__SWIG_0(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  QList< CardsMoveOneTimeStruct > result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::mid",3,3)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::mid",1,"QList< CardsMoveOneTimeStruct > const *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::mid",2,"int");
+  if(!lua_isnumber(L,3)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::mid",3,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_mid",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  arg3 = (int)lua_tonumber(L, 3);
+  result = ((QList< CardsMoveOneTimeStruct > const *)arg1)->mid(arg2,arg3);
+  {
+    QList< CardsMoveOneTimeStruct > * resultptr = new QList< CardsMoveOneTimeStruct >((const QList< CardsMoveOneTimeStruct > &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_mid__SWIG_1(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  QList< CardsMoveOneTimeStruct > result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::mid",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::mid",1,"QList< CardsMoveOneTimeStruct > const *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::mid",2,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_mid",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  result = ((QList< CardsMoveOneTimeStruct > const *)arg1)->mid(arg2);
+  {
+    QList< CardsMoveOneTimeStruct > * resultptr = new QList< CardsMoveOneTimeStruct >((const QList< CardsMoveOneTimeStruct > &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_mid(lua_State* L) {
+  int argc;
+  int argv[4]={
+    1,2,3,4
+  };
+  
+  argc = lua_gettop(L);
+  if (argc == 2) {
+    int _v;
+    {
+      void *ptr;
+      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t, 0)) {
+        _v = 0;
+      } else {
+        _v = 1;
+      }
+    }
+    if (_v) {
+      {
+        _v = lua_isnumber(L,argv[1]);
+      }
+      if (_v) {
+        return _wrap_CardsMoveOneTimeList_mid__SWIG_1(L);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    {
+      void *ptr;
+      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t, 0)) {
+        _v = 0;
+      } else {
+        _v = 1;
+      }
+    }
+    if (_v) {
+      {
+        _v = lua_isnumber(L,argv[1]);
+      }
+      if (_v) {
+        {
+          _v = lua_isnumber(L,argv[2]);
+        }
+        if (_v) {
+          return _wrap_CardsMoveOneTimeList_mid__SWIG_0(L);
+        }
+      }
+    }
+  }
+  
+  lua_pushstring(L,"Wrong arguments for overloaded function 'CardsMoveOneTimeList_mid'\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    QList< CardsMoveOneTimeStruct >::mid(int,int) const\n"
+    "    QList< CardsMoveOneTimeStruct >::mid(int) const\n");
+  lua_error(L);return 0;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_indexOf__SWIG_0(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  int arg3 ;
+  int result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::indexOf",3,3)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::indexOf",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::indexOf",2,"CardsMoveOneTimeStruct const &");
+  if(!lua_isnumber(L,3)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::indexOf",3,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_indexOf",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_indexOf",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  arg3 = (int)lua_tonumber(L, 3);
+  result = (int)(arg1)->indexOf((CardsMoveOneTimeStruct const &)*arg2,arg3);
+  lua_pushnumber(L, (lua_Number) result); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_indexOf__SWIG_1(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  CardsMoveOneTimeStruct *arg2 = 0 ;
+  int result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::indexOf",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::indexOf",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isuserdata(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::indexOf",2,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_indexOf",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_indexOf",2,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  result = (int)(arg1)->indexOf((CardsMoveOneTimeStruct const &)*arg2);
+  lua_pushnumber(L, (lua_Number) result); SWIG_arg++;
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_indexOf(lua_State* L) {
+  int argc;
+  int argv[4]={
+    1,2,3,4
+  };
+  
+  argc = lua_gettop(L);
+  if (argc == 2) {
+    int _v;
+    {
+      void *ptr;
+      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t, 0)) {
+        _v = 0;
+      } else {
+        _v = 1;
+      }
+    }
+    if (_v) {
+      {
+        void *ptr;
+        if (lua_isuserdata(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_CardsMoveOneTimeStruct, 0)) {
+          _v = 0;
+        } else {
+          _v = 1;
+        }
+      }
+      if (_v) {
+        return _wrap_CardsMoveOneTimeList_indexOf__SWIG_1(L);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    {
+      void *ptr;
+      if (SWIG_isptrtype(L,argv[0])==0 || SWIG_ConvertPtr(L,argv[0], (void **) &ptr, SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t, 0)) {
+        _v = 0;
+      } else {
+        _v = 1;
+      }
+    }
+    if (_v) {
+      {
+        void *ptr;
+        if (lua_isuserdata(L,argv[1])==0 || SWIG_ConvertPtr(L,argv[1], (void **) &ptr, SWIGTYPE_p_CardsMoveOneTimeStruct, 0)) {
+          _v = 0;
+        } else {
+          _v = 1;
+        }
+      }
+      if (_v) {
+        {
+          _v = lua_isnumber(L,argv[2]);
+        }
+        if (_v) {
+          return _wrap_CardsMoveOneTimeList_indexOf__SWIG_0(L);
+        }
+      }
+    }
+  }
+  
+  lua_pushstring(L,"Wrong arguments for overloaded function 'CardsMoveOneTimeList_indexOf'\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    QList< CardsMoveOneTimeStruct >::indexOf(CardsMoveOneTimeStruct const &,int)\n"
+    "    QList< CardsMoveOneTimeStruct >::indexOf(CardsMoveOneTimeStruct const &)\n");
+  lua_error(L);return 0;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_replace(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  CardsMoveOneTimeStruct *arg3 = 0 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::replace",3,3)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::replace",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::replace",2,"int");
+  if(!lua_isuserdata(L,3)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::replace",3,"CardsMoveOneTimeStruct const &");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_replace",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,3,(void**)&arg3,SWIGTYPE_p_CardsMoveOneTimeStruct,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_replace",3,SWIGTYPE_p_CardsMoveOneTimeStruct);
+  }
+  
+  (arg1)->replace(arg2,(CardsMoveOneTimeStruct const &)*arg3);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_swap(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::swap",3,3)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::swap",1,"QList< CardsMoveOneTimeStruct > *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::swap",2,"int");
+  if(!lua_isnumber(L,3)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::swap",3,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_swap",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  arg3 = (int)lua_tonumber(L, 3);
+  (arg1)->swap(arg2,arg3);
+  
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static int _wrap_CardsMoveOneTimeList_at(lua_State* L) {
+  int SWIG_arg = 0;
+  QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) 0 ;
+  int arg2 ;
+  CardsMoveOneTimeStruct result;
+  
+  SWIG_check_num_args("QList< CardsMoveOneTimeStruct >::at",2,2)
+  if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::at",1,"QList< CardsMoveOneTimeStruct > const *");
+  if(!lua_isnumber(L,2)) SWIG_fail_arg("QList< CardsMoveOneTimeStruct >::at",2,"int");
+  
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,0))){
+    SWIG_fail_ptr("CardsMoveOneTimeList_at",1,SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t);
+  }
+  
+  arg2 = (int)lua_tonumber(L, 2);
+  result = QList_Sl_CardsMoveOneTimeStruct_Sg__at((QList< CardsMoveOneTimeStruct > const *)arg1,arg2);
+  {
+    CardsMoveOneTimeStruct * resultptr = new CardsMoveOneTimeStruct((const CardsMoveOneTimeStruct &) result);
+    SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_CardsMoveOneTimeStruct,1); SWIG_arg++;
+  }
+  return SWIG_arg;
+  
+  if(0) SWIG_fail;
+  
+fail:
+  lua_error(L);
+  return SWIG_arg;
+}
+
+
+static void swig_delete_CardsMoveOneTimeList(void *obj) {
+QList< CardsMoveOneTimeStruct > *arg1 = (QList< CardsMoveOneTimeStruct > *) obj;
+delete arg1;
+}
+static swig_lua_method swig_QList_Sl_CardsMoveOneTimeStruct_Sg__methods[] = {
+    {"length", _wrap_CardsMoveOneTimeList_length}, 
+    {"append", _wrap_CardsMoveOneTimeList_append}, 
+    {"prepend", _wrap_CardsMoveOneTimeList_prepend}, 
+    {"isEmpty", _wrap_CardsMoveOneTimeList_isEmpty}, 
+    {"contains", _wrap_CardsMoveOneTimeList_contains}, 
+    {"first", _wrap_CardsMoveOneTimeList_first}, 
+    {"last", _wrap_CardsMoveOneTimeList_last}, 
+    {"removeAt", _wrap_CardsMoveOneTimeList_removeAt}, 
+    {"removeAll", _wrap_CardsMoveOneTimeList_removeAll}, 
+    {"removeOne", _wrap_CardsMoveOneTimeList_removeOne}, 
+    {"mid", _wrap_CardsMoveOneTimeList_mid}, 
+    {"indexOf", _wrap_CardsMoveOneTimeList_indexOf}, 
+    {"replace", _wrap_CardsMoveOneTimeList_replace}, 
+    {"swap", _wrap_CardsMoveOneTimeList_swap}, 
+    {"at", _wrap_CardsMoveOneTimeList_at}, 
+    {0,0}
+};
+static swig_lua_attribute swig_QList_Sl_CardsMoveOneTimeStruct_Sg__attributes[] = {
+    {0,0,0}
+};
+static swig_lua_class *swig_QList_Sl_CardsMoveOneTimeStruct_Sg__bases[] = {0};
+static const char *swig_QList_Sl_CardsMoveOneTimeStruct_Sg__base_names[] = {0};
+static swig_lua_class _wrap_class_QList_Sl_CardsMoveOneTimeStruct_Sg_ = { "CardsMoveOneTimeList", &SWIGTYPE_p_QListT_CardsMoveOneTimeStruct_t,_wrap_new_CardsMoveOneTimeList, swig_delete_CardsMoveOneTimeList, swig_QList_Sl_CardsMoveOneTimeStruct_Sg__methods, swig_QList_Sl_CardsMoveOneTimeStruct_Sg__attributes, swig_QList_Sl_CardsMoveOneTimeStruct_Sg__bases, swig_QList_Sl_CardsMoveOneTimeStruct_Sg__base_names };
 
 static int _wrap_new_PlaceList(lua_State* L) {
   int SWIG_arg = 0;
@@ -87268,6 +88053,7 @@ static swig_type_info _swigt__p_QColor = {"_p_QColor", "QColor *", 0, 0, (void*)
 static swig_type_info _swigt__p_QDialog = {"_p_QDialog", "QDialog *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_QListT_AttackRangeSkill_const_p_t = {"_p_QListT_AttackRangeSkill_const_p_t", "QList< AttackRangeSkill const * > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_QListT_Card_const_p_t = {"_p_QListT_Card_const_p_t", "QList< Card const * > *", 0, 0, (void*)&_wrap_class_QList_Sl_Card_SS_const_Sm__Sg_, 0};
+static swig_type_info _swigt__p_QListT_CardsMoveOneTimeStruct_t = {"_p_QListT_CardsMoveOneTimeStruct_t", "QList< CardsMoveOneTimeStruct > *", 0, 0, (void*)&_wrap_class_QList_Sl_CardsMoveOneTimeStruct_Sg_, 0};
 static swig_type_info _swigt__p_QListT_CardsMoveStruct_t = {"_p_QListT_CardsMoveStruct_t", "QList< CardsMoveStruct > *", 0, 0, (void*)&_wrap_class_QList_Sl_CardsMoveStruct_Sg_, 0};
 static swig_type_info _swigt__p_QListT_DelayedTrick_const_p_t = {"_p_QListT_DelayedTrick_const_p_t", "QList< DelayedTrick const * > *", 0, 0, (void*)&_wrap_class_QList_Sl_DelayedTrick_SS_const_Sm__Sg_, 0};
 static swig_type_info _swigt__p_QListT_DistanceSkill_const_p_t = {"_p_QListT_DistanceSkill_const_p_t", "QList< DistanceSkill const * > *", 0, 0, (void*)0, 0};
@@ -87385,6 +88171,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_QDialog,
   &_swigt__p_QListT_AttackRangeSkill_const_p_t,
   &_swigt__p_QListT_Card_const_p_t,
+  &_swigt__p_QListT_CardsMoveOneTimeStruct_t,
   &_swigt__p_QListT_CardsMoveStruct_t,
   &_swigt__p_QListT_DelayedTrick_const_p_t,
   &_swigt__p_QListT_DistanceSkill_const_p_t,
@@ -87502,6 +88289,7 @@ static swig_cast_info _swigc__p_QColor[] = {  {&_swigt__p_QColor, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_QDialog[] = {  {&_swigt__p_QDialog, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_QListT_AttackRangeSkill_const_p_t[] = {  {&_swigt__p_QListT_AttackRangeSkill_const_p_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_QListT_Card_const_p_t[] = {  {&_swigt__p_QListT_Card_const_p_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_QListT_CardsMoveOneTimeStruct_t[] = {  {&_swigt__p_QListT_CardsMoveOneTimeStruct_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_QListT_CardsMoveStruct_t[] = {  {&_swigt__p_QListT_CardsMoveStruct_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_QListT_DelayedTrick_const_p_t[] = {  {&_swigt__p_QListT_DelayedTrick_const_p_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_QListT_DistanceSkill_const_p_t[] = {  {&_swigt__p_QListT_DistanceSkill_const_p_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -87619,6 +88407,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_QDialog,
   _swigc__p_QListT_AttackRangeSkill_const_p_t,
   _swigc__p_QListT_Card_const_p_t,
+  _swigc__p_QListT_CardsMoveOneTimeStruct_t,
   _swigc__p_QListT_CardsMoveStruct_t,
   _swigc__p_QListT_DelayedTrick_const_p_t,
   _swigc__p_QListT_DistanceSkill_const_p_t,

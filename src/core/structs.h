@@ -244,6 +244,14 @@ struct CardsMoveOneTimeStruct
             }
         }
     }
+
+    inline bool operator == (const CardsMoveOneTimeStruct &other) const
+    {
+        return card_ids == other.card_ids && cards == other.cards && from_places == other.from_places
+            && to_place == other.to_place && reason == other.reason && from == other.from && to == other.to
+            && from_pile_names == other.from_pile_names && to_pile_name == other.to_pile_name && open == other.open
+            && is_last_handcard == other.is_last_handcard;
+    }
 };
 
 struct CardsMoveStruct

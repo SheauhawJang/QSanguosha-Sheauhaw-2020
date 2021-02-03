@@ -4355,23 +4355,24 @@ public:
                 list.insert(yueying, nameList());
             break;
         case GameStart:
-            if (yueying->hasSkill("linglong"))
+            if (yueying != NULL && yueying->hasSkill("linglong"))
                 list.insert(yueying, nameList());
             break;
         case CardsMoveOneTime:
             if (yueying->isAlive() && yueying->hasSkill(this, true))
-            {
-                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-                if (move.to == yueying && move.to_place == Player::PlaceEquip) {
-                    if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
-                        list.insert(yueying, nameList());
-                    }
-                } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
-                    if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
-                        list.insert(yueying, nameList());
+                foreach (QVariant qvar, data.toList())
+                {
+                    CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                    if (move.to == yueying && move.to_place == Player::PlaceEquip) {
+                        if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
+                            list.insert(yueying, nameList());
+                        }
+                    } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
+                        if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
+                            list.insert(yueying, nameList());
+                        }
                     }
                 }
-            }
             break;
         default: break;
         }
@@ -4413,16 +4414,19 @@ public:
                 yueying->setMark("linglong_qicai", 1);
             }
         } else if (triggerEvent == CardsMoveOneTime && yueying->isAlive() && yueying->hasSkill(this, true)) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.to == yueying && move.to_place == Player::PlaceEquip) {
-                if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
-                    room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
-                    yueying->setMark("linglong_qicai", 0);
-                }
-            } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
-                if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
-                    room->handleAcquireDetachSkills(yueying, "nosqicai");
-                    yueying->setMark("linglong_qicai", 1);
+            foreach (QVariant qvar, data.toList())
+            {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.to == yueying && move.to_place == Player::PlaceEquip) {
+                    if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
+                        room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
+                        yueying->setMark("linglong_qicai", 0);
+                    }
+                } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
+                    if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
+                        room->handleAcquireDetachSkills(yueying, "nosqicai");
+                        yueying->setMark("linglong_qicai", 1);
+                    }
                 }
             }
         }
