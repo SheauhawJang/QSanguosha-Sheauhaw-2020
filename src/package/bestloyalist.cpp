@@ -41,7 +41,7 @@ bool BeatAnother::targetsFeasible(const QList<const Player *> &targets, const Pl
 }
 
 bool BeatAnother::targetFilter(const QList<const Player *> &targets,
-    const Player *to_select, const Player *Self) const
+                               const Player *to_select, const Player *Self) const
 {
     if (!targets.isEmpty()) {
         Q_ASSERT(targets.length() <= 2);
@@ -135,8 +135,7 @@ void MoreTroops::onEffect(const CardEffectStruct &effect) const
         dummy->deleteLater();
         qShuffle(cards);
         int cardId = -1;
-        foreach(const Card *c, cards)
-        {
+        foreach(const Card *c, cards) {
             if (c->getTypeId() != Card::TypeBasic) {
                 cardId = c->getId();
                 break;
@@ -225,8 +224,7 @@ public:
         room->sendLog(log);
         QStringList skill_names;
         const General *general = lord->getGeneral();
-        foreach(const Skill *skill, general->getVisibleSkillList())
-        {
+        foreach(const Skill *skill, general->getVisibleSkillList()) {
             if (skill->isLordSkill())
                 skill_names << skill->objectName();
         }
@@ -307,8 +305,7 @@ public:
                 room->sendCompulsoryTriggerLog(player, objectName());
                 player->broadcastSkillInvoke(objectName());
                 int n = 0;
-                foreach(ServerPlayer *p, room->getAllPlayers())
-                {
+                foreach(ServerPlayer *p, room->getAllPlayers()) {
                     if (p->getHp() == player->getHp())
                         ++n;
                 }
@@ -339,8 +336,7 @@ public:
         if (cuiyan->getNextAlive()->getHp() == cuiyan->getHp())
             return false;
 
-        foreach(ServerPlayer *p, room->getOtherPlayers(cuiyan))
-        {
+        foreach(ServerPlayer *p, room->getOtherPlayers(cuiyan)) {
             if (p->getNextAlive() == cuiyan && p->getHp() == cuiyan->getHp())
                 return false;
         }
@@ -423,7 +419,7 @@ bool Escape::isAvailable(const Player *) const
     return false;
 }
 
-Thunder::Thunder(Suit suit, int number) :Disaster(suit, number)
+Thunder::Thunder(Suit suit, int number) : Disaster(suit, number)
 {
     setObjectName("thunder");
 
@@ -485,8 +481,8 @@ public:
         } else if (triggerEvent == DamageCaused) {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.card && damage.card->isKindOf("Slash")
-                && damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0
-                && damage.to->getLostHp() == 0 && damage.by_user && !damage.chain && !damage.transfer) {
+                    && damage.to->getMark("Equips_of_Others_Nullified_to_You") == 0
+                    && damage.to->getLostHp() == 0 && damage.by_user && !damage.chain && !damage.transfer) {
                 room->setEmotion(player, "weapon/treasured_sword");
                 room->sendCompulsoryTriggerLog(player, objectName(), false);
                 room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), damage.to->objectName());
@@ -512,7 +508,7 @@ public:
         events << TargetSpecified;
     }
 
-    virtual bool trigger(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
         foreach (ServerPlayer *to, use.to) {
@@ -606,7 +602,7 @@ void FenyueCard::onEffect(const CardEffectStruct &effect) const
     ServerPlayer *target = effect.to;
 
     PindianStruct *pd = source->pindianStruct(target, "fenyue", NULL);
-    int x1 = pd->from_number,x2 = pd->to_number;
+    int x1 = pd->from_number, x2 = pd->to_number;
 
     if (x1 > x2) {
         if (x1 < 6 && source->canGetCard(target, "he")) {
@@ -677,7 +673,7 @@ public:
     {
         //lord, loyalist, rebel, renegade
         return (p1->getRole().startsWith("lo") && p2->getRole().startsWith("lo")) ||
-                (p1->getRole() == "rebel" && p2->getRole() == "rebel");
+               (p1->getRole() == "rebel" && p2->getRole() == "rebel");
     }
 
 };
@@ -693,22 +689,19 @@ public:
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        if (room->getTag("FirstRound").toBool())
-        {
+        if (room->getTag("FirstRound").toBool()) {
             QList<ServerPlayer *> rebels;
             foreach (ServerPlayer *p, room->getAllPlayers(true))
                 if (p->getRoleEnum() == Player::Rebel)
                     rebels << p;
-            if (!rebels.isEmpty())
-            {
+            if (!rebels.isEmpty()) {
                 ServerPlayer *showee = rebels.at(qrand() % rebels.size());
                 foreach (ServerPlayer *bl, room->getAllPlayers())
-                    if (bl->hasSkill("bl_dongcha"))
-                    {
+                    if (bl->hasSkill("bl_dongcha")) {
                         room->sendCompulsoryTriggerLog(bl, "bl_dongcha");
                         room->notifySkillInvoked(bl, "bl_dongcha");
                         room->broadcastProperty(bl, showee, "role", showee->getRole());
-                        room->askForChoice(bl, "bl_dongcha", showee->getGeneralName()+"+cancel", QVariant(), "@@bl_dongcha");
+                        room->askForChoice(bl, "bl_dongcha", showee->getGeneralName() + "+cancel", QVariant(), "@@bl_dongcha");
                     }
             }
         }
@@ -717,13 +710,11 @@ public:
             if (!(p->getEquips().isEmpty() && p->getJudgingArea().isEmpty()) && player->canDiscard(p, "je"))
                 targets << p;
         if (targets.isEmpty()) return false;
-        if (room->askForSkillInvoke(player, objectName()))
-        {
+        if (room->askForSkillInvoke(player, objectName())) {
             room->sendCompulsoryTriggerLog(player, objectName());
             room->notifySkillInvoked(player, objectName());
             ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName(), QString(), true);
-            if (target)
-            {
+            if (target) {
                 int id = room->askForCardChosen(player, target, "ej", objectName(), false, Card::MethodDiscard);
                 room->throwCard(id, target, player);
             }
@@ -792,20 +783,20 @@ BestLoyalistCardPackage::BestLoyalistCardPackage()
     QList<Card *> cards;
 
     cards << new AllArmy(Card::Club, 4)
-        << new AllArmy(Card::Spade, 10)
-        << new BeatAnother(Card::Spade, 3)
-        << new BeatAnother(Card::Spade, 4)
-        << new BeatAnother(Card::Spade, 11);
+          << new AllArmy(Card::Spade, 10)
+          << new BeatAnother(Card::Spade, 3)
+          << new BeatAnother(Card::Spade, 4)
+          << new BeatAnother(Card::Spade, 11);
 
     cards << new MoreTroops(Card::Heart, 3)
-        << new MoreTroops(Card::Heart, 4)
-        << new MoreTroops(Card::Heart, 7)
-        << new MoreTroops(Card::Heart, 8)
-        << new MoreTroops(Card::Heart, 9)
-        << new MoreTroops(Card::Heart, 11);
+          << new MoreTroops(Card::Heart, 4)
+          << new MoreTroops(Card::Heart, 7)
+          << new MoreTroops(Card::Heart, 8)
+          << new MoreTroops(Card::Heart, 9)
+          << new MoreTroops(Card::Heart, 11);
 
     cards << new BeatAnother(Card::Diamond, 3)
-        << new BeatAnother(Card::Diamond, 4);
+          << new BeatAnother(Card::Diamond, 4);
 
     cards << new ThrowEquips(Card::Club, 12)
           << new ThrowEquips(Card::Club, 13);
@@ -838,7 +829,7 @@ BestLoyalistCardPackage::BestLoyalistCardPackage()
 ADD_PACKAGE(BestLoyalistCard)
 
 BestLoyalistPackage::BestLoyalistPackage()
-    :Package("BestLoyalist")
+    : Package("BestLoyalist")
 {
     General *cuiyan = new General(this, "cuiyan", "wei", 3);
     cuiyan->addSkill(new Yawang);
