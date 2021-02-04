@@ -454,61 +454,69 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
-        return target != NULL;
-    }
-
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (triggerEvent == CardsMoveOneTime && player->getPhase() == Player::Discard) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+        if (triggerEvent == EventPhaseEnd && player->getPhase() == Player::Discard && TriggerSkill::triggerable(player)) {
             QVariantList guizaoRecord = player->tag["GuizaoRecord"].toList();
-            if (move.from == player && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
-                foreach (int card_id, move.card_ids) {
-                    guizaoRecord << card_id;
-                }
-            }
-            player->tag["GuizaoRecord"] = guizaoRecord;
-        } else if (triggerEvent == EventPhaseEnd && player->getPhase() == Player::Discard && TriggerSkill::triggerable(player)) {
-            QVariantList guizaoRecord = player->tag["GuizaoRecord"].toList();
-			if (guizaoRecord.length() < 2) return false;
-			QStringList suitlist;
-			foreach (QVariant card_data, guizaoRecord) {
+            if (guizaoRecord.length() < 2) return QStringList();
+            QStringList suitlist;
+            foreach (QVariant card_data, guizaoRecord) {
                 int card_id = card_data.toInt();
                 const Card *card = Sanguosha->getCard(card_id);
                 QString suit = card->getSuitString();
                 if (!suitlist.contains(suit))
                     suitlist << suit;
                 else{
-					return false;
-				}
+                    return QStringList();
+                }
             }
-            QStringList choices;
-            if (player->isWounded())
-                choices << "recover";
-            choices << "draw" << "cancel";
-            QString choice = room->askForChoice(player, objectName(), choices.join("+"), data, QString(), "recover+draw+cancel");
-            if (choice != "cancel") {
-                LogMessage log;
-                log.type = "#InvokeSkill";
-                log.from = player;
-                 log.arg = objectName();
-                room->sendLog(log);
+            return nameList();
+        }
+        return QStringList();
+    }
 
-                room->notifySkillInvoked(player, objectName());
-                player->broadcastSkillInvoke(objectName());
-                if (choice == "recover")
-                    room->recover(player, RecoverStruct(player));
-                else
-                    player->drawCards(1, objectName());
+    virtual void record(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &datas) const
+    {
+        if (triggerEvent == CardsMoveOneTime && player->getPhase() == Player::Discard) {
+            QVariantList guizaoRecord = player->tag["GuizaoRecord"].toList();
+            foreach (QVariant data, datas.toList())
+            {
+                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
+                    foreach (int card_id, move.card_ids) {
+                        guizaoRecord << card_id;
+                    }
+                }
             }
+            player->tag["GuizaoRecord"] = guizaoRecord;
         } else if (triggerEvent == EventPhaseChanging) {
-            if (data.value<PhaseChangeStruct>().to == Player::Discard) {
+            if (datas.value<PhaseChangeStruct>().to == Player::Discard) {
                 player->tag.remove("GuizaoRecord");
             }
         }
+    }
 
+    virtual bool effect(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        QStringList choices;
+        if (player->isWounded())
+            choices << "recover";
+        choices << "draw" << "cancel";
+        QString choice = room->askForChoice(player, objectName(), choices.join("+"), data, QString(), "recover+draw+cancel");
+        if (choice != "cancel") {
+            LogMessage log;
+            log.type = "#InvokeSkill";
+            log.from = player;
+             log.arg = objectName();
+            room->sendLog(log);
+
+            room->notifySkillInvoked(player, objectName());
+            player->broadcastSkillInvoke(objectName());
+            if (choice == "recover")
+                room->recover(player, RecoverStruct(player));
+            else
+                player->drawCards(1, objectName());
+        }
         return false;
     }
 };

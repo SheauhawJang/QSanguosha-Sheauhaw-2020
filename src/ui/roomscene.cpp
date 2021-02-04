@@ -3189,7 +3189,10 @@ void RoomScene::changeHp(const QString &who, int delta, DamageStruct::Nature, bo
             return;
         }
 
-        Sanguosha->playSystemAudioEffect("injure");
+        if (delta < -1)
+            Sanguosha->playSystemAudioEffect("injurebig");
+        else
+            Sanguosha->playSystemAudioEffect("injure");
 
         setEmotion(who, "damage");
 		if (photo) {

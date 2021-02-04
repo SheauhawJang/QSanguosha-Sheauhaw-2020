@@ -185,6 +185,13 @@ public:
         return QStringList(objectName());
     }
 
+    inline const QStringList nameList(int k) const
+    {
+        QStringList list;
+        for (int i = 0; i < k; ++i) list << objectName();
+        return list;
+    }
+
 protected:
     const ViewAsSkill *view_as_skill;
     QList<TriggerEvent> events;

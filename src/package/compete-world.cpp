@@ -165,19 +165,6 @@ WomenDress::WomenDress(Suit suit, int number)
     setObjectName("women_dress");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 class Falu : public TriggerSkill
 {
 public:

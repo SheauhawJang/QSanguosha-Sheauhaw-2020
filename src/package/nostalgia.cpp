@@ -215,50 +215,59 @@ public:
 		view_as_skill = new dummyVS;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *lingtong, QVariant &data) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &datas, ServerPlayer *&) const
     {
-        if (triggerEvent == CardsMoveOneTime) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from == lingtong && move.from_places.contains(Player::PlaceEquip)) {
-                QStringList choicelist;
-                QList<ServerPlayer *> targets1;
-                foreach (ServerPlayer *target, room->getAlivePlayers()) {
-                    if (lingtong->canSlash(target, NULL, false))
-                        targets1 << target;
-                }
-                Slash *slashx = new Slash(Card::NoSuit, 0);
-                if (!targets1.isEmpty() && !lingtong->isCardLimited(slashx, Card::MethodUse))
-                    choicelist << "slash";
-                slashx->deleteLater();
-                QList<ServerPlayer *> targets2;
-                foreach (ServerPlayer *p, room->getOtherPlayers(lingtong)) {
-                    if (lingtong->distanceTo(p) <= 1)
-                        targets2 << p;
-                }
-                if (!targets2.isEmpty()) choicelist << "damage";
-                choicelist << "nothing";
-
-                QString choice = room->askForChoice(lingtong, objectName(), choicelist.join("+"));
-                if (choice == "slash") {
-                    ServerPlayer *target = room->askForPlayerChosen(lingtong, targets1, "nosxuanfeng_slash", "@dummy-slash");
-                    lingtong->broadcastSkillInvoke(objectName());
-                    Slash *slash = new Slash(Card::NoSuit, 0);
-                    slash->setSkillName(objectName());
-                    room->useCard(CardUseStruct(slash, lingtong, target));
-                } else if (choice == "damage") {
-                    lingtong->broadcastSkillInvoke(objectName());
-
-                    LogMessage log;
-                    log.type = "#InvokeSkill";
-                    log.from = lingtong;
-                    log.arg = objectName();
-                    room->sendLog(log);
-                    room->notifySkillInvoked(lingtong, objectName());
-
-                    ServerPlayer *target = room->askForPlayerChosen(lingtong, targets2, "nosxuanfeng_damage", "@nosxuanfeng-damage");
-                    room->damage(DamageStruct("nosxuanfeng", lingtong, target));
-                }
+        if (!TriggerSkill::triggerable(player)) return QStringList();
+        if (triggerEvent == CardsMoveOneTime)
+            foreach (QVariant data, datas.toList())
+            {
+                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && move.from_places.contains(Player::PlaceEquip))
+                    return nameList();
             }
+
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *lingtong, QVariant &, ServerPlayer *) const
+    {
+        QStringList choicelist;
+        QList<ServerPlayer *> targets1;
+        foreach (ServerPlayer *target, room->getAlivePlayers()) {
+            if (lingtong->canSlash(target, NULL, false))
+                targets1 << target;
+        }
+        Slash *slashx = new Slash(Card::NoSuit, 0);
+        if (!targets1.isEmpty() && !lingtong->isCardLimited(slashx, Card::MethodUse))
+            choicelist << "slash";
+        slashx->deleteLater();
+        QList<ServerPlayer *> targets2;
+        foreach (ServerPlayer *p, room->getOtherPlayers(lingtong)) {
+            if (lingtong->distanceTo(p) <= 1)
+                targets2 << p;
+        }
+        if (!targets2.isEmpty()) choicelist << "damage";
+        choicelist << "nothing";
+
+        QString choice = room->askForChoice(lingtong, objectName(), choicelist.join("+"));
+        if (choice == "slash") {
+            ServerPlayer *target = room->askForPlayerChosen(lingtong, targets1, "nosxuanfeng_slash", "@dummy-slash");
+            lingtong->broadcastSkillInvoke(objectName());
+            Slash *slash = new Slash(Card::NoSuit, 0);
+            slash->setSkillName(objectName());
+            room->useCard(CardUseStruct(slash, lingtong, target));
+        } else if (choice == "damage") {
+            lingtong->broadcastSkillInvoke(objectName());
+
+            LogMessage log;
+            log.type = "#InvokeSkill";
+            log.from = lingtong;
+            log.arg = objectName();
+            room->sendLog(log);
+            room->notifySkillInvoked(lingtong, objectName());
+
+            ServerPlayer *target = room->askForPlayerChosen(lingtong, targets2, "nosxuanfeng_damage", "@nosxuanfeng-damage");
+            room->damage(DamageStruct("nosxuanfeng", lingtong, target));
         }
 
         return false;
@@ -829,17 +838,26 @@ public:
         events << CardsMoveOneTime;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *from, QVariant &datas) const
     {
-        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (player->getPhase() != Player::NotActive && move.from && move.from_places.contains(Player::PlaceHand)
-            && move.is_last_handcard) {
-            ServerPlayer *from = (ServerPlayer *)move.from;
-            if (from->getHp() > 0 && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(from))) {
-				room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), from->objectName());
-                player->broadcastSkillInvoke("juece");
-                room->damage(DamageStruct(objectName(), player, from));
-            }
+        TriggerList list;
+        foreach (QVariant data, datas.toList())
+        {
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (move.from && from == move.from && move.from_places.contains(Player::PlaceHand)&& move.is_last_handcard && from->getHp() > 0)
+                foreach (ServerPlayer *player, room->getAlivePlayers())
+                    if (TriggerSkill::triggerable(player) && player->getPhase() != Player::NotActive)
+                        list.insert(player, nameList());
+        }
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *from, QVariant &, ServerPlayer *player) const
+    {
+        if (room->askForSkillInvoke(player, objectName(), QVariant::fromValue(from))) {
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), from->objectName());
+            player->broadcastSkillInvoke("juece");
+            room->damage(DamageStruct(objectName(), player, from));
         }
         return false;
     }
@@ -1721,14 +1739,23 @@ public:
         frequency = Frequent;
     }
 
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *luxun, QVariant &datas, ServerPlayer *&)
+    {
+        if (!TriggerSkill::triggerable(luxun)) return QStringList();
+        foreach (QVariant data, datas.toList())
+        {
+            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+            if (move.from == luxun && move.from_places.contains(Player::PlaceHand) && luxun->isKongcheng())
+                return nameList();
+        }
+        return QStringList();
+    }
+
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *luxun, QVariant &data) const
     {
-        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (move.from == luxun && move.from_places.contains(Player::PlaceHand) && luxun->isKongcheng()) {
-            if (room->askForSkillInvoke(luxun, objectName(), data)) {
-                luxun->broadcastSkillInvoke(objectName());
-                luxun->drawCards(1, objectName());
-            }
+        if (room->askForSkillInvoke(luxun, objectName(), data)) {
+            luxun->broadcastSkillInvoke(objectName());
+            luxun->drawCards(1, objectName());
         }
         return false;
     }

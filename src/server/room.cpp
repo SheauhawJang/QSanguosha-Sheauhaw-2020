@@ -5035,7 +5035,7 @@ void Room::processClientReply(ServerPlayer *player, const Packet &packet)
 bool Room::useCard(const CardUseStruct &use, bool add_history)
 {
     CardUseStruct card_use = use;
-    card_use.card = Card::Parse(use.card->toString());
+    //card_use.card = Card::Parse(use.card->toString());
     card_use.m_addHistory = false;
     card_use.m_isHandcard = true;
     const Card *card = card_use.card;
