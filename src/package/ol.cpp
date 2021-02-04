@@ -1127,10 +1127,10 @@ public:
 
     virtual bool triggerable(const ServerPlayer *target) const
     {
-        return target != NULL;
+        return false;
     }
 
-    bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == EventPhaseProceeding && player->getPhase() == Player::Discard && TriggerSkill::triggerable(player)) {
             int num = 0;
@@ -1147,38 +1147,41 @@ public:
                 room->askForDiscard(player, "gamerule", discard_num, discard_num, false, false, "@xiahui-discard", ".|red|.|hand");
             room->setTag("SkipGameRule", true);
         } else if (triggerEvent == PreCardsMoveOneTime) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from == player && !player->property("xiahui_record").toString().isEmpty()) {
-                QStringList xiahui_ids = player->property("xiahui_record").toString().split("+");
-                QStringList xiahui_copy = xiahui_ids;
-                foreach (QString card_data, xiahui_copy) {
-                    int id = card_data.toInt();
-                    if (move.card_ids.contains(id) && move.from_places[move.card_ids.indexOf(id)] == Player::PlaceHand) {
-                        xiahui_ids.removeOne(card_data);
+            foreach (QVariant adata, data.toList()) {
+                CardsMoveOneTimeStruct move = adata.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && !player->property("xiahui_record").toString().isEmpty()) {
+                    QStringList xiahui_ids = player->property("xiahui_record").toString().split("+");
+                    QStringList xiahui_copy = xiahui_ids;
+                    foreach (QString card_data, xiahui_copy) {
+                        int id = card_data.toInt();
+                        if (move.card_ids.contains(id) && move.from_places[move.card_ids.indexOf(id)] == Player::PlaceHand) {
+                            xiahui_ids.removeOne(card_data);
+                        }
                     }
+                    room->setPlayerProperty(player, "xiahui_record", xiahui_ids.join("+"));
                 }
-                room->setPlayerProperty(player, "xiahui_record", xiahui_ids.join("+"));
             }
         } else if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player)) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
-                && (move.to != player && move.to_place == Player::PlaceHand)) {
-                ServerPlayer *target = (ServerPlayer *)move.to;
-                if (!target || target->isDead()) return false;
-                QStringList xiahui_ids = target->property("xiahui_record").toString().split("+");
-                foreach (int id, move.card_ids) {
-                    if (room->getCardOwner(id) == target && room->getCardPlace(id) == Player::PlaceHand && Sanguosha->getCard(id)->isBlack()) {
-                        xiahui_ids << QString::number(id);
+            foreach (QVariant adata, data.toList()) {
+                CardsMoveOneTimeStruct move = adata.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
+                    && (move.to != player && move.to_place == Player::PlaceHand)) {
+                    ServerPlayer *target = (ServerPlayer *)move.to;
+                    if (!target || target->isDead()) return false;
+                    QStringList xiahui_ids = target->property("xiahui_record").toString().split("+");
+                    foreach (int id, move.card_ids) {
+                        if (room->getCardOwner(id) == target && room->getCardPlace(id) == Player::PlaceHand && Sanguosha->getCard(id)->isBlack()) {
+                            xiahui_ids << QString::number(id);
+                        }
                     }
+                    room->setPlayerProperty(target, "xiahui_record", xiahui_ids.join("+"));
                 }
-                room->setPlayerProperty(target, "xiahui_record", xiahui_ids.join("+"));
             }
         } else if (triggerEvent == HpChanged) {
             if (!data.isNull() && !data.canConvert<RecoverStruct>()) {
                 room->setPlayerProperty(player, "xiahui_record", QStringList());
             }
         }
-        return false;
     }
 };
 
