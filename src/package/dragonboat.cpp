@@ -35,15 +35,13 @@ public :
     {
         TriggerList list;
         if (target->getPhase() != Player::Play) return list;
-        if (triggerEvent == TargetSpecified)
-        {
+        if (triggerEvent == TargetSpecified) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.index)
                 return list;
             if (!target->tag["lianpian-last"].isNull())
                 foreach (ServerPlayer *to, use.to)
-                    if (target->tag["lianpian-last"].value<QList<ServerPlayer *> >().contains(to))
-                    {
+                    if (target->tag["lianpian-last"].value<QList<ServerPlayer *> >().contains(to)) {
                         foreach (ServerPlayer *player, room->getAllPlayers())
                             if (player->hasSkill(objectName()) && target->getKingdom() == player->getKingdom())
                                 list.insert(player, nameList());
@@ -56,13 +54,10 @@ public :
     virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         if (triggerEvent == EventPhaseChanging)
-            foreach (ServerPlayer *p, room->getAllPlayers(true))
-            {
+            foreach (ServerPlayer *p, room->getAllPlayers(true)) {
                 p->tag.remove("lianpian-last");
                 p->tag.remove("lianpian-this");
-            }
-        else
-        {
+            } else {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.index)
                 return;
@@ -73,8 +68,7 @@ public :
 
     virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *p) const
     {
-        if (room->askForSkillInvoke(p, objectName()))
-        {
+        if (room->askForSkillInvoke(p, objectName())) {
             room->broadcastSkillInvoke(objectName(), p);
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, p->objectName(), player->objectName());
             room->drawCards(player, 1, objectName());
@@ -95,20 +89,16 @@ public :
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data) const
     {
         TriggerList list;
-        if (triggerEvent == TurnStart)
-        {
+        if (triggerEvent == TurnStart) {
             if (room->getTag("FirstRound").toBool())
                 foreach (ServerPlayer *quan, room->getAllPlayers())
                     if (TriggerSkill::triggerable(quan))
-                         list.insert(quan, nameList());
-        }
-        else
-        {
+                        list.insert(quan, nameList());
+        } else {
             DamageStruct damage = data.value<DamageStruct>();
             if (damage.to->getMark("@dianhu"))
                 foreach (ServerPlayer *quan, room->getAllPlayers())
-                    if (quan->hasSkill(objectName()) && target->getKingdom() == quan->getKingdom())
-                    {
+                    if (quan->hasSkill(objectName()) && target->getKingdom() == quan->getKingdom()) {
                         QStringList ans;
                         for (int i = 0; i < damage.damage; i++)
                             ans << objectName();
@@ -120,15 +110,12 @@ public :
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *quan) const
     {
-        if (triggerEvent == TurnStart)
-        {
+        if (triggerEvent == TurnStart) {
             room->broadcastSkillInvoke(objectName(), quan, 1);
             ServerPlayer *target = room->askForPlayerChosen(quan, room->getOtherPlayers(quan), objectName());
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, quan->objectName(), target->objectName());
             room->setPlayerMark(target, "@dianhu", 1);
-        }
-        else
-        {
+        } else {
             room->broadcastSkillInvoke(objectName(), quan, 2);
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, quan->objectName(), player->objectName());
             room->drawCards(player, 1, objectName());
@@ -151,15 +138,14 @@ bool JianjiCard::targetFixed() const
 void JianjiCard::onUse(Room *room, const CardUseStruct &use) const
 {
     foreach (ServerPlayer *target, room->getOtherPlayers(use.from))
-        if (target->getKingdom() == use.from->getKingdom())
-        {
+        if (target->getKingdom() == use.from->getKingdom()) {
             int card_id = room->getNCards(1, false).first();
             Card *card = Sanguosha->getCard(card_id);
             //target->drawCard(card);
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, use.from->objectName(), target->objectName());
             room->broadcastSkillInvoke("jianji", use.from);
             room->obtainCard(target, card, true);
-            room->askForUseCard(target, QString::number(card_id), "@jianji-use:::"+card->objectName());
+            room->askForUseCard(target, QString::number(card_id), "@jianji-use:::" + card->objectName());
             room->setPlayerFlag(use.from, "JianjiUsed");
         }
 
@@ -196,11 +182,9 @@ public:
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data) const
     {
         TriggerList list;
-        if (triggerEvent == Death)
-        {
+        if (triggerEvent == Death) {
             DeathStruct death = data.value<DeathStruct>();
-            if (death.who->hasSkill(objectName()))
-            {
+            if (death.who->hasSkill(objectName())) {
                 foreach (ServerPlayer *p, room->getOtherPlayers(death.who))
                     if (p->getKingdom() == death.who->getKingdom() && p->hasSkill(objectName()))
                         return list;
@@ -208,57 +192,43 @@ public:
                     if (p->getKingdom() == death.who->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun"))
                         list.insert(p, nameList());
             }
-        }
-        else if (triggerEvent == EventLoseSkill)
-        {
-            if (data.toString() == objectName())
-            {
+        } else if (triggerEvent == EventLoseSkill) {
+            if (data.toString() == objectName()) {
                 foreach (ServerPlayer *p, room->getOtherPlayers(target))
                     if (p->getKingdom() == target->getKingdom() && p->hasSkill(objectName()))
                         return list;
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->getKingdom() == target->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun"))
                         list.insert(target, nameList());
-            }
-            else if (data.toString() == "xunxun")
-            {
+            } else if (data.toString() == "xunxun") {
                 if (room->getBoatTreasure(target->getKingdom()) > 1)
                     foreach (ServerPlayer *tangzi, room->getAllPlayers())
                         if (tangzi->hasSkill(objectName()) && tangzi->getKingdom() == target->getKingdom())
                             if (tangWillEffect(tangzi, room))
                                 list.insert(tangzi, nameList());
             }
-        }
-        else if (triggerEvent == EventAcquireSkill)
-        {
-            if (data.toString() == objectName() && target->isAlive() && room->getBoatTreasure(target->getKingdom()) > 1)
-            {
+        } else if (triggerEvent == EventAcquireSkill) {
+            if (data.toString() == objectName() && target->isAlive() && room->getBoatTreasure(target->getKingdom()) > 1) {
                 foreach (ServerPlayer *p, room->getOtherPlayers(target))
                     if (p->getKingdom() == target->getKingdom() && p->hasSkill(objectName()))
                         return list;
                 if (tangWillEffect(target, room))
                     list.insert(target, nameList());
             }
-        }
-        else if (triggerEvent == MarkChanged)
-        {
+        } else if (triggerEvent == MarkChanged) {
             MarkStruct mark = data.value<MarkStruct>();
             if (mark.name == "@boattreasure" && room->getBoatTreasure(target->getKingdom()) > 1)
                 foreach (ServerPlayer *tangzi, room->getAllPlayers())
                     if (tangzi->hasSkill(objectName()) && tangzi->getKingdom() == target->getKingdom())
                         if (tangWillEffect(tangzi, room))
                             list.insert(tangzi, nameList());
-        }
-        else if (triggerEvent == CardUsed)
-        {
+        } else if (triggerEvent == CardUsed) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->isKindOf("EquipCard"))
                 foreach (ServerPlayer *p, room->getAllPlayers())
                     if (p->hasSkill(objectName()) && p->getKingdom() == target->getKingdom() && room->getBoatTreasure(p->getKingdom()) > 3)
                         list.insert(p, nameList());
-        }
-        else if (triggerEvent == EventPhaseChanging)
-        {
+        } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct change = data.value<PhaseChangeStruct>();
             if (change.to == Player::Discard && target->isAlive())
                 foreach (ServerPlayer *p, room->getAllPlayers())
@@ -270,43 +240,28 @@ public:
 
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *target) const
     {
-        if (triggerEvent == Death)
-        {
+        if (triggerEvent == Death) {
             room->detachSkillFromPlayer(target, "xunxun");
             room->setPlayerMark(target, "gained_xunxun", 0);
-        }
-        else if (triggerEvent == EventLoseSkill)
-        {
-            if (data.toString() == objectName())
-            {
+        } else if (triggerEvent == EventLoseSkill) {
+            if (data.toString() == objectName()) {
                 foreach (ServerPlayer *p, room->getAllPlayers())
-                    if (p->getKingdom() == target->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun"))
-                    {
+                    if (p->getKingdom() == target->getKingdom() && p->hasSkill("xunxun") && p->getMark("gained_xunxun")) {
                         room->detachSkillFromPlayer(p, "xunxun");
                         room->setPlayerMark(p, "gained_xunxun", 0);
                     }
-            }
-            else if (data.toString() == "xunxun")
-            {
+            } else if (data.toString() == "xunxun") {
                 tangEffect(target, room);
             }
-        }
-        else if (triggerEvent == EventAcquireSkill)
-        {
+        } else if (triggerEvent == EventAcquireSkill) {
             tangEffect(target, room);
-        }
-        else if (triggerEvent == MarkChanged)
-        {
+        } else if (triggerEvent == MarkChanged) {
             tangEffect(target, room);
-        }
-        else if (triggerEvent == CardUsed)
-        {
+        } else if (triggerEvent == CardUsed) {
             room->broadcastSkillInvoke(objectName(), target);
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), player->objectName());
             room->drawCards(player, 1, objectName());
-        }
-        else if (triggerEvent == EventPhaseChanging)
-        {
+        } else if (triggerEvent == EventPhaseChanging) {
             room->broadcastSkillInvoke(objectName(), target);
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, target->objectName(), player->objectName());
             player->skip(Player::Discard);
@@ -320,8 +275,7 @@ protected:
             return;
         room->broadcastSkillInvoke("xingzhao", tangzi);
         foreach (ServerPlayer *p, room->getAllPlayers(true))
-            if (p->getKingdom() == tangzi->getKingdom() && !p->hasSkill("xunxun"))
-            {
+            if (p->getKingdom() == tangzi->getKingdom() && !p->hasSkill("xunxun")) {
                 room->acquireSkill(p, "xunxun");
                 room->setPlayerMark(p, "gained_xunxun", 1);
             }
@@ -619,8 +573,7 @@ void AgainstWater::onEffect(const CardEffectStruct &effect) const
     QStringList kingdoms;
     kingdoms << "wei" << "shu" << "wu" << "qun";
     kingdoms.removeOne(kingdom);
-    foreach (QString ekingdom, kingdoms)
-    {
+    foreach (QString ekingdom, kingdoms) {
         if (room->getBoatTreasure(ekingdom) > room->getBoatTreasure(kingdom))
             discone = false;
         else if (room->getBoatTreasure(ekingdom) < room->getBoatTreasure(kingdom))

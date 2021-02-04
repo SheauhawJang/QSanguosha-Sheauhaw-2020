@@ -137,7 +137,8 @@ public:
         }
     }
 
-    void insert(QList<const Skill *>skills, const General *owner) {
+    void insert(QList<const Skill *>skills, const General *owner)
+    {
         foreach (const Skill *skill, skills)
             insert(skill, owner);
     }
@@ -285,23 +286,23 @@ Engine::Engine(bool isManualMode)
                     info = translate("Manual_Index") + list.join(" ");
 
                 stream << translate("Manual_Head").arg(upper).arg(info)
-                          .arg(getVersion())
+                       .arg(getVersion())
                        << endl;
 
                 for (QList<ManualSkill *>::iterator it = list.begin();
-                     it < list.end(); ++it) {
+                        it < list.end(); ++it) {
                     ManualSkill *skill = *it;
                     QStringList generals;
 
                     foreach(const General *general, skill->relatedGenerals) {
                         generals << QString("%1-%2")
-                                    .arg(translate(general->getPackage()))
-                                    .arg(general->getBriefName());
+                                 .arg(translate(general->getPackage()))
+                                 .arg(general->getBriefName());
                     }
                     stream << translate("Manual_Skill")
-                              .arg(translate(skill->skill->objectName()))
-                              .arg(generals.join(" "))
-                              .arg(skill->skill->getDescription())
+                           .arg(translate(skill->skill->objectName()))
+                           .arg(generals.join(" "))
+                           .arg(skill->skill->getDescription())
                            << endl << endl;
                 }
 
@@ -530,7 +531,7 @@ void Engine::addPackage(Package *package)
         generals.insert(general->objectName(), general);
         if (isGeneralHidden(general->objectName())) continue;
         if ((general->isLord() && !removed_default_lords.contains(general->objectName()))
-            || extra_default_lords.contains(general->objectName()))
+                || extra_default_lords.contains(general->objectName()))
             lord_list << general->objectName();
     }
 
@@ -657,7 +658,7 @@ int Engine::getGeneralCount(bool include_banned, const QString &kingdom) const
         else {
             QStringList ban_list = getExtraGeneralsBan();
             if (ban_list.contains(general->objectName()))
-                isBanned = true; 
+                isBanned = true;
             else if (ServerInfo.Enable2ndGeneral && BanPair::isBanned(general->objectName()))
                 isBanned = true;
         }
@@ -738,7 +739,7 @@ bool Engine::isGeneralHidden(const QString &general_name) const
     const General *general = getGeneral(general_name);
     if (!general) return true;
     return (general->isHidden() && !removed_hidden_generals.contains(general_name))
-        || extra_hidden_generals.contains(general_name);
+           || extra_hidden_generals.contains(general_name);
 }
 
 QStringList Engine::getConvertGenerals(const QString &name) const
@@ -800,8 +801,8 @@ void Engine::setExtraGeneralsBan()
     else if (Config.GameMode == "zombie_mode")
         ban_list.append(Config.value("Banlist/Zombie").toStringList());
     else if (isNormalGameMode(ServerInfo.GameMode)
-        || ServerInfo.GameMode.contains("_mini_")
-        || ServerInfo.GameMode == "custom_scenario")
+             || ServerInfo.GameMode.contains("_mini_")
+             || ServerInfo.GameMode == "custom_scenario")
         ban_list.append(Config.value("Banlist/Roles", "").toStringList());
 
     Config.setValue("Banlist/Generals", ban_list);
@@ -1084,12 +1085,12 @@ QString Engine::getSetupString() const
     else if (mode == "06_3v3")
         mode = mode + Config.value("3v3/OfficialRule", "2013").toString();
     setup_items << server_name
-        << mode
-        << QString::number(timeout)
-        << QString::number(Config.NullificationCountDown)
-        << Sanguosha->getBanPackages().join("+")
-        << flags
-        << QString::number(Config.GeneralLevel);
+                << mode
+                << QString::number(timeout)
+                << QString::number(Config.NullificationCountDown)
+                << Sanguosha->getBanPackages().join("+")
+                << flags
+                << QString::number(Config.GeneralLevel);
 
     return setup_items.join(":");
 }
@@ -1231,14 +1232,30 @@ QStringList Engine::getRoleList(const QString &mode) const
     for (int i = 0; roles[i] != '\0'; i++) {
         QString role;
         switch (roles[i].toLatin1()) {
-        case 'Z': role = "lord"; break;
-        case 'C': role = "loyalist"; break;
-        case 'N': role = "renegade"; break;
-        case 'F': role = "rebel"; break;
-        case 'E': role = "dragon_wei"; break;
-        case 'S': role = "dragon_shu"; break;
-        case 'U': role = "dragon_wu"; break;
-        case 'Q': role = "dragon_qun"; break;
+        case 'Z':
+            role = "lord";
+            break;
+        case 'C':
+            role = "loyalist";
+            break;
+        case 'N':
+            role = "renegade";
+            break;
+        case 'F':
+            role = "rebel";
+            break;
+        case 'E':
+            role = "dragon_wei";
+            break;
+        case 'S':
+            role = "dragon_shu";
+            break;
+        case 'U':
+            role = "dragon_wu";
+            break;
+        case 'Q':
+            role = "dragon_qun";
+            break;
         }
         role_list << role;
     }
@@ -1262,10 +1279,10 @@ QStringList Engine::getLords(bool contain_banned) const
             continue;
         if (!contain_banned) {
             if (ServerInfo.GameMode.endsWith("p")
-                || ServerInfo.GameMode.endsWith("pd")
-                || ServerInfo.GameMode.endsWith("pz")
-                || ServerInfo.GameMode.contains("_mini_")
-                || ServerInfo.GameMode == "custom_scenario")
+                    || ServerInfo.GameMode.endsWith("pd")
+                    || ServerInfo.GameMode.endsWith("pz")
+                    || ServerInfo.GameMode.contains("_mini_")
+                    || ServerInfo.GameMode == "custom_scenario")
                 if (getExtraGeneralsBan().contains(lord))
                     continue;
             if (Config.Enable2ndGeneral && BanPair::isBanned(lord))
@@ -1339,8 +1356,7 @@ QStringList Engine::getRandomFemaleLords(bool zuoci) const
 
     QStringList all_maf_lords = Sanguosha->getLords();
     QStringList all_lords;
-    foreach (QString name, all_maf_lords)
-    {
+    foreach (QString name, all_maf_lords) {
         const General *general = Sanguosha->getGeneral(name);
         if (general && general->isFemale())
             all_lords << general->objectName();
@@ -1406,7 +1422,7 @@ QStringList Engine::getLimitedGeneralNames(const QString &kingdom) const
         itor.next();
         const General *gen = itor.value();
         if ((kingdom.isEmpty() || gen->getKingdom() == kingdom)
-            && !isGeneralHidden(gen->objectName()) && !getBanPackages().contains(gen->getPackage()))
+                && !isGeneralHidden(gen->objectName()) && !getBanPackages().contains(gen->getPackage()))
             general_names << itor.key();
     }
 
@@ -1465,8 +1481,7 @@ QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_
 {
     QStringList all_maf_generals = getLimitedGeneralNames(kingdom);
     QStringList all_generals;
-    foreach (QString name, all_maf_generals)
-    {
+    foreach (QString name, all_maf_generals) {
         const General *general = Sanguosha->getGeneral(name);
         if (general && general->isFemale())
             all_generals << general->objectName();
@@ -1511,7 +1526,7 @@ QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_
 QList<int> Engine::getRandomCards() const
 {
     bool exclude_disaters = false, using_2012_3v3 = false, using_2013_3v3 = false, exclude_zdyj = false,
-            exclude_dragonboat = false, exclude_swzs = false, exclude_year_18 = false, exclude_year_19 = false;
+         exclude_dragonboat = false, exclude_swzs = false, exclude_year_18 = false, exclude_year_19 = false;
     QStringList extra_ban = QStringList();
 
     if (Config.GameMode == "06_3v3") {
@@ -1532,30 +1547,25 @@ QList<int> Engine::getRandomCards() const
             extra_ban << Config.BestLoyalistSets["cards_ban_new"];
     }
 
-    if (Config.GameMode == "08_dragonboat")
-    {
+    if (Config.GameMode == "08_dragonboat") {
         exclude_dragonboat = true;
         exclude_disaters = true;
         extra_ban << Config.DragonBoatBanC["cards"];
     }
 
-    if (Config.GameMode == "04_year")
-    {
-        if (Config.value("year/Mode", "2018").toString() == "2018")
-        {
+    if (Config.GameMode == "04_year") {
+        if (Config.value("year/Mode", "2018").toString() == "2018") {
             exclude_year_18 = true;
             exclude_disaters = false;
             extra_ban << Config.YearBossBanC["cards"];
         }
-        if (Config.value("year/Mode", "2018").toString().contains("2019"))
-        {
+        if (Config.value("year/Mode", "2018").toString().contains("2019")) {
             exclude_year_19 = true;
             exclude_disaters = false;
         }
     }
 
-    if (Config.GameMode == "06_swzs")
-    {
+    if (Config.GameMode == "06_swzs") {
         exclude_swzs = true;
         extra_ban << Config.GodsReturnBanC["cards"];
     }
@@ -1602,7 +1612,7 @@ QList<int> Engine::getRandomCards() const
         }
 
         if (Config.GameMode == "06_3v3" && !Config.value("3v3/UsingExtension", false).toBool()
-            && card->getPackage() != "standard_cards" && card->getPackage() != "standard_ex_cards")
+                && card->getPackage() != "standard_cards" && card->getPackage() != "standard_ex_cards")
             continue;
         if (!getBanPackages().contains(card->getPackage()))
             list << card->getId();
@@ -1652,14 +1662,14 @@ QStringList Engine::findSkillAudioFileNames(const QString &skillName, const QStr
 {
     QStringList fileNames;
 
-	QString eventName = generalName + "-" + skillName;
+    QString eventName = generalName + "-" + skillName;
 
     if (!generalName.isEmpty() && Sanguosha->getGeneral(generalName)) {
         if (skinId > 0) {
             for (int i = 1;; i++) {
                 QString effect_file = QString("hero-skin/%1/%2/%3%4.ogg")
-                        .arg(generalName).arg(QString::number(skinId))
-                        .arg(skillName).arg(QString::number(i));
+                                      .arg(generalName).arg(QString::number(skinId))
+                                      .arg(skillName).arg(QString::number(i));
                 if (QFile::exists(effect_file))
                     fileNames << effect_file;
                 else
@@ -1668,7 +1678,7 @@ QStringList Engine::findSkillAudioFileNames(const QString &skillName, const QStr
 
             if (fileNames.isEmpty()) {
                 QString effect_file = QString("hero-skin/%1/%2/%3.ogg")
-                        .arg(generalName).arg(QString::number(skinId)).arg(skillName);
+                                      .arg(generalName).arg(QString::number(skinId)).arg(skillName);
                 if (QFile::exists(effect_file))
                     fileNames << effect_file;
             }
@@ -1689,17 +1699,17 @@ QStringList Engine::findSkillAudioFileNames(const QString &skillName, const QStr
             if (QFile::exists(effect_file))
                 fileNames << effect_file;
         }
-	}
+    }
 
     if (fileNames.isEmpty()) {
-		const Skill *skill = Sanguosha->getSkill(skillName);
+        const Skill *skill = Sanguosha->getSkill(skillName);
         if (skill) {
-			QString owner_name = skill->getOwner();
-	        if (generalName.isEmpty() || owner_name.isEmpty() || owner_name == generalName || generalName.contains("_" + owner_name))
-				fileNames = skill->getSources();
-		}
-	}
-	return fileNames;
+            QString owner_name = skill->getOwner();
+            if (generalName.isEmpty() || owner_name.isEmpty() || owner_name == generalName || generalName.contains("_" + owner_name))
+                fileNames = skill->getSources();
+        }
+    }
+    return fileNames;
 }
 
 const Skill *Engine::getSkill(const QString &skill_name) const
