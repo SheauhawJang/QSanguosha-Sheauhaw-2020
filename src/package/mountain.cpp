@@ -769,12 +769,12 @@ public:
         events << CardsMoveOneTime << EventPhaseEnd << EventPhaseChanging;
     }
 
-    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &datas) const
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &datas) const
     {
         if (triggerEvent == CardsMoveOneTime) {
               ServerPlayer *current = room->getCurrent();
 
-              if (!current || current->getPhase() != Player::Discard)
+              if (!current || player != current || current->getPhase() != Player::Discard)
                   return;
 
               QVariantList guzhengToGet = room->getTag("GuzhengToGet").toList();
@@ -827,7 +827,7 @@ public:
             }
             if (cardsToGet.isEmpty())
                 return list;
-            foreach (ServerPlayer *p, room->getAlivePlayers())
+            foreach (ServerPlayer *p, room->getOtherPlayers(room->getCurrent()))
                 if (p->hasSkill(objectName()))
                     list.insert(p, nameList());
         }
