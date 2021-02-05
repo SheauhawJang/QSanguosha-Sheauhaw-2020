@@ -4673,7 +4673,7 @@ void FumanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &tar
     ServerPlayer *target = targets.first();
     int card = subcards.first();
     QVariantList list = source->tag["fuman_record"].toList();
-    list << QPair<int, ServerPlayer *>(card, target);
+    list << QVariant::fromValue(QPair<int, ServerPlayer *>(card, target));
     source->tag["fuman_record"] = list;
 }
 
@@ -4749,8 +4749,16 @@ public:
         }
     }
 
-    bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *ask_who) const
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *ask_who) const
     {
+        const Card *usecard = NULL;
+        if (triggerEvent == CardUsed) {
+            usecard = data.value<CardUseStruct>().card;
+        } else if (triggerEvent == CardResponded) {
+            CardResponseStruct resp = data.value<CardResponseStruct>();
+            if (resp.m_isUse)
+                usecard = resp.m_card;
+        }
         LogMessage log;
         log.type = "#SkillForce";
         log.from = ask_who;
@@ -5879,7 +5887,7 @@ public:
         } else if (triggerEvent == CardsMoveOneTime) {
             QList<int> card_ids;
             foreach (QVariant qvar, data.toList()) {
-                CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
                 if (move.to_place == Player::DiscardPile && move.reason.m_reason == CardMoveReason::S_REASON_JUDGEDONE) {
                     JudgeStruct *judge = move.reason.m_extraData.value<JudgeStruct *>();
                     if (judge->reason == objectName() && judge->who == player) {
@@ -5892,7 +5900,7 @@ public:
             }
             if (card_ids.isEmpty()) return false;
             if (room->askForChoice(player, objectName(), "yes+no", data, "@jijun-choose") == "yes") {
-                data = QVariant::fromValue(move);
+                //data = QVariant::fromValue(move);
                 player->addToPile("phalanx", card_ids);
             }
         }

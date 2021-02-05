@@ -445,36 +445,44 @@ public:
         frequency = Frequent;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *sunshangxiang, QVariant &data) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *sunshangxiang, QVariant &data, ServerPlayer *&) const
     {
-        CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-        if (move.from == sunshangxiang && move.from_places.contains(Player::PlaceEquip)) {
-            for (int i = 0; i < move.card_ids.size(); i++) {
-                if (!sunshangxiang->isAlive())
-                    return false;
-                if (move.from_places[i] == Player::PlaceEquip) {
-                    QStringList choicelist;
-                    choicelist << "draw" << "cancel";
-                    if (sunshangxiang->isWounded())
-                        choicelist.prepend("recover");
-                    QString choice = room->askForChoice(sunshangxiang, objectName(), choicelist.join("+"));
-                    if (choice == "cancel")
-                        return false;
-                    room->notifySkillInvoked(sunshangxiang, objectName());
-                    sunshangxiang->broadcastSkillInvoke(objectName());
-
-                    LogMessage log;
-                    log.type = "#InvokeSkill";
-                    log.from = sunshangxiang;
-                    log.arg = objectName();
-                    room->sendLog(log);
-                    if (choice == "draw")
-                        sunshangxiang->drawCards(2, objectName());
-                    else
-                        room->recover(sunshangxiang, RecoverStruct(sunshangxiang));
+        QStringList list;
+        if (!sunshangxiang->isAlive())
+            return list;
+        foreach (QVariant qvar, data.toList()) {
+            CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+            if (move.from == sunshangxiang && move.from_places.contains(Player::PlaceEquip)) {
+                for (int i = 0; i < move.card_ids.size(); i++) {
+                    if (move.from_places[i] == Player::PlaceEquip)
+                        list << objectName();
                 }
             }
         }
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *sunshangxiang, QVariant &, ServerPlayer *) const
+    {
+        QStringList choicelist;
+        choicelist << "draw" << "cancel";
+        if (sunshangxiang->isWounded())
+            choicelist.prepend("recover");
+        QString choice = room->askForChoice(sunshangxiang, objectName(), choicelist.join("+"));
+        if (choice == "cancel")
+            return false;
+        room->notifySkillInvoked(sunshangxiang, objectName());
+        sunshangxiang->broadcastSkillInvoke(objectName());
+
+        LogMessage log;
+        log.type = "#InvokeSkill";
+        log.from = sunshangxiang;
+        log.arg = objectName();
+        room->sendLog(log);
+        if (choice == "draw")
+            sunshangxiang->drawCards(2, objectName());
+        else
+            room->recover(sunshangxiang, RecoverStruct(sunshangxiang));
         return false;
     }
 };
@@ -498,8 +506,8 @@ public:
             int i = 0;
             foreach (int card_id, move.card_ids) {
                 if (Sanguosha->getCard(card_id)->getTypeId() == Card::TypeEquip
-                    && room->getCardOwner(card_id) == move.from
-                    && (room->getCardPlace(card_id) == Player::PlaceHand || room->getCardPlace(card_id) == Player::PlaceEquip))
+                        && room->getCardOwner(card_id) == move.from
+                        && (room->getCardPlace(card_id) == Player::PlaceHand || room->getCardPlace(card_id) == Player::PlaceEquip))
                     card_ids << card_id;
                 i++;
             }
@@ -976,7 +984,7 @@ public:
         if (player->getPhase() == Player::Finish) {
             ServerPlayer *hansui = room->findPlayerBySkillName(objectName());
             if (hansui && hansui != player && hansui->canSlash(player, false)
-                && (player->getHp() > hansui->getHp() || hansui->hasFlag("NiluanSlashTarget"))) {
+                    && (player->getHp() > hansui->getHp() || hansui->hasFlag("NiluanSlashTarget"))) {
                 if (hansui->isKongcheng()) {
                     bool has_black = false;
                     for (int i = 0; i < 4; i++) {
@@ -1022,7 +1030,7 @@ void Drowning::onEffect(const CardEffectStruct &effect) const
 {
     Room *room = effect.to->getRoom();
     if (!effect.to->getEquips().isEmpty()
-        && room->askForChoice(effect.to, objectName(), "throw+damage", QVariant::fromValue(effect)) == "throw")
+            && room->askForChoice(effect.to, objectName(), "throw+damage", QVariant::fromValue(effect)) == "throw")
         effect.to->throwAllEquips();
     else
         room->damage(DamageStruct(this, effect.from->isAlive() ? effect.from : NULL, effect.to));
@@ -1107,7 +1115,7 @@ Special1v1Package::Special1v1Package()
 ADD_PACKAGE(Special1v1)
 
 Special1v1ExtPackage::Special1v1ExtPackage()
-: Package("Special1v1Ext")
+    : Package("Special1v1Ext")
 {
     General *hejin = new General(this, "hejin", "qun", 4); // QUN 025
     hejin->addSkill(new Mouzhu);
@@ -1127,64 +1135,64 @@ Special1v1ExtPackage::Special1v1ExtPackage()
 ADD_PACKAGE(Special1v1Ext)
 
 New1v1CardPackage::New1v1CardPackage()
-: Package("New1v1Card")
+    : Package("New1v1Card")
 {
     QList<Card *> cards;
     cards << new Duel(Card::Spade, 1)
-        << new EightDiagram(Card::Spade, 2)
-        << new Dismantlement(Card::Spade, 3)
-        << new Snatch(Card::Spade, 4)
-        << new Slash(Card::Spade, 5)
-        << new QinggangSword(Card::Spade, 6)
-        << new Slash(Card::Spade, 7)
-        << new Slash(Card::Spade, 8)
-        << new IceSword(Card::Spade, 9)
-        << new Slash(Card::Spade, 10)
-        << new Snatch(Card::Spade, 11)
-        << new Spear(Card::Spade, 12)
-        << new SavageAssault(Card::Spade, 13);
+          << new EightDiagram(Card::Spade, 2)
+          << new Dismantlement(Card::Spade, 3)
+          << new Snatch(Card::Spade, 4)
+          << new Slash(Card::Spade, 5)
+          << new QinggangSword(Card::Spade, 6)
+          << new Slash(Card::Spade, 7)
+          << new Slash(Card::Spade, 8)
+          << new IceSword(Card::Spade, 9)
+          << new Slash(Card::Spade, 10)
+          << new Snatch(Card::Spade, 11)
+          << new Spear(Card::Spade, 12)
+          << new SavageAssault(Card::Spade, 13);
 
     cards << new ArcheryAttack(Card::Heart, 1)
-        << new Jink(Card::Heart, 2)
-        << new Peach(Card::Heart, 3)
-        << new Peach(Card::Heart, 4)
-        << new Jink(Card::Heart, 5)
-        << new Indulgence(Card::Heart, 6)
-        << new ExNihilo(Card::Heart, 7)
-        << new ExNihilo(Card::Heart, 8)
-        << new Peach(Card::Heart, 9)
-        << new Slash(Card::Heart, 10)
-        << new Slash(Card::Heart, 11)
-        << new Dismantlement(Card::Heart, 12)
-        << new Nullification(Card::Heart, 13);
+          << new Jink(Card::Heart, 2)
+          << new Peach(Card::Heart, 3)
+          << new Peach(Card::Heart, 4)
+          << new Jink(Card::Heart, 5)
+          << new Indulgence(Card::Heart, 6)
+          << new ExNihilo(Card::Heart, 7)
+          << new ExNihilo(Card::Heart, 8)
+          << new Peach(Card::Heart, 9)
+          << new Slash(Card::Heart, 10)
+          << new Slash(Card::Heart, 11)
+          << new Dismantlement(Card::Heart, 12)
+          << new Nullification(Card::Heart, 13);
 
     cards << new Duel(Card::Club, 1)
-        << new RenwangShield(Card::Club, 2)
-        << new Dismantlement(Card::Club, 3)
-        << new Slash(Card::Club, 4)
-        << new Slash(Card::Club, 5)
-        << new Slash(Card::Club, 6)
-        << new Drowning(Card::Club, 7)
-        << new Slash(Card::Club, 8)
-        << new Slash(Card::Club, 9)
-        << new Slash(Card::Club, 10)
-        << new Slash(Card::Club, 11)
-        << new SupplyShortage(Card::Club, 12)
-        << new Nullification(Card::Club, 13);
+          << new RenwangShield(Card::Club, 2)
+          << new Dismantlement(Card::Club, 3)
+          << new Slash(Card::Club, 4)
+          << new Slash(Card::Club, 5)
+          << new Slash(Card::Club, 6)
+          << new Drowning(Card::Club, 7)
+          << new Slash(Card::Club, 8)
+          << new Slash(Card::Club, 9)
+          << new Slash(Card::Club, 10)
+          << new Slash(Card::Club, 11)
+          << new SupplyShortage(Card::Club, 12)
+          << new Nullification(Card::Club, 13);
 
     cards << new Crossbow(Card::Diamond, 1)
-        << new Jink(Card::Diamond, 2)
-        << new Jink(Card::Diamond, 3)
-        << new Snatch(Card::Diamond, 4)
-        << new Axe(Card::Diamond, 5)
-        << new Slash(Card::Diamond, 6)
-        << new Jink(Card::Diamond, 7)
-        << new Jink(Card::Diamond, 8)
-        << new Slash(Card::Diamond, 9)
-        << new Jink(Card::Diamond, 10)
-        << new Jink(Card::Diamond, 11)
-        << new Peach(Card::Diamond, 12)
-        << new Slash(Card::Diamond, 13);
+          << new Jink(Card::Diamond, 2)
+          << new Jink(Card::Diamond, 3)
+          << new Snatch(Card::Diamond, 4)
+          << new Axe(Card::Diamond, 5)
+          << new Slash(Card::Diamond, 6)
+          << new Jink(Card::Diamond, 7)
+          << new Jink(Card::Diamond, 8)
+          << new Slash(Card::Diamond, 9)
+          << new Jink(Card::Diamond, 10)
+          << new Jink(Card::Diamond, 11)
+          << new Peach(Card::Diamond, 12)
+          << new Slash(Card::Diamond, 13);
 
     foreach(Card *card, cards)
         card->setParent(this);

@@ -11,7 +11,7 @@
 class Silue : public PhaseChangeSkill
 {
 public:
-    Silue() :PhaseChangeSkill("silue")
+    Silue() : PhaseChangeSkill("silue")
     {
         frequency = Compulsory;
     }
@@ -43,7 +43,7 @@ public:
 class Kedi : public MasochismSkill
 {
 public:
-    Kedi() :MasochismSkill("kedi")
+    Kedi() : MasochismSkill("kedi")
     {
         frequency = Frequent;
     }
@@ -70,7 +70,7 @@ public:
 class Jishi : public PhaseChangeSkill
 {
 public:
-    Jishi() :PhaseChangeSkill("jishi")
+    Jishi() : PhaseChangeSkill("jishi")
     {
         frequency = Compulsory;
     }
@@ -116,15 +116,14 @@ public:
                     room->obtainCard(target, card_id, false);
                 }
             }
-        } else
-            if (target->getPhase() == Player::Discard) {
-                int n = 0;
-                n = target->getHandcardNum() - players.length();
-                if (n > 0) {
-                    room->askForDiscard(target, objectName(), n, n, false);
-                    return true;
-                }
+        } else if (target->getPhase() == Player::Discard) {
+            int n = 0;
+            n = target->getHandcardNum() - players.length();
+            if (n > 0) {
+                room->askForDiscard(target, objectName(), n, n, false);
+                return true;
             }
+        }
         return false;
     }
 };
@@ -132,7 +131,7 @@ public:
 class Daji : public TriggerSkill
 {
 public:
-    Daji() :TriggerSkill("daji")
+    Daji() : TriggerSkill("daji")
     {
         events << Damaged << EventPhaseStart << TargetConfirmed << CardFinished << CardEffected << DamageInflicted;
         frequency = Compulsory;
@@ -143,7 +142,7 @@ public:
         return target != NULL;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         player->broadcastSkillInvoke(objectName());
         QList<ServerPlayer *> players = room->getAlivePlayers();
@@ -208,25 +207,39 @@ public:
 class Guzhan : public TriggerSkill
 {
 public:
-    Guzhan() :TriggerSkill("guzhan")
+    Guzhan() : TriggerSkill("guzhan")
     {
         events << CardsMoveOneTime;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
     {
         if (triggerEvent == CardsMoveOneTime) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from != player)
-                return false;
+            foreach (QVariant qvar, data.toList()) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.from == player)
+                    return nameList();
+            }
+        }
+        return QStringList();
+    }
 
-            if (player->getWeapon() == NULL) {
-                if (!player->hasSkill("paoxiao"))
-                    room->acquireSkill(player, "paoxiao");
-            } else {
-                if (player->hasSkill("paoxiao"))
-                    room->detachSkillFromPlayer(player, "paoxiao");
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == CardsMoveOneTime) {
+            foreach (QVariant qvar, data.toList()) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.from != player)
+                    return false;
+
+                if (player->getWeapon() == NULL) {
+                    if (!player->hasSkill("paoxiao"))
+                        room->acquireSkill(player, "paoxiao");
+                } else {
+                    if (player->hasSkill("paoxiao"))
+                        room->detachSkillFromPlayer(player, "paoxiao");
+                }
             }
         }
         return false;
@@ -236,28 +249,36 @@ public:
 class Jizhan : public TriggerSkill
 {
 public:
-    Jizhan() :TriggerSkill("jizhan")
+    Jizhan() : TriggerSkill("jizhan")
     {
         events << Damage << CardsMoveOneTime;
         frequency = Compulsory;
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
     {
-        if (player->getPhase() != Player::Play) return false;
+        if (player->getPhase() != Player::Play) return QStringList();
+        if (player->getHp() != player->getMaxHp() && triggerEvent == Damage) {
+            return nameList();
+        } else if (triggerEvent == CardsMoveOneTime) {
+            foreach (QVariant qvar, data.toList()) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.from == player)
+                    return nameList();
+            }
+        }
+        return QStringList();
+    }
 
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
         if (player->getHp() != player->getMaxHp() && triggerEvent == Damage) {
             RecoverStruct recover;
             recover.who = player;
             recover.recover = 1;
             room->recover(player, recover);
         } else if (triggerEvent == CardsMoveOneTime) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.from != player)
-                return false;
-            QList<ServerPlayer *> players = room->getAlivePlayers();
-            if (player->getHandcardNum() < players.length())
-                player->drawCards(1);
+            player->drawCards(1);
         }
         return false;
     }
@@ -266,7 +287,7 @@ public:
 class Duduan : public ProhibitSkill
 {
 public:
-    Duduan() :ProhibitSkill("duduan")
+    Duduan() : ProhibitSkill("duduan")
     {
     }
 
@@ -280,20 +301,20 @@ class ImpasseRule : public ScenarioRule
 {
 public:
     ImpasseRule(Scenario *scenario)
-        :ScenarioRule(scenario)
+        : ScenarioRule(scenario)
     {
         events << GameStart << TurnStart << EventPhaseStart
-            << BuryVictim << GameOverJudge << Damaged << PreHpLost;
+               << BuryVictim << GameOverJudge << Damaged << PreHpLost;
 
         boss_banlist << "yuanshao" << "yanliangwenchou" << "zhaoyun" << "guanyu" << "shencaocao";
 
         boss_skillbanned << "luanji" << "shuangxiong" << "longdan" << "wusheng" << "guixin" << "fenyong" << "xuehen";
 
         dummy_skills << "xinsheng" << "wuhu" << "kuangfeng" << "dawu" << "wumou" << "wuqian"
-            << "shenfen" << "renjie" << "weidi" << "danji" << "shiyong" << "zhiba"
-            << "super_guanxing" << "chongzhen" << "tongxin"
-            << "liqian" << "shenjun" << "xunzhi" << "shenli" << "yitian"
-            << "fenyong" << "xuehen";
+                     << "shenfen" << "renjie" << "weidi" << "danji" << "shiyong" << "zhiba"
+                     << "super_guanxing" << "chongzhen" << "tongxin"
+                     << "liqian" << "shenjun" << "xunzhi" << "shenli" << "yitian"
+                     << "fenyong" << "xuehen";
 
         available_wake_skills << "hunzi" << "zhiji";
     }
@@ -331,7 +352,7 @@ public:
                         continue;
 
                     if (skill->getFrequency() == Skill::Wake
-                        && !available_wake_skills.contains(skill->objectName()))
+                            && !available_wake_skills.contains(skill->objectName()))
                         continue;
 
                     if (!skill->objectName().startsWith("#"))
@@ -396,10 +417,10 @@ public:
         }
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room* room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
         switch (triggerEvent) {
-        case GameStart:{
+        case GameStart: {
             if (player == NULL) {
                 player = room->getLord();
                 if (boss_banlist.contains(player->getGeneralName()))
@@ -421,7 +442,7 @@ public:
                 room->setPlayerProperty(player, "maxhp", maxhp);
                 room->setPlayerProperty(player, "hp", maxhp);
 
-                foreach (ServerPlayer* serverPlayer, room->getPlayers()) {
+                foreach (ServerPlayer *serverPlayer, room->getPlayers()) {
                     getRandomSkill(serverPlayer);
                 }
 
@@ -431,7 +452,7 @@ public:
             break;
         }
 
-        case TurnStart:{
+        case TurnStart: {
             if (player->isLord() && player->faceUp()) {
                 bool hasLoseMark = false;
                 if (player->getMark("@frantic") > 0) {
@@ -447,18 +468,18 @@ public:
             break;
         }
 
-        case EventPhaseStart:{
+        case EventPhaseStart: {
             if (player->isLord() && player->getMark("frantic_over") > 0 && player->getPhase() == Player::Finish)
                 player->getRoom()->killPlayer(player);
             break;
         }
 
-        case GameOverJudge:{
+        case GameOverJudge: {
             return true;
             break;
         }
 
-        case BuryVictim:{
+        case BuryVictim: {
             QList<ServerPlayer *> players = room->getAlivePlayers();
             ServerPlayer *lord = room->getLord();
 
@@ -498,7 +519,7 @@ public:
         }
 
         case PreHpLost:
-        case Damaged:{
+        case Damaged: {
             if (player->isLord()) {
                 if (player->getHp() <= 3 && player->getMark("@frantic") <= 0) {
                     LogMessage log;
@@ -574,13 +595,13 @@ bool ImpasseScenario::generalSelection() const
 }
 
 ImpasseScenario::ImpasseScenario()
-    :Scenario("impasse_fight")
+    : Scenario("impasse_fight")
 {
     rule = new ImpasseRule(this);
 
     skills << new Silue << new Kedi
-        << new Daji << new Jishi
-        << new Guzhan << new Jizhan << new Duduan;
+           << new Daji << new Jishi
+           << new Guzhan << new Jizhan << new Duduan;
 
 }
 
