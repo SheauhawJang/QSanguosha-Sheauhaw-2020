@@ -31,6 +31,7 @@ public:
     int CountDownSeconds;
     int NullificationCountDown;
     int GeneralLevel;
+    bool EnableTriggerOrder;
     bool EnableMinimizeDialog;
     QString GameMode;
     QStringList BanPackages;

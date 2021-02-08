@@ -34,7 +34,7 @@
 YanjiaoBox::YanjiaoBox()
     : itemCount(0), single_result(false), m_viewOnly(false),
     confirm(new Button(tr("confirm"), 0.6)), cancel(new Button(tr("cancel"), 0.6)),
-    progress_bar(NULL)
+    progress_bar(NULL), noneoperator(false)
 {
     confirm->setEnabled(ClientInstance->getReplayer());
     confirm->setParentItem(this);

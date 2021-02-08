@@ -139,6 +139,7 @@ private:
     QSpinBox *game_start_spinbox;
     QSpinBox *nullification_spinbox;
     QSpinBox *general_level_spinbox;
+    QCheckBox *trigger_order_checkbox;
     QCheckBox *minimize_dialog_checkbox;
     QCheckBox *ai_enable_checkbox;
     QCheckBox *ai_chat_checkbox;

@@ -1139,7 +1139,7 @@ public:
         frequency = Compulsory;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual bool triggerable(const ServerPlayer *) const
     {
         return false;
     }
@@ -2048,7 +2048,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (triggerEvent == EventPhaseStart) {
             if (player->getPhase() == Player::Play && TriggerSkill::triggerable(player)) {
@@ -2094,7 +2094,7 @@ public:
         }
     }
 
-    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         if (triggerEvent == EventPhaseStart) {
             QList<ServerPlayer *> targets;
@@ -2151,7 +2151,7 @@ public:
         }
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&ask_who) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (triggerEvent == EventPhaseStart) {
             if (!TriggerSkill::triggerable(player)) return QStringList();

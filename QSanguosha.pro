@@ -140,7 +140,9 @@ SOURCES += \
     src/package/compete-world.cpp \
     src/ui/guhuodialog.cpp \
     src/ui/yanjiaobox.cpp \
-    src/package/dragonboat.cpp
+    src/package/dragonboat.cpp \
+    src/package/nostalgia-ol.cpp \
+    src/package/nostalgia-limit.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -273,7 +275,9 @@ HEADERS += \
     src/package/compete-world.h \
     src/ui/guhuodialog.h \
     src/ui/yanjiaobox.h \
-    src/package/dragonboat.h
+    src/package/dragonboat.h \
+    src/package/nostalgia-ol.h \
+    src/package/nostalgia-limit.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

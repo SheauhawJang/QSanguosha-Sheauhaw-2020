@@ -50,10 +50,10 @@ private:
     QList<CardItem *> upItems, downItems;
     QString reason;
     QString func;
-    int downCount, min_num, up_app1 = 0, up_app2 = 0, down_app1 = 0, down_app2 = 0, width;
+    int downCount, min_num, up_app1, up_app2, down_app1, down_app2, width;
     bool moverestricted;
     bool buttonstate;
-    bool noneoperator = false;
+    bool noneoperator;
     void adjust();
     int itemNumberOfFirstRow(bool up) const;
     bool isOneRow(bool up) const;

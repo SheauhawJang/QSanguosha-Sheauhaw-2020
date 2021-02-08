@@ -49,7 +49,7 @@ private:
     QString func;
     bool moverestricted;
     bool buttonstate;
-    bool noneoperator = false;
+    bool noneoperator;
     QString zhuge;
 
     int itemCount;

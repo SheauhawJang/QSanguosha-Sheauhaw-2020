@@ -1662,7 +1662,8 @@ BasaraMode::BasaraMode(QObject *parent)
     : GameRule(parent)
 {
     setObjectName("basara_mode");
-    events << EventPhaseStart << DamageInflicted << BeforeGameOverJudge;
+    events << DamageInflicted << BeforeGameOverJudge;
+    qDebug() << events;
 }
 
 QString BasaraMode::getMappedRole(const QString &role)
@@ -1700,11 +1701,11 @@ void BasaraMode::playerShowed(ServerPlayer *player) const
             return;
     }
 
-    QString answer = room->askForChoice(player, "RevealGeneral", "yes+no");
+    QString answer = room->askForChoice(player, "RevealGeneral", "yes+no", QVariant(), QString(), QString(), false);
     if (answer == "yes") {
         QString general_name = room->askForGeneral(player, names);
-
         generalShowed(player, general_name);
+
         if (Config.EnableHegemony) room->getThread()->trigger(GameOverJudge, room, player);
         playerShowed(player);
     }

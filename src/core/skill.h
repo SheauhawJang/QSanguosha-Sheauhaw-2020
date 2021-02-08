@@ -185,10 +185,22 @@ public:
         return QStringList(objectName());
     }
 
+    inline const QStringList comList() const
+    {
+        return QStringList(objectName() + "!");
+    }
+
     inline const QStringList nameList(int k) const
     {
         QStringList list;
         for (int i = 0; i < k; ++i) list << objectName();
+        return list;
+    }
+
+    inline const QStringList comList(int k) const
+    {
+        QStringList list;
+        for (int i = 0; i < k; ++i) list << objectName() + "!";
         return list;
     }
 

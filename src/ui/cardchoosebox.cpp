@@ -27,7 +27,8 @@
 #include <QMessageBox>
 
 CardChooseBox::CardChooseBox()
-    : CardContainer()
+    : CardContainer(),
+      up_app1(0), up_app2(0), down_app1(0), down_app2(0), noneoperator(false)
 {
 }
 
@@ -150,7 +151,7 @@ void CardChooseBox::doCardChoose(const QList<int> &upcards, const QList<int> &do
 }
 
 void CardChooseBox::mirrorCardChooseStart(const QString &who, const QString &reason, const QList<int> &upcards, const QList<int> &downcards,
-    const QString &pattern, bool moverestricted, int min_num, int max_num)
+        const QString &pattern, bool moverestricted, int min_num, int max_num)
 {
     doCardChoose(upcards, downcards, reason, pattern, moverestricted, min_num, max_num);
 

@@ -419,6 +419,9 @@ QWidget *ServerDialog::createMiscTab()
     general_level_spinbox->setRange(1, 6);
     general_level_spinbox->setValue(Config.GeneralLevel);
 
+    trigger_order_checkbox = new QCheckBox(tr("Order of trigger skills can be selected"));
+    trigger_order_checkbox->setChecked(Config.EnableTriggerOrder);
+
     minimize_dialog_checkbox = new QCheckBox(tr("Minimize the dialog when server runs"));
     minimize_dialog_checkbox->setChecked(Config.EnableMinimizeDialog);
 
@@ -441,7 +444,7 @@ QWidget *ServerDialog::createMiscTab()
     ai_chat_checkbox->setChecked(Config.value("AIChat", true).toBool());
 
     ai_delay_spinbox = new QSpinBox;
-    ai_delay_spinbox->setMinimum(0);
+    ai_delay_spinbox->setMinimum(1);
     ai_delay_spinbox->setMaximum(5000);
     ai_delay_spinbox->setValue(Config.OriginAIDelay);
     ai_delay_spinbox->setSuffix(tr(" millisecond"));
@@ -450,7 +453,7 @@ QWidget *ServerDialog::createMiscTab()
     ai_delay_altered_checkbox->setChecked(Config.AlterAIDelayAD);
 
     ai_delay_ad_spinbox = new QSpinBox;
-    ai_delay_ad_spinbox->setMinimum(0);
+    ai_delay_ad_spinbox->setMinimum(1);
     ai_delay_ad_spinbox->setMaximum(5000);
     ai_delay_ad_spinbox->setValue(Config.AIDelayAD);
     ai_delay_ad_spinbox->setSuffix(tr(" millisecond"));
@@ -468,6 +471,7 @@ QWidget *ServerDialog::createMiscTab()
     tablayout->addLayout(HLay(new QLabel(tr("Game start count down")), game_start_spinbox));
     tablayout->addLayout(HLay(new QLabel(tr("Nullification count down")), nullification_spinbox));
     tablayout->addLayout(HLay(new QLabel(tr("General level")), general_level_spinbox));
+    tablayout->addWidget(trigger_order_checkbox);
     tablayout->addWidget(minimize_dialog_checkbox);
     tablayout->addWidget(surrender_at_death_checkbox);
     tablayout->addWidget(luck_card_checkbox);
@@ -1398,6 +1402,7 @@ int ServerDialog::config()
     Config.CountDownSeconds = game_start_spinbox->value();
     Config.NullificationCountDown = nullification_spinbox->value();
     Config.GeneralLevel = general_level_spinbox->value();
+    Config.EnableTriggerOrder = trigger_order_checkbox->isChecked();
     Config.EnableMinimizeDialog = minimize_dialog_checkbox->isChecked();
     Config.EnableAI = ai_enable_checkbox->isChecked();
     Config.OriginAIDelay = ai_delay_spinbox->value();
@@ -1454,6 +1459,7 @@ int ServerDialog::config()
     Config.setValue("CountDownSeconds", game_start_spinbox->value());
     Config.setValue("NullificationCountDown", nullification_spinbox->value());
     Config.setValue("GeneralLevel", general_level_spinbox->value());
+    Config.setValue("EnableTriggerOrder", Config.EnableTriggerOrder);
     Config.setValue("EnableMinimizeDialog", Config.EnableMinimizeDialog);
     Config.setValue("EnableAI", Config.EnableAI);
     Config.setValue("AIChat", ai_chat_checkbox->isChecked());

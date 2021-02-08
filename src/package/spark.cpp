@@ -4335,42 +4335,41 @@ public:
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *yueying, QVariant &data) const
     {
         TriggerList list;
-        switch (triggerEvent) {
-        case CardAsked:
-            if (yueying->hasSkill("linglong") && !yueying->getArmor() && yueying->hasArmorEffect("eight_diagram") && data.toStringList().first() == "jink")
-                list.insert(yueying, nameList());
-            break;
-        case EventLoseSkill:
-        case EventAcquireSkill:
-            if (data.toString() == "linglong")
-                list.insert(yueying, nameList());
-            break;
-        case GameStart:
-            if (yueying != NULL && yueying->hasSkill("linglong"))
-                list.insert(yueying, nameList());
-            break;
-        case CardsMoveOneTime:
-            if (yueying->isAlive() && yueying->hasSkill(this, true))
-                foreach (QVariant qvar, data.toList()) {
-                    CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
-                    if (move.to == yueying && move.to_place == Player::PlaceEquip) {
-                        if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
-                            list.insert(yueying, nameList());
-                        }
-                    } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
-                        if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
-                            list.insert(yueying, nameList());
-                        }
-                    }
-                }
-            break;
-        default:
-            break;
-        }
+        if (triggerEvent == CardAsked && yueying->hasSkill("linglong") && !yueying->getArmor() && yueying->hasArmorEffect("eight_diagram") && data.toStringList().first() == "jink")
+            list.insert(yueying, nameList());
+
         return list;
     }
 
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &data, ServerPlayer *yueying) const
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *yueying, QVariant &data) const
+    {
+        if (triggerEvent == EventLoseSkill && data.toString() == "linglong") {
+            room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
+            yueying->setMark("linglong_qicai", 0);
+        } else if ((triggerEvent == EventAcquireSkill && data.toString() == "linglong") || (triggerEvent == GameStart && yueying->hasSkill("linglong"))) {
+            if (yueying->getTreasure() == NULL) {
+                room->handleAcquireDetachSkills(yueying, "nosqicai");
+                yueying->setMark("linglong_qicai", 1);
+            }
+        } else if (triggerEvent == CardsMoveOneTime && yueying->isAlive() && yueying->hasSkill(this, true)) {
+            foreach (QVariant qvar, data.toList()) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.to == yueying && move.to_place == Player::PlaceEquip) {
+                    if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
+                        room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
+                        yueying->setMark("linglong_qicai", 0);
+                    }
+                } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
+                    if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
+                        room->handleAcquireDetachSkills(yueying, "nosqicai");
+                        yueying->setMark("linglong_qicai", 1);
+                    }
+                }
+            }
+        }
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *yueying, QVariant &data, ServerPlayer *) const
     {
         if (triggerEvent == CardAsked && yueying->hasSkill("linglong") && !yueying->getArmor() && yueying->hasArmorEffect("eight_diagram")) {
             QString pattern = data.toStringList().first();
@@ -4396,31 +4395,7 @@ public:
                 room->provide(jink);
                 return true;
             }
-        } else if (triggerEvent == EventLoseSkill && data.toString() == "linglong") {
-            room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
-            yueying->setMark("linglong_qicai", 0);
-        } else if ((triggerEvent == EventAcquireSkill && data.toString() == "linglong") || (triggerEvent == GameStart && yueying->hasSkill("linglong"))) {
-            if (yueying->getTreasure() == NULL) {
-                room->handleAcquireDetachSkills(yueying, "nosqicai");
-                yueying->setMark("linglong_qicai", 1);
-            }
-        } else if (triggerEvent == CardsMoveOneTime && yueying->isAlive() && yueying->hasSkill(this, true)) {
-            foreach (QVariant qvar, data.toList()) {
-                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
-                if (move.to == yueying && move.to_place == Player::PlaceEquip) {
-                    if (yueying->getTreasure() != NULL && yueying->getMark("linglong_qicai") > 0) {
-                        room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
-                        yueying->setMark("linglong_qicai", 0);
-                    }
-                } else if (move.from == yueying && move.from_places.contains(Player::PlaceEquip)) {
-                    if (yueying->getTreasure() == NULL && yueying->getMark("linglong_qicai") == 0) {
-                        room->handleAcquireDetachSkills(yueying, "nosqicai");
-                        yueying->setMark("linglong_qicai", 1);
-                    }
-                }
-            }
         }
-
         return false;
     }
 };
@@ -4668,7 +4643,7 @@ void FumanCard::extraCost(Room *room, const CardUseStruct &card_use) const
     room->obtainCard(card_use.to.first(), this, reason);
 }
 
-void FumanCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+void FumanCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
     ServerPlayer *target = targets.first();
     int card = subcards.first();

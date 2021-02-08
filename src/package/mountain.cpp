@@ -805,7 +805,7 @@ public:
         }
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList list;
         if (triggerEvent == EventPhaseEnd && player->getPhase() == Player::Discard) {
