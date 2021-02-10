@@ -198,14 +198,73 @@ public:
     }
 };
 
+class NOLXunxun : public PhaseChangeSkill
+{
+public:
+    NOLXunxun() : PhaseChangeSkill("nolxunxun")
+    {
+        frequency = Frequent;
+    }
+
+    bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->getPhase() == Player::Draw;
+    }
+
+    bool onPhaseChange(ServerPlayer *lidian) const
+    {
+        if (lidian->getPhase() == Player::Draw) {
+            Room *room = lidian->getRoom();
+            if (room->askForSkillInvoke(lidian, objectName())) {
+                room->broadcastSkillInvoke(objectName());
+                QList<ServerPlayer *> p_list;
+                p_list << lidian;
+                QList<int> card_ids = room->getNCards(4);
+
+                LogMessage log;
+                log.type = "$ViewDrawPile";
+                log.from = lidian;
+                log.card_str = IntList2StringList(card_ids).join("+");
+                room->sendLog(log, lidian);
+                AskForMoveCardsStruct result = room->askForMoveCards(lidian, card_ids, QList<int>(), true, objectName(), "", 2, 2, false, false, QList<int>() << -1);
+                QList<int> top_cards = result.bottom, bottom_cards = result.top;
+
+                DummyCard *dummy = new DummyCard(top_cards);
+                lidian->obtainCard(dummy, false);
+                dummy->deleteLater();
+
+                LogMessage logbuttom;
+                logbuttom.type = "$GuanxingBottom";
+                logbuttom.from = lidian;
+                logbuttom.card_str = IntList2StringList(bottom_cards).join("+");
+                room->doNotify(lidian, QSanProtocol::S_COMMAND_LOG_SKILL, logbuttom.toVariant());
+
+                QListIterator<int> i = bottom_cards;
+                while (i.hasNext())
+                    room->getDrawPile().append(i.next());
+
+                room->doBroadcastNotify(QSanProtocol::S_COMMAND_UPDATE_PILE, QVariant(room->getDrawPile().length()));
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+
 NostalOLPackage::NostalOLPackage()
     : Package("nostalgia_ol")
 {
-    General *nol_xiahoudun = new General(this, "nol_xiahoudun", "wei", 4, true, true);
-    nol_xiahoudun->addSkill("ganglie");
-    nol_xiahoudun->addSkill(new NOLQingjian);
-    nol_xiahoudun->addSkill(new DetachEffectSkill("nolqingjian", "nolqingjian"));
+    General *xiahoudun = new General(this, "nol_xiahoudun", "wei", 4, true, true);
+    xiahoudun->addSkill("ganglie");
+    xiahoudun->addSkill(new NOLQingjian);
+    xiahoudun->addSkill(new DetachEffectSkill("nolqingjian", "nolqingjian"));
     related_skills.insertMulti("nolqingjian", "#nolqingjian-clear");
+
+    General *lidian = new General(this, "nol_lidian", "wei", 3, true, true);
+    lidian->addSkill("wangxi");
+    lidian->addSkill(new NOLXunxun);
 
 
     addMetaObject<NOLQingjianAllotCard>();

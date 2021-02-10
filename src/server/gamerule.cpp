@@ -1663,7 +1663,6 @@ BasaraMode::BasaraMode(QObject *parent)
 {
     setObjectName("basara_mode");
     events << DamageInflicted << BeforeGameOverJudge;
-    qDebug() << events;
 }
 
 QString BasaraMode::getMappedRole(const QString &role)

@@ -2317,6 +2317,69 @@ public:
     }
 };
 
+class NosLuoshen : public TriggerSkill
+{
+public:
+    NosLuoshen() : TriggerSkill("nosluoshen")
+    {
+        events << EventPhaseStart << FinishJudge;
+        frequency = Frequent;
+    }
+
+    int getPriority(TriggerEvent triggerEvent) const
+    {
+        if (triggerEvent == FinishJudge)
+            return 5;
+        return TriggerSkill::getPriority(triggerEvent);
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Start && TriggerSkill::triggerable(player))
+            return nameList();
+        else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                return QStringList("nosluoshen!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhenji, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            bool first = true;
+            while (zhenji->isAlive() && zhenji->askForSkillInvoke(objectName())) {
+                if (first) {
+                    LogMessage log;
+                    log.type = "#InvokeSkill";
+                    log.from = zhenji;
+                    log.arg = objectName();
+                    room->sendLog(log);
+                    room->notifySkillInvoked(zhenji, objectName());
+                    zhenji->broadcastSkillInvoke(objectName());
+                    first = false;
+                }
+
+                JudgeStruct judge;
+                judge.pattern = ".|black";
+                judge.good = true;
+                judge.reason = objectName();
+                judge.who = zhenji;
+                judge.time_consuming = true;
+                room->judge(judge);
+
+                if (judge.isBad()) break;
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            const Card *card = judge->card;
+            zhenji->obtainCard(card);
+        }
+        return false;
+    }
+};
+
 NostalStandardPackage::NostalStandardPackage()
     : Package("nostal_standard")
 {
@@ -2342,6 +2405,10 @@ NostalStandardPackage::NostalStandardPackage()
     General *nos_guojia = new General(this, "nos_guojia", "wei", 3);
     nos_guojia->addSkill("tiandu");
     nos_guojia->addSkill(new NosYiji);
+
+    General *nos_zhenji = new General(this, "nos_zhenji", "wei", 3, false);
+    nos_zhenji->addSkill("qingguo");
+    nos_zhenji->addSkill(new NosLuoshen);
 
     General *nos_liubei = new General(this, "nos_liubei$", "shu");
     nos_liubei->addSkill(new NosRende);

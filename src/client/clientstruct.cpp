@@ -74,6 +74,7 @@ bool ServerInfoStruct::parse(const QString &_str)
         EnableHegemony = flags.contains("H");
         EnableAI = flags.contains("A");
         DisableChat = flags.contains("M");
+        EnableTriggerOrder = flags.contains("O");
 
         if (flags.contains("1"))
             MaxHpScheme = 1;
@@ -114,6 +115,7 @@ ServerInfoWidget::ServerInfoWidget(bool show_lack)
     enable_ai_label = new QLabel;
     time_limit_label = new QLabel;
     max_hp_label = new QLabel;
+    trigger_order_label = new QLabel;
 
     list_widget = new QListWidget;
     list_widget->setViewMode(QListView::IconMode);
@@ -135,6 +137,7 @@ ServerInfoWidget::ServerInfoWidget(bool show_lack)
     layout->addRow(tr("Free choose"), free_choose_label);
     layout->addRow(tr("Enable AI"), enable_ai_label);
     layout->addRow(tr("Operation time"), time_limit_label);
+    layout->addRow(tr("Free trigger order"), trigger_order_label);
     layout->addRow(tr("Extension packages"), list_widget);
 
     if (show_lack) {
@@ -158,6 +161,7 @@ void ServerInfoWidget::fill(const ServerInfoStruct &info, const QString &address
     same_label->setText(info.EnableSame ? tr("Enabled") : tr("Disabled"));
     basara_label->setText(info.EnableBasara ? tr("Enabled") : tr("Disabled"));
     hegemony_label->setText(info.EnableHegemony ? tr("Enabled") : tr("Disabled"));
+    trigger_order_label->setText(info.EnableTriggerOrder ? tr("Enabled") : tr("Disabled"));
 
     if (info.Enable2ndGeneral) {
         switch (info.MaxHpScheme) {
@@ -222,5 +226,6 @@ void ServerInfoWidget::clear()
     enable_cheat_label->clear();
     free_choose_label->clear();
     time_limit_label->clear();
+    trigger_order_label->clear();
     list_widget->clear();
 }

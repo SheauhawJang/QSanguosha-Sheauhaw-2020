@@ -1437,21 +1437,22 @@ public:
         if (triggerEvent == EventLoseSkill && data.toString() == objectName()) {
             room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
         } else if (triggerEvent == EventAcquireSkill && data.toString() == objectName()) {
-            if (!player->getPile("xingwu").isEmpty()) {
+            if (!player->getPile("dance").isEmpty()) {
                 room->notifySkillInvoked(player, objectName());
                 room->handleAcquireDetachSkills(player, "tianxiang|liuli");
             }
-        } else if (triggerEvent == CardsMoveOneTime && player->isAlive() && player->hasSkill(this, true)) {
-            CardsMoveOneTimeStruct move = data.value<CardsMoveOneTimeStruct>();
-            if (move.to == player && move.to_place == Player::PlaceSpecial && move.to_pile_name == "xingwu") {
-                if (player->getPile("xingwu").length() == 1) {
-                    room->notifySkillInvoked(player, objectName());
-                    room->handleAcquireDetachSkills(player, "tianxiang|liuli");
+        } else if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player)) {
+            foreach (QVariant qvar, data.toList()) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.to == player && move.to_place == Player::PlaceSpecial && move.to_pile_name == "dance") {
+                    if (player->getPile("dance").length() == 1) {
+                        room->notifySkillInvoked(player, objectName());
+                        room->handleAcquireDetachSkills(player, "tianxiang|liuli");
+                    }
+                } else if (move.from == player && move.from_places.contains(Player::PlaceSpecial) && move.from_pile_names.contains("dance")) {
+                    if (player->getPile("dance").isEmpty())
+                        room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
                 }
-            } else if (move.from == player && move.from_places.contains(Player::PlaceSpecial)
-                       && move.from_pile_names.contains("xingwu")) {
-                if (player->getPile("xingwu").isEmpty())
-                    room->handleAcquireDetachSkills(player, "-tianxiang|-liuli", true);
             }
         }
     }

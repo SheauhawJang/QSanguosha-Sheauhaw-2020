@@ -773,7 +773,6 @@ static bool compareByPriority(const TriggerSkill *a, const TriggerSkill *b)
 
 bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data)
 {
-    //qDebug() << triggerEvent;
     // push it to event stack
     EventTriplet triplet(triggerEvent, room, target);
     event_stack.push_back(triplet);
@@ -841,10 +840,6 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
                 triggerable_tested << skill;
             }
 
-            //qDebug() << "triggered" << triggered;
-            //qDebug() << "will_trigger" << will_trigger;
-            //qDebug() << "triggerable_tested" << triggerable_tested;
-            //qDebug() << "skills" << skills;
             if (!will_trigger.isEmpty()) {
                 will_trigger.clear();
 
@@ -1090,7 +1085,6 @@ void RoomThread::addTriggerSkill(const TriggerSkill *skill)
 {
     if (skill == NULL || skillSet.contains(skill->objectName()))
         return;
-    qDebug() << skill->objectName();
     skillSet << skill->objectName();
 
     QList<TriggerEvent> events = skill->getTriggerEvents();

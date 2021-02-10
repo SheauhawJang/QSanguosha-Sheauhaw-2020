@@ -142,7 +142,8 @@ SOURCES += \
     src/ui/yanjiaobox.cpp \
     src/package/dragonboat.cpp \
     src/package/nostalgia-ol.cpp \
-    src/package/nostalgia-limit.cpp
+    src/package/nostalgia-limit.cpp \
+    src/package/nostalgia-mol.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -277,7 +278,8 @@ HEADERS += \
     src/ui/yanjiaobox.h \
     src/package/dragonboat.h \
     src/package/nostalgia-ol.h \
-    src/package/nostalgia-limit.h
+    src/package/nostalgia-limit.h \
+    src/package/nostalgia-mol.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

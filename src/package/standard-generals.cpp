@@ -1778,15 +1778,18 @@ public:
         view_as_skill = new LiuliViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *daqiao, QVariant &data, ServerPlayer *&) const
     {
-        if (!TriggerSkill::triggerable(player) || player->isNude()) return QStringList();
+        if (!TriggerSkill::triggerable(daqiao) || daqiao->isNude()) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
         if (!use.card->isKindOf("Slash")) return QStringList();
-        QList<ServerPlayer *> players = room->getOtherPlayers(player);
+        QList<ServerPlayer *> players = room->getOtherPlayers(daqiao);
         players.removeOne(use.from);
         if (players.isEmpty()) return QStringList();
-        return nameList();
+        foreach (ServerPlayer *p, room->getOtherPlayers(daqiao))
+            if (use.from->canSlash(p, use.card, false) && daqiao->inMyAttackRange(p))
+                return nameList();
+        return QStringList();
     }
 
     virtual bool effect(TriggerEvent, Room *room, ServerPlayer *daqiao, QVariant &data, ServerPlayer *) const
@@ -1798,11 +1801,10 @@ public:
         daqiao->tag["liuli-data"] = QVariant::fromValue(use); // for the server (AI)
 
         QStringList available_targets;
-        QList<ServerPlayer *> to_choosees = use.from->getUseExtraTargets(use, true);
 
-        foreach (ServerPlayer *p, to_choosees)
-            available_targets << p->objectName();
-
+        foreach (ServerPlayer *p, room->getOtherPlayers(daqiao))
+            if (use.from->canSlash(p, use.card, false) && daqiao->inMyAttackRange(p))
+                available_targets << p->objectName();
 
         room->setPlayerProperty(daqiao, "liuli_available_targets", available_targets.join("+"));
         daqiao->tag["liuli-use"] = data;

@@ -4343,6 +4343,7 @@ public:
 
     virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *yueying, QVariant &data) const
     {
+        if (!yueying) return;
         if (triggerEvent == EventLoseSkill && data.toString() == "linglong") {
             room->handleAcquireDetachSkills(yueying, "-nosqicai", true);
             yueying->setMark("linglong_qicai", 0);

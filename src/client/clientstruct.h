@@ -21,6 +21,7 @@ struct ServerInfoStruct
     QStringList Extensions;
     bool RandomSeat;
     bool EnableCheat;
+    bool EnableTriggerOrder;
     bool FreeChoose;
     bool Enable2ndGeneral;
     bool EnableSame;
@@ -66,6 +67,7 @@ private:
     QLabel *enable_ai_label;
     QLabel *time_limit_label;
     QLabel *lack_label;
+    QLabel *trigger_order_label;
     QListWidget *list_widget;
 };
 #endif

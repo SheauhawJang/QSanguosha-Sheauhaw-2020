@@ -73,6 +73,7 @@ config = {
 		"NostalYJCM2013",
 		"NostalLimitationBroken",
 		"NostalOL",
+		"NostalMOL",
         "BestLoyalist",
 		"JianGeDefense",
 		"DragonBoat",

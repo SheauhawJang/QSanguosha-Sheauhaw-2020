@@ -1065,6 +1065,8 @@ QString Engine::getSetupString() const
         flags.append("A");
     if (Config.DisableChat)
         flags.append("M");
+    if (Config.EnableTriggerOrder)
+        flags.append("O");
 
     if (Config.MaxHpScheme == 1)
         flags.append("1");
