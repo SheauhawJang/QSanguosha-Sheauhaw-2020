@@ -193,5 +193,25 @@ protected:
     int n;
 };
 
+class NosZhihengCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NosZhihengCard();
+    virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+class NosJieyinCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NosJieyinCard();
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 #endif
 

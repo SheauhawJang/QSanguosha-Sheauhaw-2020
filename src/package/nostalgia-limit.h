@@ -1,5 +1,5 @@
-#ifndef NOSLIMIT_H
-#define NOSLIMIT_H
+#ifndef NOSTALLIMIT_H
+#define NOSTALLIMIT_H
 
 #include "package.h"
 #include "card.h"
@@ -35,4 +35,27 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-#endif // NOSLIMIT_H
+class NJieYijueCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NJieYijueCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+class ChuliCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE ChuliCard();
+
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+
+#endif // NOSTALLIMIT_H

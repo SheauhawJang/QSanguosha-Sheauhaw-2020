@@ -897,6 +897,7 @@ class Paoxiao : public TargetModSkill
 public:
     Paoxiao() : TargetModSkill("paoxiao")
     {
+        frequency = Compulsory;
     }
 
     virtual int getResidueNum(const Player *from, const Card *, const Player *) const

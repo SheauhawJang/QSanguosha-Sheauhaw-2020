@@ -1,5 +1,5 @@
-#ifndef NOSTALOL_H
-#define NOSTALOL_H
+#ifndef NOSTALMOL_H
+#define NOSTALMOL_H
 
 #include "package.h"
 #include "card.h"
@@ -22,4 +22,4 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-#endif // NOSTALOL_H
+#endif // NOSTALMOL_H

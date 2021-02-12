@@ -1512,6 +1512,42 @@ public:
     }
 };
 
+class NosGuanxing : public PhaseChangeSkill
+{
+public:
+    NosGuanxing() : PhaseChangeSkill("nosguanxing")
+    {
+        frequency = Frequent;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Start;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *target) const
+    {
+        Room *room = target->getRoom();
+        if (room->askForSkillInvoke(target, objectName())) {
+            QList<int> guanxing = room->getNCards(getGuanxingNum(room));
+
+            LogMessage log;
+            log.type = "$ViewDrawPile";
+            log.from = target;
+            log.card_str = IntList2StringList(guanxing).join("+");
+            room->sendLog(log, target);
+
+            room->askForGuanxing(target, guanxing);
+        }
+        return false;
+    }
+
+    virtual int getGuanxingNum(Room *room) const
+    {
+        return qMin(5, room->alivePlayerCount());
+    }
+};
+
 class NosTieji : public TriggerSkill
 {
 public:
@@ -2380,6 +2416,154 @@ public:
     }
 };
 
+NosZhihengCard::NosZhihengCard()
+{
+    target_fixed = true;
+}
+
+void NosZhihengCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
+    room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
+}
+
+void NosZhihengCard::use(Room *, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    if (source->isAlive())
+        source->drawCards(subcards.length(), "noszhiheng");
+}
+
+class NosZhiheng : public ViewAsSkill
+{
+public:
+    NosZhiheng() : ViewAsSkill("noszhiheng")
+    {
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &, const Card *to_select) const
+    {
+        return !Self->isJilei(to_select);
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return NULL;
+
+        NosZhihengCard *noszhiheng_card = new NosZhihengCard;
+        noszhiheng_card->addSubcards(cards);
+        noszhiheng_card->setSkillName(objectName());
+        return noszhiheng_card;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("NosZhihengCard");
+    }
+};
+
+class NosJiuyuan : public TriggerSkill
+{
+public:
+    NosJiuyuan() : TriggerSkill("nosjiuyuan$")
+    {
+        events << TargetConfirmed << PreHpRecover;
+        frequency = Compulsory;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *sunquan, QVariant &data) const
+    {
+        if (triggerEvent == TargetConfirmed) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card->isKindOf("Peach") && use.from && use.from->getKingdom() == "wu"
+                    && sunquan->hasLordSkill("nosjiuyuan") && sunquan != use.from && sunquan->hasFlag("Global_Dying")) {
+                room->setCardFlag(use.card, "nosjiuyuan");
+            }
+        }
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer *&) const
+    {
+        if (target && target->hasLordSkill("nosjiuyuan"))
+            if (triggerEvent == PreHpRecover) {
+                RecoverStruct rec = data.value<RecoverStruct>();
+                if (rec.card && rec.card->hasFlag("nosjiuyuan"))
+                    return nameList();
+            }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *sunquan, QVariant &data, ServerPlayer *) const
+    {
+        RecoverStruct rec = data.value<RecoverStruct>();
+        room->notifySkillInvoked(sunquan, "nosjiuyuan");
+        sunquan->broadcastSkillInvoke("nosjiuyuan");
+
+        LogMessage log;
+        log.type = "#NosJiuyuanExtraRecover";
+        log.from = sunquan;
+        log.to << rec.who;
+        log.arg = objectName();
+        room->sendLog(log);
+
+        rec.recover++;
+        data = QVariant::fromValue(rec);
+
+        return false;
+    }
+};
+
+NosJieyinCard::NosJieyinCard()
+{
+}
+
+bool NosJieyinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty())
+        return false;
+
+    return to_select->isMale() && to_select->isWounded() && to_select != Self;
+}
+
+void NosJieyinCard::onEffect(const CardEffectStruct &effect) const
+{
+    Room *room = effect.from->getRoom();
+    RecoverStruct recover(effect.from);
+    room->recover(effect.from, recover, true);
+    room->recover(effect.to, recover, true);
+}
+
+class NosJieyin : public ViewAsSkill
+{
+public:
+    NosJieyin() : ViewAsSkill("nosjieyin")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("NosJieyinCard");
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (selected.length() > 1 || Self->isJilei(to_select))
+            return false;
+
+        return !to_select->isEquipped();
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() != 2)
+            return NULL;
+
+        NosJieyinCard *nosjieyin_card = new NosJieyinCard();
+        nosjieyin_card->addSubcards(cards);
+        return nosjieyin_card;
+    }
+};
+
 NostalStandardPackage::NostalStandardPackage()
     : Package("nostal_standard")
 {
@@ -2406,7 +2590,7 @@ NostalStandardPackage::NostalStandardPackage()
     nos_guojia->addSkill("tiandu");
     nos_guojia->addSkill(new NosYiji);
 
-    General *nos_zhenji = new General(this, "nos_zhenji", "wei", 3, false);
+    General *nos_zhenji = new General(this, "nos_zhenji", "wei", 3, false, true);
     nos_zhenji->addSkill("qingguo");
     nos_zhenji->addSkill(new NosLuoshen);
 
@@ -2415,10 +2599,14 @@ NostalStandardPackage::NostalStandardPackage()
     nos_liubei->addSkill("jijiang");
 
     General *nos_guanyu = new General(this, "nos_guanyu", "shu");
-    nos_guanyu->addSkill("wusheng");
+    nos_guanyu->addSkill("njiewusheng");
 
     General *nos_zhangfei = new General(this, "nos_zhangfei", "shu");
-    nos_zhangfei->addSkill("paoxiao");
+    nos_zhangfei->addSkill("njiepaoxiao");
+
+    General *nos_zhugeliang = new General(this, "nos_zhugeliang", "shu", 3, true, true);
+    nos_zhugeliang->addSkill(new NosGuanxing);
+    nos_zhugeliang->addSkill("kongcheng");
 
     General *nos_zhaoyun = new General(this, "nos_zhaoyun", "shu");
     nos_zhaoyun->addSkill("longdan");
@@ -2430,6 +2618,10 @@ NostalStandardPackage::NostalStandardPackage()
     General *nos_huangyueying = new General(this, "nos_huangyueying", "shu", 3, false);
     nos_huangyueying->addSkill(new NosJizhi);
     nos_huangyueying->addSkill(new NosQicai);
+
+    General *nos_sunquan = new General(this, "nos_sunquan$", "wu", 4, true, true);
+    nos_sunquan->addSkill(new NosZhiheng);
+    nos_sunquan->addSkill(new NosJiuyuan);
 
     General *nos_ganning = new General(this, "nos_ganning", "wu");
     nos_ganning->addSkill("qixi");
@@ -2452,6 +2644,10 @@ NostalStandardPackage::NostalStandardPackage()
     nos_luxun->addSkill(new NosQianxun);
     nos_luxun->addSkill(new NosLianying);
 
+    General *nos_sunshangxiang = new General(this, "nos_sunshangxiang", "wu", 3, false, true);
+    nos_sunshangxiang->addSkill(new NosJieyin);
+    nos_sunshangxiang->addSkill("xiaoji");
+
     General *nos_huatuo = new General(this, "nos_huatuo", "qun", 3);
     nos_huatuo->addSkill(new NosQingnang);
     nos_huatuo->addSkill("jijiu");
@@ -2461,7 +2657,7 @@ NostalStandardPackage::NostalStandardPackage()
 
     General *nos_diaochan = new General(this, "nos_diaochan", "qun", 3, false);
     nos_diaochan->addSkill(new NosLijian);
-    nos_diaochan->addSkill("biyue");
+    nos_diaochan->addSkill("nphybiyue");
 
     addMetaObject<NosTuxiCard>();
     addMetaObject<NosRendeCard>();
@@ -2469,6 +2665,8 @@ NostalStandardPackage::NostalStandardPackage()
     addMetaObject<NosFanjianCard>();
     addMetaObject<NosLijianCard>();
     addMetaObject<NosQingnangCard>();
+    addMetaObject<NosJieyinCard>();
+    addMetaObject<NosZhihengCard>();
 }
 
 NostalWindPackage::NostalWindPackage()

@@ -143,7 +143,8 @@ SOURCES += \
     src/package/dragonboat.cpp \
     src/package/nostalgia-ol.cpp \
     src/package/nostalgia-limit.cpp \
-    src/package/nostalgia-mol.cpp
+    src/package/nostalgia-mol.cpp \
+    src/package/nostalgia-physical.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -279,7 +280,8 @@ HEADERS += \
     src/package/dragonboat.h \
     src/package/nostalgia-ol.h \
     src/package/nostalgia-limit.h \
-    src/package/nostalgia-mol.h
+    src/package/nostalgia-mol.h \
+    src/package/nostalgia-physical.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

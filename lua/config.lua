@@ -72,6 +72,7 @@ config = {
 		"NostalYJCM2012",
 		"NostalYJCM2013",
 		"NostalLimitationBroken",
+		"NostalPhysical",
 		"NostalOL",
 		"NostalMOL",
         "BestLoyalist",

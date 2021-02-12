@@ -65,6 +65,14 @@ return {
 
 	["nos_zhangfei"] = "张飞-旧",
 	["&nos_zhangfei"] = "张飞",
+	
+	["nos_zhugeliang"] = "诸葛亮-旧",
+	["&nos_zhugeliang"] = "诸葛亮",
+	["nosguanxing"] = "观星",
+	[":nosguanxing"] = "准备阶段开始时，你可以观看牌堆顶的X张牌（X为角色数且至多为5）。你将其中任意数量的牌置于牌堆顶，将其余的牌置于牌堆底。",
+	["#NosGuanxingResult"] = "%from 的“<font color=\"yellow\"><b>观星</b></font>”结果：%arg 上 %arg2 下",
+	["$NosGuanxingTop"] = "置于牌堆顶的牌：%card",
+	["$NosGuanxingBottom"] = "置于牌堆底的牌：%card",
 
 	["#nos_zhaoyun"] = "少年将军",
 	["nos_zhaoyun"] = "赵云-旧",
@@ -81,6 +89,14 @@ return {
 	[":nosjizhi"] = "每当你使用一张普通锦囊牌时，你可以摸一张牌。",
 	["nosqicai"] = "奇才",
 	[":nosqicai"] = "锁定技，你使用锦囊牌无距离限制。",
+	
+	["nos_sunquan"] = "孙权-旧",
+	["&nos_sunquan"] = "孙权",
+	["noszhiheng"] = "制衡",
+	[":noszhiheng"] = "出牌阶段限一次，你可以弃置任意张牌，然后摸等量的牌。",
+	["nosjiuyuan"] = "救援",
+	[":nosjiuyuan"] = "主公技，锁定技，其他吴势力角色对你使用的【桃】回复的体力+1。",
+	["#nosJiuyuanExtraRecover"] = "%from 的“%arg”被触发，将额外回复 <font color=\"yellow\"><b>1</b></font> 点体力",
 
 	["nos_ganning"] = "甘宁-旧",
 	["&nos_ganning"] = "甘宁",
@@ -112,11 +128,16 @@ return {
 	["&nos_daqiao"] = "大乔",
 	["nosguose"] = "国色",
 	[":nosguose"] = "你可以将一张方块牌当【乐不思蜀】使用。",
+	
+	["nos_sunshangxiang"] = "孙尚香-旧",
+	["&nos_sunshangxiang"] = "孙尚香",
+	["nosjieyin"] = "结姻",
+	[":nosjieyin"] = "出牌阶段限一次，你可以弃置两张手牌并选择一名已受伤的男性角色。你与其各回复1点体力。",
 
 	["nos_huatuo"] = "华佗-旧",
 	["&nos_huatuo"] = "华佗",
-	["qingnang"] = "青囊",
-	[":qingnang"] = "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色：若如此做，该角色回复1点体力。",
+	["nosqingnang"] = "青囊",
+	[":nosqingnang"] = "出牌阶段限一次，你可以弃置一张手牌并选择一名已受伤的角色：若如此做，该角色回复1点体力。",
 
 	["nos_lvbu"] = "吕布-旧",
 	["&nos_lvbu"] = "吕布",
