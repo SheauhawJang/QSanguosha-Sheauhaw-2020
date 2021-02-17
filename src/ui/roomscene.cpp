@@ -4540,28 +4540,35 @@ void RoomScene::doHuashen(const QString &, const QStringList &args)
     hargs = hargs.first().split(":");
     ClientPlayer *player = ClientInstance->getPlayer(name);
     bool owner = (hargs.first() != "unknown");
+    bool recast = hargs.first().startsWith('-');
 
-    QVariantList huashen_list;
+    QStringList huashen_list;
     if (owner)
-        huashen_list = Self->tag["Huashens"].toList();
+        huashen_list = Self->tag["Huashens"].toStringList();
     QList<CardItem *> generals;
 
     foreach (QString arg, hargs) {
-        if (owner) huashen_list << arg;
-        CardItem *item = new CardItem(arg);
-        item->setZValue(100000);
-        item->setPos(this->m_tableCenterPos);
-        addItem(item);
-        generals.append(item);
+        if (recast)
+            huashen_list.removeOne(arg.mid(1));
+        else {
+            huashen_list << arg;
+            CardItem *item = new CardItem(arg);
+            item->setZValue(100000);
+            item->setPos(this->m_tableCenterPos);
+            addItem(item);
+            generals.append(item);
+        }
     }
-    CardsMoveStruct move;
-    move.to = player;
-    move.from_place = Player::DrawPile;
-    move.to_place = Player::PlaceSpecial;
-    move.to_pile_name = "huashen";
+    if (!recast) {
+        CardsMoveStruct move;
+        move.to = player;
+        move.from_place = Player::DrawPile;
+        move.to_place = Player::PlaceSpecial;
+        move.to_pile_name = "huashen";
 
-    GenericCardContainer *container = _getGenericCardContainer(Player::PlaceHand, player);
-    container->addCardItems(generals, move);
+        GenericCardContainer *container = _getGenericCardContainer(Player::PlaceHand, player);
+        container->addCardItems(generals, move);
+    }
 
     if (owner)
         Self->tag["Huashens"] = huashen_list;
