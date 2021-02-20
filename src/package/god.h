@@ -144,6 +144,7 @@ public:
     bool viewFilter(const QList<const Card *> &selected, const Card *card) const;
     const Card *viewAs(const QList<const Card *> &cards) const;
     bool isEnabledAtNullification(const ServerPlayer *player) const;
+    bool hasAvailable(const Player *player) const;
 
 protected:
     virtual int getEffHp(const Player *zhaoyun) const;

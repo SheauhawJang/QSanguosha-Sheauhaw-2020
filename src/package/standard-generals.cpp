@@ -767,7 +767,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return Slash::IsAvailable(player);
+        return hasAvailable(player) || Slash::IsAvailable(player);
     }
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
@@ -984,7 +984,11 @@ public:
 
         switch (Sanguosha->currentRoomState()->getCurrentCardUseReason()) {
         case CardUseStruct::CARD_USE_REASON_PLAY: {
-            return card->isKindOf("Jink");
+            Slash *slash = new Slash(card->getSuit(), card->getNumber());
+            slash->addSubcard(card);
+            slash->setSkillName(objectName());
+            slash->deleteLater();
+            return slash->isAvailable(Self);
         }
         case CardUseStruct::CARD_USE_REASON_RESPONSE:
         case CardUseStruct::CARD_USE_REASON_RESPONSE_USE: {
@@ -1001,7 +1005,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return Slash::IsAvailable(player);
+        return hasAvailable(player) || Slash::IsAvailable(player);
     }
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
@@ -1284,7 +1288,7 @@ public:
     {
         if (triggerEvent != CardUsed || !TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
-        if (use.card && use.card->isNDTrick())
+        if (use.card && use.card->getTypeId() == Card::TypeTrick)
             return nameList();
         return QStringList();
     }
@@ -2620,7 +2624,7 @@ public:
     virtual bool isEnabledAtPlay(const Player *player) const
     {
         Peach *peach = new Peach(Card::NoSuit, 0);
-        return Slash::IsAvailable(player) || peach->isAvailable(player);
+        return hasAvailable(player) || Slash::IsAvailable(player) || peach->isAvailable(player);
     }
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const

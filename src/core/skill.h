@@ -77,6 +77,7 @@ public:
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const;
     virtual bool isEnabledAtNullification(const ServerPlayer *player) const;
     static const ViewAsSkill *parseViewAsSkill(const Skill *skill);
+    virtual bool hasAvailable(const Player *player) const;
 
     inline virtual bool isResponseOrUse() const
     {
@@ -124,6 +125,8 @@ public:
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const;
     virtual const Card *viewAs(const QList<const Card *> &cards) const;
+
+    virtual bool hasAvailable(const Player *player) const;
 
     virtual bool viewFilter(const Card *to_select) const;
     virtual const Card *viewAs(const Card *originalCard) const = 0;

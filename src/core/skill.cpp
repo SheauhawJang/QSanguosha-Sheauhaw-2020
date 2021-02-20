@@ -270,6 +270,11 @@ const ViewAsSkill *ViewAsSkill::parseViewAsSkill(const Skill *skill)
     return NULL;
 }
 
+bool ViewAsSkill::hasAvailable(const Player *) const
+{
+    return false;
+}
+
 ZeroCardViewAsSkill::ZeroCardViewAsSkill(const QString &name)
     : ViewAsSkill(name)
 {
@@ -315,7 +320,11 @@ bool OneCardViewAsSkill::viewFilter(const Card *to_select) const
             pat.replace("hand", handlist.join(","));
         }
         ExpPattern pattern(pat);
-        return pattern.match(Self, to_select);
+        if (!pattern.match(Self, to_select)) return false;
+        const Card *testCard = viewAs(to_select);
+        bool ans = testCard->isAvailable(Self);
+        delete testCard;
+        return ans;
     }
     return false;
 }
@@ -326,6 +335,17 @@ const Card *OneCardViewAsSkill::viewAs(const QList<const Card *> &cards) const
         return NULL;
     else
         return viewAs(cards.first());
+}
+
+bool OneCardViewAsSkill::hasAvailable(const Player *player) const
+{
+    foreach (const Card *originalCard, player->getHandcards() + player->getEquips()) {
+        const Card *testCard = viewAs(originalCard);
+        bool ans = testCard->isAvailable(player);
+        delete testCard;
+        if (ans) return true;
+    }
+    return false;
 }
 
 FilterSkill::FilterSkill(const QString &name)

@@ -201,6 +201,60 @@ public:
     }
 };
 
+class NMOLJizhi : public TriggerSkill
+{
+public:
+    NMOLJizhi() : TriggerSkill("nmoljizhi")
+    {
+        frequency = Frequent;
+        events << CardUsed << EventPhaseStart;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::NotActive) {
+            QList<ServerPlayer *> all_players = room->getAllPlayers();
+            foreach (ServerPlayer *p, all_players) {
+                room->setPlayerMark(p, "#nmoljizhi", 0);
+            }
+        }
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent != CardUsed || !TriggerSkill::triggerable(player)) return QStringList();
+        CardUseStruct use = data.value<CardUseStruct>();
+        if (use.card && use.card->isNDTrick())
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *yueying, QVariant &, ServerPlayer *) const
+    {
+        if (room->askForSkillInvoke(yueying, objectName())) {
+            yueying->broadcastSkillInvoke(objectName());
+
+            bool from_up = true;
+            if (yueying->hasSkill("cunmu")) {
+                room->sendCompulsoryTriggerLog(yueying, "cunmu");
+                yueying->broadcastSkillInvoke("cunmu");
+                from_up = false;
+            }
+            int id = room->drawCard(from_up);
+            const Card *card = Sanguosha->getCard(id);
+            CardMoveReason reason(CardMoveReason::S_REASON_DRAW, yueying->objectName(), objectName(), QString());
+            room->obtainCard(yueying, card, reason, false);
+            if (card->getTypeId() == Card::TypeBasic && yueying->handCards().contains(id)
+                    && room->askForChoice(yueying, objectName(), "yes+no", QVariant::fromValue(card), "@nmoljizhi-discard:::" + card->objectName()) == "yes") {
+                room->throwCard(card, yueying);
+                room->addPlayerMark(yueying, "#nmoljizhi");
+                room->addPlayerMark(yueying, "Global_MaxcardsIncrease");
+            }
+        }
+        return false;
+    }
+};
+
 class NMOLJieweiViewAsSkill : public OneCardViewAsSkill
 {
 public:
@@ -255,6 +309,10 @@ NostalMOLPackage::NostalMOLPackage()
     xiahoudun->addSkill(new NMOLQingjian);
     xiahoudun->addSkill(new DetachEffectSkill("nmolqingjian", "nmolqingjian"));
     related_skills.insertMulti("nmolqingjian", "#nmolqingjian-clear");
+
+    General *huangyueying = new General(this, "nmol_huangyueying", "shu", 3, false, true);
+    huangyueying->addSkill(new NMOLJizhi);
+    huangyueying->addSkill("qicai");
 
     General *xiahouyuan = new General(this, "nmol_xiahouyuan", "wei", 4, true, true);
     xiahouyuan->addSkill("shensu");

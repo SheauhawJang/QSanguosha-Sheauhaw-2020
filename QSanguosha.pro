@@ -144,7 +144,8 @@ SOURCES += \
     src/package/nostalgia-ol.cpp \
     src/package/nostalgia-limit.cpp \
     src/package/nostalgia-mol.cpp \
-    src/package/nostalgia-physical.cpp
+    src/package/nostalgia-physical.cpp \
+    src/package/nostalgia-myth.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -281,7 +282,9 @@ HEADERS += \
     src/package/nostalgia-ol.h \
     src/package/nostalgia-limit.h \
     src/package/nostalgia-mol.h \
-    src/package/nostalgia-physical.h
+    src/package/nostalgia-physical.h \
+    nostalgia-myth.h \
+    src/package/nostalgia-myth.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

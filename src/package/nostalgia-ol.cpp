@@ -362,9 +362,27 @@ public:
 
         switch (Sanguosha->currentRoomState()->getCurrentCardUseReason()) {
         case CardUseStruct::CARD_USE_REASON_PLAY: {
-            if (card->isKindOf("Jink") && Slash::IsAvailable(Self)) return true;
-            if (card->isKindOf("Peach") && Analeptic::IsAvailable(Self)) return true;
-            if (card->isKindOf("Analeptic") && Self->isWounded()) return true;
+            if (card->isKindOf("Jink")) {
+                Slash *slash = new Slash(card->getSuit(), card->getNumber());
+                slash->addSubcard(card);
+                slash->setSkillName(objectName());
+                slash->deleteLater();
+                return slash->isAvailable(Self);
+            }
+            if (card->isKindOf("Peach")) {
+                Analeptic *analeptic = new Analeptic(card->getSuit(), card->getNumber());
+                analeptic->addSubcard(card);
+                analeptic->setSkillName(objectName());
+                analeptic->deleteLater();
+                return analeptic->isAvailable(Self);
+            }
+            if (card->isKindOf("Analeptic")) {
+                Peach *peach = new Peach(card->getSuit(), card->getNumber());
+                peach->addSubcard(card);
+                peach->setSkillName(objectName());
+                peach->deleteLater();
+                return peach->isAvailable(Self);
+            }
             return false;
         }
         case CardUseStruct::CARD_USE_REASON_RESPONSE:
@@ -385,7 +403,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return Slash::IsAvailable(player) || Analeptic::IsAvailable(player) || player->isWounded();
+        return hasAvailable(player) || Slash::IsAvailable(player) || Analeptic::IsAvailable(player) || player->isWounded();
     }
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
@@ -498,60 +516,6 @@ public:
     }
 };
 
-class NOLJizhi : public TriggerSkill
-{
-public:
-    NOLJizhi() : TriggerSkill("noljizhi")
-    {
-        frequency = Frequent;
-        events << CardUsed << EventPhaseStart;
-    }
-
-    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
-    {
-        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::NotActive) {
-            QList<ServerPlayer *> all_players = room->getAllPlayers();
-            foreach (ServerPlayer *p, all_players) {
-                room->setPlayerMark(p, "#noljizhi", 0);
-            }
-        }
-    }
-
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
-    {
-        if (triggerEvent != CardUsed || !TriggerSkill::triggerable(player)) return QStringList();
-        CardUseStruct use = data.value<CardUseStruct>();
-        if (use.card && use.card->getTypeId() == Card::TypeTrick)
-            return nameList();
-        return QStringList();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *yueying, QVariant &, ServerPlayer *) const
-    {
-        if (room->askForSkillInvoke(yueying, objectName())) {
-            yueying->broadcastSkillInvoke(objectName());
-
-            bool from_up = true;
-            if (yueying->hasSkill("cunmu")) {
-                room->sendCompulsoryTriggerLog(yueying, "cunmu");
-                yueying->broadcastSkillInvoke("cunmu");
-                from_up = false;
-            }
-            int id = room->drawCard(from_up);
-            const Card *card = Sanguosha->getCard(id);
-            CardMoveReason reason(CardMoveReason::S_REASON_DRAW, yueying->objectName(), objectName(), QString());
-            room->obtainCard(yueying, card, reason, false);
-            if (card->getTypeId() == Card::TypeBasic && yueying->handCards().contains(id)
-                    && room->askForChoice(yueying, objectName(), "yes+no", QVariant::fromValue(card), "@noljizhi-discard:::" + card->objectName()) == "yes") {
-                room->throwCard(card, yueying);
-                room->addPlayerMark(yueying, "#noljizhi");
-                room->addPlayerMark(yueying, "Global_MaxcardsIncrease");
-            }
-        }
-        return false;
-    }
-};
-
 NostalOLPackage::NostalOLPackage()
     : Package("nostalgia_ol")
 {
@@ -570,10 +534,6 @@ NostalOLPackage::NostalOLPackage()
     General *zhaoyun = new General(this, "nol_zhaoyun", "shu", 4, true, true);
     zhaoyun->addSkill(new NOLLongdan);
     zhaoyun->addSkill(new NOLYajiao);
-
-    General *huangyueying = new General(this, "nol_huangyueying", "shu", 3, false, true);
-    huangyueying->addSkill(new NOLJizhi);
-    huangyueying->addSkill("qicai");
 
 
     General *lidian = new General(this, "nol_lidian", "wei", 3, true, true);

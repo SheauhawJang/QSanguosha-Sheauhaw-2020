@@ -754,7 +754,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return Analeptic::IsAvailable(player);
+        return hasAvailable(player) || Analeptic::IsAvailable(player);
     }
 
     virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const

@@ -24,12 +24,6 @@ return {
 	["@nolyajiao-give"] = "你可以令一名角色获得【%arg[%arg2]】",
 	["nolyajiao_discard:prompt"] = "是否将【%arg】置入弃牌堆",
 	["nolyajiao:throw"] = "置入弃牌堆",
-	
-	["nol_huangyueying"] = "黄月英-旧OL",
-	["&nol_huangyueying"] = "黄月英",
-	["noljizhi"] = "集智",
-	[":noljizhi"] = "当锦囊牌被使用时，若使用者为你，你可以摸一张牌，若你以此法摸的牌是基本牌，你可以弃置以此法摸的牌，若如此做，你的手牌上限于此回合内+1。",
-	["@noljizhi-discard"] = "集智：是否弃置摸到的【%arg】令手牌上限+1",
 
 	["nol_lidian"] = "李典-旧OL",
 	["&nol_lidian"] = "李典",

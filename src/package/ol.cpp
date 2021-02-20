@@ -1328,7 +1328,7 @@ public:
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return Slash::IsAvailable(player) && player->getMark("#plumshadow") > 0;
+        return (hasAvailable(player) || Slash::IsAvailable(player)) && player->getMark("#plumshadow") > 0;
     }
 
     virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
