@@ -19,7 +19,7 @@ return {
 	["@nmoljiewei"] = "你可以发动“解围”，弃置一张手牌",
 	["@nmoljiewei-move"] = "解围：你可以移动场上的一张牌",
 	
-	["nmol_huangyueying"] = "黄月英-旧OL",
+	["nmol_huangyueying"] = "黄月英-旧手",
 	["&nmol_huangyueying"] = "黄月英",
 	["nmoljizhi"] = "集智",
 	[":nmoljizhi"] = "当普通锦囊牌被使用时，若使用者为你，你可以摸一张牌，若你以此法摸的牌是基本牌，你可以弃置以此法摸的牌，若如此做，你的手牌上限于此回合内+1。",

@@ -694,6 +694,9 @@ NostalWindPackage::NostalWindPackage()
     General *nos_xiahouyuan = new General(this, "nos_xiahouyuan", "wei", 4, true, true);
     nos_xiahouyuan->addSkill(new NosShensu);
 
+    General *nos_huangzhong = new General(this, "nos_huangzhong", "shu", 4, true, true);
+    nos_huangzhong->addSkill(new NosLiegong);
+
     addMetaObject<NosGuhuoCard>();
     addMetaObject<NosShensuCard>();
 }
