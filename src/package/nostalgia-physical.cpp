@@ -159,7 +159,7 @@ public:
 
             QList<int> ids = room->getNCards(1, false);
             CardsMoveStruct move(ids, yueying, Player::PlaceTable,
-                CardMoveReason(CardMoveReason::S_REASON_TURNOVER, yueying->objectName(), "nphyjizhi", QString()));
+                                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, yueying->objectName(), "nphyjizhi", QString()));
             room->moveCardsAtomic(move, true);
 
             int id = ids.first();
@@ -171,7 +171,7 @@ public:
                 const Card *card_ex = NULL;
                 if (!yueying->isKongcheng())
                     card_ex = room->askForCard(yueying, ".", "@nphyjizhi-exchange:::" + card->objectName(),
-                    QVariant::fromValue(card), Card::MethodNone);
+                                               QVariant::fromValue(card), Card::MethodNone);
                 if (card_ex) {
                     CardMoveReason reason1(CardMoveReason::S_REASON_PUT, yueying->objectName(), "nphyjizhi", QString());
                     CardMoveReason reason2(CardMoveReason::S_REASON_DRAW, yueying->objectName(), "nphyjizhi", QString());
@@ -234,6 +234,202 @@ public:
     }
 };
 
+class NPhyAlphaJushou : public PhaseChangeSkill
+{
+public:
+    NPhyAlphaJushou() : PhaseChangeSkill("nphyalphajushou")
+    {
+
+    }
+
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        return PhaseChangeSkill::triggerable(triggerEvent, room, player, data);
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Finish;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *caoren) const
+    {
+        if (caoren->getPhase() == Player::Finish) {
+            Room *room = caoren->getRoom();
+            if (room->askForSkillInvoke(caoren, objectName())) {
+                caoren->broadcastSkillInvoke(objectName());
+                caoren->drawCards(1, objectName());
+                caoren->turnOver();
+            }
+        }
+        return false;
+    }
+};
+
+class NPhyAlphaJiewei : public TriggerSkill
+{
+public:
+    NPhyAlphaJiewei() : TriggerSkill("nphyalphajiewei")
+    {
+        events << TurnedOver;
+    }
+
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (!room->askForSkillInvoke(player, objectName())) return false;
+        room->broadcastSkillInvoke(objectName());
+        player->drawCards(1, objectName());
+
+        const Card *card = room->askForUseCard(player, "TrickCard+^Nullification,EquipCard|.|.|hand", "@NPhyAlphaJiewei");
+        if (!card) return false;
+
+        QList<ServerPlayer *> targets;
+        if (card->getTypeId() == Card::TypeTrick) {
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                bool can_discard = false;
+                foreach (const Card *judge, p->getJudgingArea()) {
+                    if (judge->getTypeId() == Card::TypeTrick && player->canDiscard(p, judge->getEffectiveId())) {
+                        can_discard = true;
+                        break;
+                    } else if (judge->getTypeId() == Card::TypeSkill) {
+                        const Card *real_card = Sanguosha->getEngineCard(judge->getEffectiveId());
+                        if (real_card->getTypeId() == Card::TypeTrick && player->canDiscard(p, real_card->getEffectiveId())) {
+                            can_discard = true;
+                            break;
+                        }
+                    }
+                }
+                if (can_discard) targets << p;
+            }
+        } else if (card->getTypeId() == Card::TypeEquip) {
+            foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                if (!p->getEquips().isEmpty() && player->canDiscard(p, "e"))
+                    targets << p;
+                else {
+                    foreach (const Card *judge, p->getJudgingArea()) {
+                        if (judge->getTypeId() == Card::TypeSkill) {
+                            const Card *real_card = Sanguosha->getEngineCard(judge->getEffectiveId());
+                            if (real_card->getTypeId() == Card::TypeEquip && player->canDiscard(p, real_card->getEffectiveId())) {
+                                targets << p;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (targets.isEmpty()) return false;
+        ServerPlayer *to_discard = room->askForPlayerChosen(player, targets, objectName(), "@NPhyAlphaJiewei-discard", true);
+        if (to_discard) {
+            QList<int> disabled_ids;
+            foreach (const Card *c, to_discard->getCards("ej")) {
+                const Card *pcard = c;
+                if (pcard->getTypeId() == Card::TypeSkill)
+                    pcard = Sanguosha->getEngineCard(c->getEffectiveId());
+                if (pcard->getTypeId() != card->getTypeId())
+                    disabled_ids << pcard->getEffectiveId();
+            }
+            int id = room->askForCardChosen(player, to_discard, "ej", objectName(), false, Card::MethodDiscard, disabled_ids);
+            room->throwCard(id, to_discard, player);
+        }
+        return false;
+    }
+};
+
+class NPhyBetaJushou : public TriggerSkill
+{
+public:
+    NPhyBetaJushou() : TriggerSkill("nphybetajushou")
+    {
+        events << EventPhaseStart << TurnedOver;
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    {
+        if (triggerEvent == TurnedOver) {
+            if (TriggerSkill::triggerable(player))
+                return nameList();
+            else
+                return QStringList();
+        }
+        if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Finish)
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *caoren) const
+    {
+        if (triggerEvent == TurnedOver) {
+            if (!room->askForSkillInvoke(player, objectName())) return false;
+            room->broadcastSkillInvoke(objectName());
+            player->drawCards(1, objectName());
+
+            const Card *card = room->askForUseCard(player, "TrickCard+^Nullification,EquipCard|.|.|hand", "@NPhyBetaJushou");
+            if (!card) return false;
+
+            QList<ServerPlayer *> targets;
+            if (card->getTypeId() == Card::TypeTrick) {
+                foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                    bool can_discard = false;
+                    foreach (const Card *judge, p->getJudgingArea()) {
+                        if (judge->getTypeId() == Card::TypeTrick && player->canDiscard(p, judge->getEffectiveId())) {
+                            can_discard = true;
+                            break;
+                        } else if (judge->getTypeId() == Card::TypeSkill) {
+                            const Card *real_card = Sanguosha->getEngineCard(judge->getEffectiveId());
+                            if (real_card->getTypeId() == Card::TypeTrick && player->canDiscard(p, real_card->getEffectiveId())) {
+                                can_discard = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (can_discard) targets << p;
+                }
+            } else if (card->getTypeId() == Card::TypeEquip) {
+                foreach (ServerPlayer *p, room->getAlivePlayers()) {
+                    if (!p->getEquips().isEmpty() && player->canDiscard(p, "e"))
+                        targets << p;
+                    else {
+                        foreach (const Card *judge, p->getJudgingArea()) {
+                            if (judge->getTypeId() == Card::TypeSkill) {
+                                const Card *real_card = Sanguosha->getEngineCard(judge->getEffectiveId());
+                                if (real_card->getTypeId() == Card::TypeEquip && player->canDiscard(p, real_card->getEffectiveId())) {
+                                    targets << p;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (targets.isEmpty()) return false;
+            ServerPlayer *to_discard = room->askForPlayerChosen(player, targets, objectName(), "@NPhyBetaJushou-discard", true);
+            if (to_discard) {
+                QList<int> disabled_ids;
+                foreach (const Card *c, to_discard->getCards("ej")) {
+                    const Card *pcard = c;
+                    if (pcard->getTypeId() == Card::TypeSkill)
+                        pcard = Sanguosha->getEngineCard(c->getEffectiveId());
+                    if (pcard->getTypeId() != card->getTypeId())
+                        disabled_ids << pcard->getEffectiveId();
+                }
+                int id = room->askForCardChosen(player, to_discard, "ej", objectName(), false, Card::MethodDiscard, disabled_ids);
+                room->throwCard(id, to_discard, player);
+            }
+        } else {
+            if (caoren->getPhase() == Player::Finish) {
+                Room *room = caoren->getRoom();
+                if (room->askForSkillInvoke(caoren, objectName())) {
+                    caoren->broadcastSkillInvoke(objectName());
+                    caoren->drawCards(1, objectName());
+                    caoren->turnOver();
+                }
+            }
+        }
+        return false;
+    }
+};
+
 NostalPhysicalPackage::NostalPhysicalPackage()
     : Package("nostal_physical")
 {
@@ -248,6 +444,13 @@ NostalPhysicalPackage::NostalPhysicalPackage()
     General *diaochan = new General(this, "nphy_diaochan", "qun", 3, false, true);
     diaochan->addSkill("lijian");
     diaochan->addSkill(new NPhyBiyue);
+
+    General *alpha_caoren = new General(this, "nphy_alpha_caoren", "wei", 4, true, true);
+    alpha_caoren->addSkill(new NPhyAlphaJushou);
+    alpha_caoren->addSkill(new NPhyAlphaJiewei);
+
+    General *beta_caoren = new General(this, "nphy_beta_caoren", "wei", 4, true, true);
+    beta_caoren->addSkill(new NPhyBetaJushou);
 
     addMetaObject<NPhyRendeCard>();
 }

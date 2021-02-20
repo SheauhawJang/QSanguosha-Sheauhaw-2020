@@ -24,7 +24,7 @@ return {
 	["huangquan"] = "黄权",
 	["wei_huangquan"] = "黄权",
 	["dianhu"] = "点虎",
-	[":dianhu"] = "游戏开始时，你须指定一名其他角色，当你或与你势力相同的角色对该角色造成1点伤害后，你可以令伤害来源摸一张牌。",
+	[":dianhu"] = "锁定技，游戏开始时，你须指定一名其他角色，当你或与你势力相同的角色对该角色造成1点伤害后，你令伤害来源摸一张牌。",
 	["jianji"] = "谏计",
 	["@jianji-use"] = "你可以使用这一张谏计牌【%arg】。",
 	[":jianji"] = "出牌阶段限一次，你可以令所有与你势力相同的其他角色摸一张牌，然后其可以使用该牌。",
@@ -33,7 +33,7 @@ return {
 	["tangzi"] = "唐咨",
 	["wu_tangzi"] = "唐咨",
 	["xingzhao"] = "兴棹",
-	[":xingzhao"] = "若你所属势力持有的“龙船至宝”数合计大于等于：<br/><b><font color=\"blue\">2</font></b>个：你和与你势力相同的其他角色拥有技能“恂恂”；<br/><b><font color=\"blue\">4</font></b>个：你和与你势力相同的其他角色使用装备牌时，你可以令其摸一张牌；<br/><b><font color=\"blue\">6</font></b>个：你可以令你和与你势力相同的其他角色跳过弃牌阶段；<br/><b><font color=\"blue\">12</font></b>个：你所属势力成为第一名。<br/><b>备注：</b>以上效果<b><font color=\"green\">可叠加</font></b>。",
+	[":xingzhao"] = "锁定技，若你所属势力持有的“龙船至宝”数合计大于等于：<br/><b><font color=\"blue\">2</font></b>个：你和与你势力相同的其他角色拥有技能“恂恂”；<br/><b><font color=\"blue\">4</font></b>个：你和与你势力相同的其他角色使用装备牌时，你令其摸一张牌；<br/><b><font color=\"blue\">6</font></b>个：你令你和与你势力相同的其他角色跳过弃牌阶段；<br/><b><font color=\"blue\">12</font></b>个：你所属势力成为第一名。<br/><b>备注：</b>以上效果<b><font color=\"green\">可叠加</font></b>。",
 	["#xingzhao-changed"] = "<b><font color=\"yellow\"> 兴棹 </font></b>技能效果生效，<b><font color=\"yellow\"> 龙船至宝 </font></b> 的排名发生变化！",
 	
 	["d_liuqi"] = "刘琦",

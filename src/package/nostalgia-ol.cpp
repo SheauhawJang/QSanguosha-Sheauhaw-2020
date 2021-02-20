@@ -575,6 +575,7 @@ NostalOLPackage::NostalOLPackage()
     huangyueying->addSkill(new NOLJizhi);
     huangyueying->addSkill("qicai");
 
+
     General *lidian = new General(this, "nol_lidian", "wei", 3, true, true);
     lidian->addSkill("wangxi");
     lidian->addSkill(new NOLXunxun);

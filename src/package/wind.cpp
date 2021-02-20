@@ -331,6 +331,22 @@ public:
         view_as_skill = new ShensuViewAsSkill;
     }
 
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *xiahouyuan, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(xiahouyuan)) return QStringList();
+
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to == Player::Judge && !xiahouyuan->isSkipped(Player::Judge)
+                && !xiahouyuan->isSkipped(Player::Draw) && Slash::IsAvailable(xiahouyuan))
+            return nameList();
+        else if (Slash::IsAvailable(xiahouyuan) && change.to == Player::Play && !xiahouyuan->isSkipped(Player::Play)
+                && xiahouyuan->canDiscard(xiahouyuan, "he"))
+            return nameList();
+        else if (change.to == Player::Discard && !xiahouyuan->isSkipped(Player::Discard) && Slash::IsAvailable(xiahouyuan))
+            return nameList();
+        return QStringList();
+    }
+
     virtual bool trigger(TriggerEvent , Room *room, ServerPlayer *xiahouyuan, QVariant &data) const
     {
         PhaseChangeStruct change = data.value<PhaseChangeStruct>();

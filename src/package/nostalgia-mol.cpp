@@ -201,15 +201,67 @@ public:
     }
 };
 
+class NMOLJieweiViewAsSkill : public OneCardViewAsSkill
+{
+public:
+    NMOLJieweiViewAsSkill() : OneCardViewAsSkill("nmoljiewei")
+    {
+        filter_pattern = ".|.|.|equipped";
+        response_or_use = true;
+        response_pattern = "nullification";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Nullification *ncard = new Nullification(originalCard->getSuit(), originalCard->getNumber());
+        ncard->addSubcard(originalCard);
+        ncard->setSkillName(objectName());
+        return ncard;
+    }
+
+    virtual bool isEnabledAtNullification(const ServerPlayer *player) const
+    {
+        return player->hasEquip();
+    }
+};
+
+class NMOLJiewei : public TriggerSkill
+{
+public:
+    NMOLJiewei() : TriggerSkill("nmoljiewei")
+    {
+        events << TurnedOver;
+        view_as_skill = new NMOLJieweiViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && target->faceUp() && !target->isNude();
+    }
+
+    virtual bool effect(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        if (room->askForCard(player, ".", "@jiewei", data, objectName()))
+            room->askForUseCard(player, "@@jiewei_move", "@jiewei-move");
+        return false;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
-    General *nmol_xiahoudun = new General(this, "nmol_xiahoudun", "wei", 4, true, true);
-    nmol_xiahoudun->addSkill("ganglie");
-    nmol_xiahoudun->addSkill(new NMOLQingjian);
-    nmol_xiahoudun->addSkill(new DetachEffectSkill("nmolqingjian", "nmolqingjian"));
+    General *xiahoudun = new General(this, "nmol_xiahoudun", "wei", 4, true, true);
+    xiahoudun->addSkill("ganglie");
+    xiahoudun->addSkill(new NMOLQingjian);
+    xiahoudun->addSkill(new DetachEffectSkill("nmolqingjian", "nmolqingjian"));
     related_skills.insertMulti("nmolqingjian", "#nmolqingjian-clear");
 
+    General *xiahouyuan = new General(this, "nmol_xiahouyuan", "wei", 4, true, true);
+    xiahouyuan->addSkill("shensu");
+
+    General *caoren = new General(this, "nmol_caoren", "wei", 4, true, true);
+    caoren->addSkill("jushou");
+    caoren->addSkill(new NMOLJiewei);
 
     addMetaObject<NMOLQingjianAllotCard>();
     skills << new NMOLQingjianAllot;

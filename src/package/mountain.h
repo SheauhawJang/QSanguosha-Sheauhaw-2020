@@ -3,6 +3,7 @@
 
 #include "package.h"
 #include "card.h"
+#include "skill.h"
 
 class QiaobianMoveCard : public SkillCard
 {
@@ -68,6 +69,20 @@ class MountainPackage : public Package
 
 public:
     MountainPackage();
+};
+
+class Huashen : public TriggerSkill
+{
+public:
+    Huashen();
+
+    static void AcquireGenerals(ServerPlayer *zuoci, int n);
+    static QStringList GetAvailableGenerals(ServerPlayer *zuoci);
+    static void SelectSkill(ServerPlayer *zuoci);
+    static int ThrowGenerals(ServerPlayer *zuoci, int min = 0, int max = -1);
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const;
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &, ServerPlayer *zuoci) const;
+
 };
 
 #endif

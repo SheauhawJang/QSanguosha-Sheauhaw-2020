@@ -20,4 +20,20 @@ return {
 	["&nphy_diaochan"] = "貂蝉",
 	["nphybiyue"] = "闭月",
 	[":nphybiyue"] = "结束阶段开始时，你可以摸一张牌。",
+	
+	["nphy_alpha_caoren"] = "曹仁-2013",
+	["&nphy_alpha_caoren"] = "曹仁",
+	["nphyalphajushou"] = "据守",
+	[":nphyalphajushou"] = "结束阶段开始时，你可以摸一张牌，然后翻面。",
+	["nphyalphajiewei"] = "解围",
+	[":nphyalphajiewei"] = "当你翻面后，你可以摸一张牌，然后你可以使用锦囊牌／装备牌，若如此做，你可以弃置场上的一张锦囊牌／装备牌。",
+	["@NphyAlphaJiewei"] = "你可以使用一张锦囊牌或装备牌",
+	["@NphyAlphaJiewei-discard"] = "你可以弃置一名角色场上与你使用的牌同类型的牌",
+	
+	["nphy_beta_caoren"] = "曹仁-2015",
+	["&nphy_beta_caoren"] = "曹仁",
+	["nphybetajushou"] = "据守",
+	[":nphybetajushou"] = "结束阶段开始时，你可以摸一张牌，然后翻面。当你翻面后，你可以摸一张牌，然后你可以使用锦囊牌／装备牌，若如此做，你可以弃置场上的一张锦囊牌／装备牌。",
+	["@NPhyBetaJushou"] = "你可以使用一张锦囊牌或装备牌",
+	["@NPhyBetaJushou-discard"] = "你可以弃置一名角色场上与你使用的牌同类型的牌",
 }

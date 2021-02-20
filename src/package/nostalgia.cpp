@@ -837,7 +837,7 @@ public:
         events << CardsMoveOneTime;
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *from, QVariant &datas) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *from, QVariant &datas) const
     {
         TriggerList list;
         foreach (QVariant data, datas.toList()) {
@@ -2564,6 +2564,119 @@ public:
     }
 };
 
+NosShensuCard::NosShensuCard()
+{
+}
+
+bool NosShensuCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    Slash *slash = new Slash(NoSuit, 0);
+    slash->setSkillName("nosshensu");
+    slash->setFlags("Global_NoDistanceChecking");
+    slash->addCostcards(this->getSubcards());
+    slash->deleteLater();
+    return targets.isEmpty() && slash->targetFilter(targets, to_select, Self);
+}
+
+void NosShensuCard::use(Room *room, ServerPlayer *xiahouyuan, QList<ServerPlayer *> &targets) const
+{
+    if (targets.isEmpty()) return;
+    switch (xiahouyuan->getMark("NosShensuIndex")) {
+    case 1: {
+        xiahouyuan->skip(Player::Judge, true);
+        xiahouyuan->skip(Player::Draw, true);
+        break;
+    }
+    case 2: {
+        xiahouyuan->skip(Player::Play, true);
+        break;
+    }
+    default:
+        break;
+    }
+    Slash *slash = new Slash(Card::NoSuit, 0);
+    slash->setSkillName("_nosshensu");
+    room->useCard(CardUseStruct(slash, xiahouyuan, targets));
+}
+
+class NosShensuViewAsSkill : public ViewAsSkill
+{
+public:
+    NosShensuViewAsSkill() : ViewAsSkill("nosshensu")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *) const
+    {
+        return false;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    {
+        return pattern.startsWith("@@nosshensu");
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (Sanguosha->currentRoomState()->getCurrentCardUsePattern().endsWith("2"))
+            return selected.isEmpty() && to_select->isKindOf("EquipCard") && !Self->isJilei(to_select);
+        else
+            return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (Sanguosha->currentRoomState()->getCurrentCardUsePattern().endsWith("2")) {
+            if (cards.length() != 1) return NULL;
+            NosShensuCard *card = new NosShensuCard;
+            card->addSubcards(cards);
+            return card;
+        } else
+            return cards.isEmpty() ? new NosShensuCard : NULL;
+    }
+};
+
+class NosShensu : public TriggerSkill
+{
+public:
+    NosShensu() : TriggerSkill("nosshensu")
+    {
+        events << EventPhaseChanging;
+        view_as_skill = new NosShensuViewAsSkill;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *xiahouyuan, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(xiahouyuan)) return QStringList();
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to == Player::Judge && !xiahouyuan->isSkipped(Player::Judge)
+                && !xiahouyuan->isSkipped(Player::Draw) && Slash::IsAvailable(xiahouyuan))
+            return nameList();
+        else if (Slash::IsAvailable(xiahouyuan) && change.to == Player::Play && !xiahouyuan->isSkipped(Player::Play)
+                && xiahouyuan->canDiscard(xiahouyuan, "he"))
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool trigger(TriggerEvent , Room *room, ServerPlayer *xiahouyuan, QVariant &data) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        int index = 0;
+        if (change.to == Player::Judge && !xiahouyuan->isSkipped(Player::Judge)
+                && !xiahouyuan->isSkipped(Player::Draw) && Slash::IsAvailable(xiahouyuan))
+            index = 1;
+        else if (Slash::IsAvailable(xiahouyuan) && change.to == Player::Play && !xiahouyuan->isSkipped(Player::Play)
+                && xiahouyuan->canDiscard(xiahouyuan, "he"))
+            index = 2;
+        else
+            return false;
+        room->setPlayerMark(xiahouyuan, "NosShensuIndex", index);
+        room->askForUseCard(xiahouyuan, "@@nosshensu"+QString::number(index), "@nosshensu"+QString::number(index));
+        room->setPlayerMark(xiahouyuan, "NosShensuIndex", 0);
+        return false;
+    }
+};
+
 NostalStandardPackage::NostalStandardPackage()
     : Package("nostal_standard")
 {
@@ -2690,7 +2803,11 @@ NostalWindPackage::NostalWindPackage()
     General *nos_yuji = new General(this, "nos_yuji", "qun", 3);
     nos_yuji->addSkill(new NosGuhuo);
 
+    General *nos_xiahouyuan = new General(this, "nos_xiahouyuan", "wei", 4, true, true);
+    nos_xiahouyuan->addSkill(new NosShensu);
+
     addMetaObject<NosGuhuoCard>();
+    addMetaObject<NosShensuCard>();
 }
 
 NostalYJCMPackage::NostalYJCMPackage()

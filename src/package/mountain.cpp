@@ -1077,255 +1077,260 @@ public:
     }
 };
 
-class Huashen : public TriggerSkill
+Huashen::Huashen() : TriggerSkill("huashen")
 {
-public:
-    Huashen() : TriggerSkill("huashen")
-    {
-        events << TurnStart << EventPhaseStart << EventPhaseChanging;
+    events << TurnStart << EventPhaseStart << EventPhaseChanging;
+}
+
+void Huashen::AcquireGenerals(ServerPlayer *zuoci, int n)
+{
+    Room *room = zuoci->getRoom();
+    QVariantList huashens = zuoci->tag["Huashens"].toList();
+    QStringList list = GetAvailableGenerals(zuoci);
+    qShuffle(list);
+    if (list.isEmpty()) return;
+    n = qMin(n, list.length());
+
+    QStringList acquired = list.mid(0, n);
+    foreach (QString name, acquired) {
+        huashens << name;
+        // const General *general = Sanguosha->getGeneral(name);
+        // if (general) {
+        //     foreach (const TriggerSkill *skill, general->getTriggerSkills()) {
+        //         if (skill->isVisible())
+        //             room->getThread()->addTriggerSkill(skill);
+        //     }
+        // }
+    }
+    zuoci->tag["Huashens"] = huashens;
+
+    QStringList hidden;
+    for (int i = 0; i < n; i++) hidden << "unknown";
+    foreach (ServerPlayer *p, room->getAllPlayers()) {
+        if (p == zuoci)
+            room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), acquired.join(":"), QList<ServerPlayer *>() << p);
+        else
+            room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), hidden.join(":"), QList<ServerPlayer *>() << p);
     }
 
-    static void AcquireGenerals(ServerPlayer *zuoci, int n)
-    {
-        Room *room = zuoci->getRoom();
-        QVariantList huashens = zuoci->tag["Huashens"].toList();
-        QStringList list = GetAvailableGenerals(zuoci);
-        qShuffle(list);
-        if (list.isEmpty()) return;
-        n = qMin(n, list.length());
+    LogMessage log;
+    log.type = "#GetHuashen";
+    log.from = zuoci;
+    log.arg = QString::number(n);
+    room->sendLog(log, room->getOtherPlayers(zuoci));
 
-        QStringList acquired = list.mid(0, n);
-        foreach (QString name, acquired) {
-            huashens << name;
-            const General *general = Sanguosha->getGeneral(name);
-            if (general) {
-                foreach (const TriggerSkill *skill, general->getTriggerSkills()) {
-                    if (skill->isVisible())
-                        room->getThread()->addTriggerSkill(skill);
-                }
-            }
-        }
-        zuoci->tag["Huashens"] = huashens;
+    LogMessage log2;
+    log2.type = "#GetHuashenDetail";
+    log2.from = zuoci;
+    log2.arg = acquired.join("\\, \\");
+    room->sendLog(log2, zuoci);
 
-        QStringList hidden;
-        for (int i = 0; i < n; i++) hidden << "unknown";
-        foreach (ServerPlayer *p, room->getAllPlayers()) {
-            if (p == zuoci)
-                room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), acquired.join(":"), QList<ServerPlayer *>() << p);
-            else
-                room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), hidden.join(":"), QList<ServerPlayer *>() << p);
-        }
+    room->setPlayerMark(zuoci, "#huashen", huashens.length());
+}
 
-        LogMessage log;
-        log.type = "#GetHuashen";
-        log.from = zuoci;
-        log.arg = QString::number(n);
-        room->sendLog(log, room->getOtherPlayers(zuoci));
-
-        LogMessage log2;
-        log2.type = "#GetHuashenDetail";
-        log2.from = zuoci;
-        log2.arg = acquired.join("\\, \\");
-        room->sendLog(log2, zuoci);
-
-        room->setPlayerMark(zuoci, "#huashen", huashens.length());
+QStringList Huashen::GetAvailableGenerals(ServerPlayer *zuoci)
+{
+    QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
+    Room *room = zuoci->getRoom();
+    if (isNormalGameMode(room->getMode())
+            || room->getMode().contains("_mini_")
+            || room->getMode() == "custom_scenario")
+        all.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
+    else if (room->getMode() == "06_XMode") {
+        foreach(ServerPlayer *p, room->getAlivePlayers())
+            all.subtract(p->tag["XModeBackup"].toStringList().toSet());
+    } else if (room->getMode() == "02_1v1") {
+        all.subtract(Config.value("Banlist/1v1", "").toStringList().toSet());
+        foreach(ServerPlayer *p, room->getAlivePlayers())
+            all.subtract(p->tag["1v1Arrange"].toStringList().toSet());
     }
+    if (room->getMode() == "08_hongyan")
+        foreach (QString gen, Sanguosha->getLimitedGeneralNames())
+            if (Sanguosha->getGeneral(gen)->isMale())
+                all.remove(gen);
+    QSet<QString> huashen_set, room_set;
 
-    static QStringList GetAvailableGenerals(ServerPlayer *zuoci)
-    {
-        QSet<QString> all = Sanguosha->getLimitedGeneralNames().toSet();
-        Room *room = zuoci->getRoom();
-        if (isNormalGameMode(room->getMode())
-                || room->getMode().contains("_mini_")
-                || room->getMode() == "custom_scenario")
-            all.subtract(Config.value("Banlist/Roles", "").toStringList().toSet());
-        else if (room->getMode() == "06_XMode") {
-            foreach(ServerPlayer *p, room->getAlivePlayers())
-                all.subtract(p->tag["XModeBackup"].toStringList().toSet());
-        } else if (room->getMode() == "02_1v1") {
-            all.subtract(Config.value("Banlist/1v1", "").toStringList().toSet());
-            foreach(ServerPlayer *p, room->getAlivePlayers())
-                all.subtract(p->tag["1v1Arrange"].toStringList().toSet());
-        }
-        if (room->getMode() == "08_hongyan")
-            foreach (QString gen, Sanguosha->getLimitedGeneralNames())
-                if (Sanguosha->getGeneral(gen)->isMale())
-                    all.remove(gen);
-        QSet<QString> huashen_set, room_set;
-
-        foreach (ServerPlayer *player, room->getAlivePlayers()) {
-            QVariantList huashens = player->tag["Huashens"].toList();
-            foreach(QVariant huashen, huashens)
-                huashen_set << huashen.toString();
-            QString name = player->getGeneralName();
-            if (Sanguosha->isGeneralHidden(name)) {
-                QString fname = Sanguosha->getMainGeneral(name);
-                if (!fname.isEmpty()) name = fname;
-            }
-            room_set << name;
-
-            if (!player->getGeneral2()) continue;
-
-            name = player->getGeneral2Name();
-            if (Sanguosha->isGeneralHidden(name)) {
-                QString fname = Sanguosha->getMainGeneral(name);
-                if (!fname.isEmpty()) name = fname;
-            }
-            room_set << name;
-        }
-
-        static QSet<QString> banned;
-        if (banned.isEmpty())
-            banned << "zuoci" << "zhoutai" << "yuji";
-
-        return (all - banned - huashen_set - room_set).toList();
-    }
-
-    static void SelectSkill(ServerPlayer *zuoci)
-    {
-        Room *room = zuoci->getRoom();
-        QStringList ac_dt_list;
-
-        QString huashen_skill = zuoci->tag["HuashenSkill"].toString();
-        if (!huashen_skill.isEmpty())
-            ac_dt_list.append("-" + huashen_skill);
-
-        QVariantList huashens = zuoci->tag["Huashens"].toList();
-        if (huashens.isEmpty()) return;
-
-        QStringList huashen_generals;
+    foreach (ServerPlayer *player, room->getAlivePlayers()) {
+        QVariantList huashens = player->tag["Huashens"].toList();
         foreach(QVariant huashen, huashens)
-            huashen_generals << huashen.toString();
+            huashen_set << huashen.toString();
+        QString name = player->getGeneralName();
+        if (Sanguosha->isGeneralHidden(name)) {
+            QString fname = Sanguosha->getMainGeneral(name);
+            if (!fname.isEmpty()) name = fname;
+        }
+        room_set << name;
 
-        QStringList skill_names;
-        QString skill_name;
-        const General *general = NULL;
-        AI *ai = zuoci->getAI();
-        if (ai) {
-            QHash<QString, const General *> hash;
-            foreach (QString general_name, huashen_generals) {
-                const General *general = Sanguosha->getGeneral(general_name);
-                foreach (const Skill *skill, general->getVisibleSkillList()) {
-                    if (skill->isLordSkill()
-                            || skill->getFrequency() == Skill::Limited
-                            || skill->getFrequency() == Skill::Wake)
-                        continue;
+        if (!player->getGeneral2()) continue;
 
-                    if (!skill_names.contains(skill->objectName())) {
-                        hash[skill->objectName()] = general;
-                        skill_names << skill->objectName();
-                    }
-                }
-            }
-            if (skill_names.isEmpty()) return;
-            skill_name = ai->askForChoice("huashen", skill_names.join("+"), QVariant());
-            general = hash[skill_name];
-            Q_ASSERT(general != NULL);
-        } else {
-            QString general_name = room->askForGeneral(zuoci, huashen_generals, true, "huashen");
-            general = Sanguosha->getGeneral(general_name);
+        name = player->getGeneral2Name();
+        if (Sanguosha->isGeneralHidden(name)) {
+            QString fname = Sanguosha->getMainGeneral(name);
+            if (!fname.isEmpty()) name = fname;
+        }
+        room_set << name;
+    }
 
+    static QSet<QString> banned;
+    if (banned.isEmpty())
+        banned << "zuoci" << "zhoutai" << "yuji";
+
+    return (all - banned - huashen_set - room_set).toList();
+}
+
+void Huashen::SelectSkill(ServerPlayer *zuoci)
+{
+    Room *room = zuoci->getRoom();
+    QStringList ac_dt_list;
+
+    QString huashen_skill = zuoci->tag["HuashenSkill"].toString();
+    if (!huashen_skill.isEmpty())
+        ac_dt_list.append("-" + huashen_skill);
+
+    QVariantList huashens = zuoci->tag["Huashens"].toList();
+    if (huashens.isEmpty()) return;
+
+    QStringList huashen_generals;
+    foreach(QVariant huashen, huashens)
+        huashen_generals << huashen.toString();
+
+    QStringList skill_names;
+    QString skill_name;
+    const General *general = NULL;
+    AI *ai = zuoci->getAI();
+    if (ai) {
+        QHash<QString, const General *> hash;
+        foreach (QString general_name, huashen_generals) {
+            const General *general = Sanguosha->getGeneral(general_name);
             foreach (const Skill *skill, general->getVisibleSkillList()) {
                 if (skill->isLordSkill()
                         || skill->getFrequency() == Skill::Limited
                         || skill->getFrequency() == Skill::Wake)
                     continue;
 
-                skill_names << skill->objectName();
+                if (!skill_names.contains(skill->objectName())) {
+                    hash[skill->objectName()] = general;
+                    skill_names << skill->objectName();
+                }
             }
-
-            if (!skill_names.isEmpty())
-                skill_name = room->askForChoice(zuoci, "huashen", skill_names.join("+"));
         }
-        //Q_ASSERT(!skill_name.isNull() && !skill_name.isEmpty());
+        if (skill_names.isEmpty()) return;
+        skill_name = ai->askForChoice("huashen", skill_names.join("+"), QVariant());
+        general = hash[skill_name];
+        Q_ASSERT(general != NULL);
+    } else {
+        QString general_name = room->askForGeneral(zuoci, huashen_generals, true, "huashen");
+        general = Sanguosha->getGeneral(general_name);
 
-        QString kingdom = general->getKingdom();
-        if (zuoci->getKingdom() != kingdom) {
-            if (kingdom == "god")
-                kingdom = room->askForKingdom(zuoci);
-            room->setPlayerProperty(zuoci, "kingdom", kingdom);
+        foreach (const Skill *skill, general->getVisibleSkillList()) {
+            if (skill->isLordSkill()
+                    || skill->getFrequency() == Skill::Limited
+                    || skill->getFrequency() == Skill::Wake)
+                continue;
+
+            skill_names << skill->objectName();
         }
 
-        if (zuoci->getGender() != general->getGender())
-            zuoci->setGender(general->getGender());
+        if (!skill_names.isEmpty())
+            skill_name = room->askForChoice(zuoci, "huashen", skill_names.join("+"));
+    }
+    //Q_ASSERT(!skill_name.isNull() && !skill_name.isEmpty());
 
-        JsonArray arg;
-        arg << QSanProtocol::S_GAME_EVENT_HUASHEN << zuoci->objectName() << general->objectName() << skill_name;
-        room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, arg);
-
-        zuoci->tag["HuashenSkill"] = skill_name;
-        zuoci->tag["HuashenGeneral"] = general->objectName();
-        if (!skill_name.isEmpty())
-            ac_dt_list.append(skill_name);
-        room->handleAcquireDetachSkills(zuoci, ac_dt_list, true);
+    QString kingdom = general->getKingdom();
+    if (zuoci->getKingdom() != kingdom) {
+        if (kingdom == "god")
+            kingdom = room->askForKingdom(zuoci);
+        room->setPlayerProperty(zuoci, "kingdom", kingdom);
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        TriggerList skill_list;
-        if (triggerEvent == TurnStart && room->getTag("FirstRound").toBool()) {
-            QList<ServerPlayer *> zuocis = room->findPlayersBySkillName(objectName());
-            foreach (ServerPlayer *zuoci, zuocis)
-                skill_list.insert(zuoci, QStringList("huashen!"));
+    if (zuoci->getGender() != general->getGender())
+        zuoci->setGender(general->getGender());
 
-        } else if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getPhase() == Player::RoundStart)
-            skill_list.insert(player, nameList());
-        else if (triggerEvent == EventPhaseChanging && TriggerSkill::triggerable(player) && data.value<PhaseChangeStruct>().to == Player::NotActive)
-            skill_list.insert(player, nameList());
+    JsonArray arg;
+    arg << QSanProtocol::S_GAME_EVENT_HUASHEN << zuoci->objectName() << general->objectName() << skill_name;
+    room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, arg);
 
-        return skill_list;
+    zuoci->tag["HuashenSkill"] = skill_name;
+    zuoci->tag["HuashenGeneral"] = general->objectName();
+    if (!skill_name.isEmpty())
+        ac_dt_list.append(skill_name);
+    room->handleAcquireDetachSkills(zuoci, ac_dt_list, true);
+}
+
+int Huashen::ThrowGenerals(ServerPlayer *zuoci, int minvar, int maxvar)
+{
+    Room *room = zuoci->getRoom();
+    QVariantList huashens = zuoci->tag["Huashens"].toList();
+    QStringList huashen_generals;
+    foreach(QVariant huashen, huashens)
+        huashen_generals << huashen.toString();
+    QStringList detached;
+    huashen_generals.removeOne(zuoci->tag["HuashenGeneral"].toString());
+    if (maxvar < 0)
+        maxvar = huashen_generals.length();
+    for (int i = 1; i <= maxvar; ++i) {
+        if (huashen_generals.empty())
+            break;
+        if (i < minvar || room->askForSkillInvoke(zuoci, "huashen_change", "prompt:::" + QString::number(i))) {
+            QString decided = room->askForGeneral(zuoci, huashen_generals, true, "huashen");
+            detached << decided;
+            huashen_generals.removeOne(decided);
+        } else
+            break;
     }
+    if (detached.empty())
+        return 0;
+    QStringList new_generals;
+    foreach(QVariant huashen, huashens)
+        if (!detached.contains(huashen.toString()))
+            new_generals << huashen.toString();
+    zuoci->tag["Huashens"] = new_generals;
+    QStringList hidden;
+    for (int i = 0; i < detached.length(); i++) hidden << "-unknown";
+    foreach (ServerPlayer *p, room->getAllPlayers()) {
+        if (p == zuoci)
+            room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), "-" + detached.join(":-"), QList<ServerPlayer *>() << p);
+        else
+            room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), hidden.join(":"), QList<ServerPlayer *>() << p);
+    }
+    return detached.length();
+}
 
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &, ServerPlayer *zuoci) const
-    {
-        if (triggerEvent == TurnStart) {
-            room->sendCompulsoryTriggerLog(zuoci, objectName());
+TriggerList Huashen::triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+{
+    TriggerList skill_list;
+    if (triggerEvent == TurnStart && room->getTag("FirstRound").toBool()) {
+        QList<ServerPlayer *> zuocis = room->findPlayersBySkillName(objectName());
+        foreach (ServerPlayer *zuoci, zuocis)
+            skill_list.insert(zuoci, QStringList("huashen!"));
+
+    } else if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getPhase() == Player::RoundStart)
+        skill_list.insert(player, nameList());
+    else if (triggerEvent == EventPhaseChanging && TriggerSkill::triggerable(player) && data.value<PhaseChangeStruct>().to == Player::NotActive)
+        skill_list.insert(player, nameList());
+
+    return skill_list;
+}
+
+bool Huashen::effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVariant &, ServerPlayer *zuoci) const
+{
+    if (triggerEvent == TurnStart) {
+        room->sendCompulsoryTriggerLog(zuoci, objectName());
+        zuoci->broadcastSkillInvoke(objectName());
+        AcquireGenerals(zuoci, 3);
+        SelectSkill(zuoci);
+    } else {
+        QString choice = room->askForChoice(zuoci, objectName(), "changeHuashen+recastHuashen+cancel");
+        if (choice == "changeHuashen") {
             zuoci->broadcastSkillInvoke(objectName());
-            AcquireGenerals(zuoci, 3);
             SelectSkill(zuoci);
-        } else {
-            QString choice = room->askForChoice(zuoci, objectName(), "changeHuashen+recastHuashen+cancel");
-            if (choice == "changeHuashen") {
-                zuoci->broadcastSkillInvoke(objectName());
-                SelectSkill(zuoci);
-            } else if (choice == "recastHuashen") {
-                zuoci->broadcastSkillInvoke(objectName());
-                QVariantList huashens = zuoci->tag["Huashens"].toList();
-                QStringList huashen_generals;
-                foreach(QVariant huashen, huashens)
-                    huashen_generals << huashen.toString();
-                QStringList detached;
-                huashen_generals.removeOne(zuoci->tag["HuashenGeneral"].toString());
-                for (int i = 1; i <= 2; ++i) {
-                    if (huashen_generals.empty())
-                        break;
-                    if (!room->askForSkillInvoke(zuoci, "huashen_change", "prompt:::" + QString::number(i)))
-                        break;
-                    QString decided = room->askForGeneral(zuoci, huashen_generals, true, objectName());
-                    detached << decided;
-                    huashen_generals.removeOne(decided);
-                }
-                if (detached.empty())
-                    return false;
-                QStringList new_generals;
-                foreach(QVariant huashen, huashens)
-                    if (!detached.contains(huashen.toString()))
-                        new_generals << huashen.toString();
-                zuoci->tag["Huashens"] = new_generals;
-                QStringList hidden;
-                for (int i = 0; i < detached.length(); i++) hidden << "-unknown";
-                foreach (ServerPlayer *p, room->getAllPlayers()) {
-                    if (p == zuoci)
-                        room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), "-" + detached.join(":-"), QList<ServerPlayer *>() << p);
-                    else
-                        room->doAnimate(QSanProtocol::S_ANIMATE_HUASHEN, zuoci->objectName(), hidden.join(":"), QList<ServerPlayer *>() << p);
-                }
-                AcquireGenerals(zuoci, detached.length());
-            }
+        } else if (choice == "recastHuashen") {
+            zuoci->broadcastSkillInvoke(objectName());
+            AcquireGenerals(zuoci, ThrowGenerals(zuoci, 0, 2));
         }
-        return false;
     }
-};
+    return false;
+}
 
 class HuashenClear : public DetachEffectSkill
 {
