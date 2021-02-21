@@ -1771,7 +1771,7 @@ public:
         frequency = Frequent;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *luxun, QVariant &datas, ServerPlayer *&)
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *luxun, QVariant &datas, ServerPlayer *&) const
     {
         if (!TriggerSkill::triggerable(luxun)) return QStringList();
         foreach (QVariant data, datas.toList()) {
@@ -1782,7 +1782,7 @@ public:
         return QStringList();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *luxun, QVariant &data) const
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *luxun, QVariant &data, ServerPlayer *) const
     {
         if (room->askForSkillInvoke(luxun, objectName(), data)) {
             luxun->broadcastSkillInvoke(objectName());

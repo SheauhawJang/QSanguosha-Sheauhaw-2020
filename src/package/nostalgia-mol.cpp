@@ -301,6 +301,129 @@ public:
     }
 };
 
+NMOLQimouCard::NMOLQimouCard()
+{
+    target_fixed = true;
+}
+
+void NMOLQimouCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    room->removePlayerMark(card_use.from, "@scheme");
+    room->loseHp(card_use.from, user_string.toInt());
+}
+
+void NMOLQimouCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    room->setPlayerMark(source, "#nmolqimou", user_string.toInt());
+}
+
+class NMOLQimouViewAsSkill : public ZeroCardViewAsSkill
+{
+public:
+    NMOLQimouViewAsSkill() : ZeroCardViewAsSkill("nmolqimou")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getMark("@scheme") > 0 && player->getHp() > 0;
+    }
+
+    virtual const Card *viewAs() const
+    {
+        QString user_string = Self->tag["nmolqimou"].toString();
+        if (user_string.isEmpty()) return NULL;
+        NMOLQimouCard *skill_card = new NMOLQimouCard;
+        skill_card->setUserString(user_string);
+        skill_card->setSkillName("nmolqimou");
+        return skill_card;
+    }
+};
+
+class NMOLQimou : public TriggerSkill
+{
+public:
+    NMOLQimou() : TriggerSkill("nmolqimou")
+    {
+        events << EventPhaseStart;
+        frequency = Limited;
+        limit_mark = "@scheme";
+        view_as_skill = new NMOLQimouViewAsSkill;
+    }
+
+    virtual void record(TriggerEvent , Room *room, ServerPlayer *weiyan, QVariant &) const
+    {
+        if (weiyan->getPhase() == Player::NotActive)
+            room->setPlayerMark(weiyan, "#nmolqimou", 0);
+    }
+
+    virtual bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+
+    QString getSelectBox() const
+    {
+        QStringList hp_num;
+        for (int i = 1; i <= Self->getHp(); hp_num << QString::number(i++)) {}
+        return hp_num.join("+");
+    }
+
+};
+
+class NMOLQimouDistance : public DistanceSkill
+{
+public:
+    NMOLQimouDistance() : DistanceSkill("#nmolqimou-distance")
+    {
+    }
+
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
+        return -from->getMark("#nmolqimou");
+    }
+};
+
+class NMOLQimouTargetMod : public TargetModSkill
+{
+public:
+    NMOLQimouTargetMod() : TargetModSkill("#nmolqimou-target")
+    {
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        return from->getMark("#nmolqimou");
+    }
+};
+
+class NMOLHongyan : public FilterSkill
+{
+public:
+    NMOLHongyan() : FilterSkill("nmolhongyan")
+    {
+    }
+
+    static WrappedCard *changeToHeart(int cardId)
+    {
+        WrappedCard *new_card = Sanguosha->getWrappedCard(cardId);
+        new_card->setSkillName("nmolhongyan");
+        new_card->setSuit(Card::Heart);
+        new_card->setModified(true);
+        return new_card;
+    }
+
+    virtual bool viewFilter(const Card *to_select) const
+    {
+        return to_select->getSuit() == Card::Spade;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        return changeToHeart(originalCard->getEffectiveId());
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -321,7 +444,20 @@ NostalMOLPackage::NostalMOLPackage()
     caoren->addSkill("jushou");
     caoren->addSkill(new NMOLJiewei);
 
+    General *weiyan = new General(this, "nmol_weiyan", "wei", 4, true, true);
+    weiyan->addSkill("kuanggu");
+    weiyan->addSkill(new NMOLQimou);
+    weiyan->addSkill(new NMOLQimouDistance);
+    weiyan->addSkill(new NMOLQimouTargetMod);
+    related_skills.insertMulti("nmolqimou", "#nmolqimou-distance");
+    related_skills.insertMulti("nmolqimou", "#nmolqimou-target");
+
+    General *xiaoqiao = new General(this, "nmol_xiaoqiao", "wu", 3, false, true);
+    xiaoqiao->addSkill("tianxiang");
+    xiaoqiao->addSkill(new NMOLHongyan);
+
     addMetaObject<NMOLQingjianAllotCard>();
+    addMetaObject<NMOLQimouCard>();
     skills << new NMOLQingjianAllot;
 }
 

@@ -515,6 +515,7 @@ void Engine::addPackage(Package *package)
             QString class_name = card->metaObject()->className();
             metaobjects.insert(class_name, card->metaObject());
             className2objectName.insert(class_name, card->objectName());
+            objectName2className.insert(card->objectName(), class_name);
         }
     }
 
@@ -916,7 +917,7 @@ Card *Engine::cloneCard(const QString &name, Card::Suit suit, int number, const 
     } else {
         const QMetaObject *meta = metaobjects.value(name, NULL);
         if (meta == NULL)
-            meta = metaobjects.value(className2objectName.key(name, QString()), NULL);
+            meta = metaobjects.value(objectName2className.value(name, QString()), NULL);
         if (meta) {
             QObject *card_obj = meta->newInstance(Q_ARG(Card::Suit, suit), Q_ARG(int, number));
             card_obj->setObjectName(className2objectName.value(name, name));

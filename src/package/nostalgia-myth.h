@@ -41,4 +41,14 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
+class NosTianxiangCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NosTianxiangCard();
+
+    void onEffect(const CardEffectStruct &effect) const;
+};
+
 #endif // _NOSTALMYTH_H

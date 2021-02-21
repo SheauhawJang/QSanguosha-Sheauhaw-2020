@@ -22,4 +22,15 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
+class NMOLQimouCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NMOLQimouCard();
+
+    virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
 #endif // NOSTALMOL_H

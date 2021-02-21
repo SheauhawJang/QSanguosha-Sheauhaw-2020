@@ -31,6 +31,7 @@ struct DamageStruct
     Nature nature;
     bool chain;
     bool transfer;
+    QString transfer_reason;
     bool by_user;
     QString reason;
     QStringList flags;

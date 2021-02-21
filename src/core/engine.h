@@ -153,6 +153,7 @@ private:
     QHash<QString, const General *> generals;
     QHash<QString, const QMetaObject *> metaobjects;
     QHash<QString, QString> className2objectName;
+    QHash<QString, QString> objectName2className;
     QHash<QString, const Skill *> skills;
     QHash<QThread *, QObject *> m_rooms;
     QMap<QString, QString> modes;

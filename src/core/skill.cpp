@@ -341,6 +341,7 @@ bool OneCardViewAsSkill::hasAvailable(const Player *player) const
 {
     foreach (const Card *originalCard, player->getHandcards() + player->getEquips()) {
         const Card *testCard = viewAs(originalCard);
+        if (!testCard) continue;
         bool ans = testCard->isAvailable(player);
         delete testCard;
         if (ans) return true;

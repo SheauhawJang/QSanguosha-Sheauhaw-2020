@@ -473,6 +473,7 @@ public:
         foreach (const Card *selected, player->getHandcards() + player->getEquips()) {
             foreach (const Card *originalCard, player->getHandcards() + player->getEquips()) {
                 const Card *testCard = viewAs(QList<const Card *>() << selected << originalCard);
+                if (!testCard) continue;
                 bool ans = testCard->isAvailable(player);
                 delete testCard;
                 if (ans) return true;
