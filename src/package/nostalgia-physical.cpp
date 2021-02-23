@@ -357,13 +357,15 @@ public:
         events << EventPhaseStart << TurnedOver;
     }
 
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (triggerEvent == TurnedOver) {
-            if (TriggerSkill::triggerable(player))
-                return nameList();
-            else
-                return QStringList();
+            if (TriggerSkill::triggerable(player)) {
+                TurnStruct turn = data.value<TurnStart>();
+                if (turn.name == objectName() || turn.name == "turn_start")
+                    return nameList();
+            }
+            return QStringList();
         }
         if (TriggerSkill::triggerable(player) && player->getPhase() == Player::Finish)
             return nameList();
@@ -435,7 +437,7 @@ public:
                 if (room->askForSkillInvoke(caoren, objectName())) {
                     caoren->broadcastSkillInvoke(objectName());
                     caoren->drawCards(1, objectName());
-                    caoren->turnOver();
+                    caoren->turnOver(objectName());
                 }
             }
         }

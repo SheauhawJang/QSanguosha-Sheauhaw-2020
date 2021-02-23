@@ -418,8 +418,7 @@ bool GameRule::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *play
         if (!player->faceUp()) {
             room->setPlayerFlag(player, "-Global_FirstRound");
             room->setPlayerFlag(player, "-Global_TurnFirstRound");
-            player->turnOver();
-            qDebug() << player->getPhase();
+            player->turnOver("turn_start");
         } else if (player->isAlive())
             player->play();
 
