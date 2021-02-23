@@ -24,6 +24,29 @@ return {
 	["@nolyajiao-give"] = "你可以令一名角色获得【%arg[%arg2]】",
 	["nolyajiao_discard:prompt"] = "是否将【%arg】置入弃牌堆",
 	["nolyajiao:throw"] = "置入弃牌堆",
+	
+	["nol_xiahouyuan"] = "夏侯渊-旧OL",
+	["&nol_xiahouyuan"] = "夏侯渊-旧",
+	
+	["nol_weiyan"] = "魏延-旧OL",
+	["&nol_weiyan"] = "魏延",
+	["nolqimou"] = "奇谋",
+	[":nolqimou"] = "限定技，出牌阶段，你可以失去任意点体力，你至其他角色的距离于此回合内-X且你于此回合内使用【杀】的次数上限+X（X为你以此法失去的体力数）。",
+	
+	["nol_xiaoqiao"] = "小乔-旧OL",
+	["&nol_xiaoqiao"] = "小乔",
+	["nolhongyan"] = "红颜",
+	[":nolhongyan"] = "锁定技，你的黑桃牌或你的黑桃判定牌的花色视为红桃。",
+	
+	["nol_zhangjiao"] = "张角-旧OL",
+	["&nol_zhangjiao"] = "张角",
+	["nolleiji"] = "雷击",
+	[":nolleiji"] = "每当你使用或打出【闪】时，你可以令一名其他角色进行判定，若结果为：黑桃，你对该角色造成2点雷电伤害；梅花，你回复1点体力，然后对该角色造成1点雷电伤害。",
+	["nolleiji-invoke"] = "你可以发动“雷击”<br/> <b>操作提示</b>: 选择一名角色→点击确定<br/>",
+	["nolguidao"] = "鬼道",
+	[":nolguidao"] = "每当一名角色的判定牌生效前，你可以打出一张黑色牌替换之。",
+	["@nolguidao-card"] = CommonTranslationTable["@askforretrial"],
+	["~nolguidao"] = "选择一张黑色牌→点击确定",
 
 	["nol_lidian"] = "李典-旧OL",
 	["&nol_lidian"] = "李典",

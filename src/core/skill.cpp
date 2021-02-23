@@ -321,7 +321,10 @@ bool OneCardViewAsSkill::viewFilter(const Card *to_select) const
         }
         ExpPattern pattern(pat);
         if (!pattern.match(Self, to_select)) return false;
+        if (Sanguosha->currentRoomState()->getCurrentCardUseReason() != CardUseStruct::CARD_USE_REASON_PLAY)
+            return true;
         const Card *testCard = viewAs(to_select);
+        if (!testCard) return false;
         bool ans = testCard->isAvailable(Self);
         delete testCard;
         return ans;

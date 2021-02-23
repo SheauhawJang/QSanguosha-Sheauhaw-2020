@@ -20,6 +20,19 @@
 #include "roomthread.h"
 #include "nostalgia-physical.h"
 
+class dummyVS : public ZeroCardViewAsSkill
+{
+public:
+    dummyVS() : ZeroCardViewAsSkill("dummy")
+    {
+    }
+
+    virtual const Card *viewAs() const
+    {
+        return NULL;
+    }
+};
+
 NPhyRendeCard::NPhyRendeCard()
 {
     will_throw = false;
@@ -430,6 +443,49 @@ public:
     }
 };
 
+
+class NPhyLeiji : public TriggerSkill
+{
+public:
+    NPhyLeiji() : TriggerSkill("nphyleiji")
+    {
+        events << CardResponded;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(player)) return QStringList();
+        const Card *card_star = data.value<CardResponseStruct>().m_card;
+        if (card_star->isKindOf("Jink"))
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &, ServerPlayer *) const
+    {
+        ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
+        if (target) {
+            zhangjiao->broadcastSkillInvoke("nphyleiji");
+
+            JudgeStruct judge;
+            judge.pattern = ".|black";
+            judge.good = false;
+            judge.negative = true;
+            judge.reason = objectName();
+            judge.who = target;
+
+            room->judge(judge);
+
+            if (judge.isBad()) {
+                room->damage(DamageStruct(objectName(), zhangjiao, target, 1, DamageStruct::Thunder));
+                room->recover(zhangjiao, RecoverStruct(zhangjiao));
+            }
+        }
+        return false;
+    }
+};
+
 NostalPhysicalPackage::NostalPhysicalPackage()
     : Package("nostal_physical")
 {
@@ -451,6 +507,11 @@ NostalPhysicalPackage::NostalPhysicalPackage()
 
     General *beta_caoren = new General(this, "nphy_beta_caoren", "wei", 4, true, true);
     beta_caoren->addSkill(new NPhyBetaJushou);
+
+    General *zhangjiao = new General(this, "nphy_zhangjiao$", "qun", 3, true, true);
+    zhangjiao->addSkill(new NPhyLeiji);
+    zhangjiao->addSkill("nolguidao");
+    zhangjiao->addSkill("huangtian");
 
     addMetaObject<NPhyRendeCard>();
 }

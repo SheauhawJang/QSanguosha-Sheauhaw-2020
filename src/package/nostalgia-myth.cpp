@@ -562,26 +562,32 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &data) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
+        if (!TriggerSkill::triggerable(player)) return QStringList();
         const Card *card_star = data.value<CardResponseStruct>().m_card;
-        if (card_star->isKindOf("Jink")) {
-            ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
-            if (target) {
-                zhangjiao->broadcastSkillInvoke("nosleiji");
+        if (card_star->isKindOf("Jink"))
+            return nameList();
+        return QStringList();
+    }
 
-                JudgeStruct judge;
-                judge.pattern = ".|spade";
-                judge.good = false;
-                judge.negative = true;
-                judge.reason = objectName();
-                judge.who = target;
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &, ServerPlayer *) const
+    {
+        ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
+        if (target) {
+            zhangjiao->broadcastSkillInvoke("nosleiji");
 
-                room->judge(judge);
+            JudgeStruct judge;
+            judge.pattern = ".|spade";
+            judge.good = false;
+            judge.negative = true;
+            judge.reason = objectName();
+            judge.who = target;
 
-                if (judge.isBad())
-                    room->damage(DamageStruct(objectName(), zhangjiao, target, 2, DamageStruct::Thunder));
-            }
+            room->judge(judge);
+
+            if (judge.isBad())
+                room->damage(DamageStruct(objectName(), zhangjiao, target, 2, DamageStruct::Thunder));
         }
         return false;
     }
@@ -866,7 +872,7 @@ NostalWindPackage::NostalWindPackage()
 
     General *nos_zhangjiao = new General(this, "nos_zhangjiao$", "qun", 3);
     nos_zhangjiao->addSkill(new NosLeiji);
-    nos_zhangjiao->addSkill("guidao");
+    nos_zhangjiao->addSkill("nolguidao");
     nos_zhangjiao->addSkill("huangtian");
 
     General *nos_yuji = new General(this, "nos_yuji", "qun", 3);
@@ -883,7 +889,7 @@ NostalWindPackage::NostalWindPackage()
 
     General *nos_xiaoqiao = new General(this, "nos_xiaoqiao", "wu", 3, false, true);
     nos_xiaoqiao->addSkill(new NosTianxiang);
-    nos_xiaoqiao->addSkill("nmolhongyan");
+    nos_xiaoqiao->addSkill("nolhongyan");
 
     addMetaObject<NosGuhuoCard>();
     addMetaObject<NosShensuCard>();

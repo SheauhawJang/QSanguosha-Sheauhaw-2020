@@ -48,4 +48,8 @@ return {
 	["&nos_xiaoqiao"] = "小乔",
 	["nostianxiang"] = "天香",
 	[":nostianxiang"] = "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色。你将此伤害转移给该角色。其摸X张牌（X为其已损失的体力值）。",
+	["@nostianxiang-card"] = "请选择“天香”的目标",
+	["~nostianxiang"] = "选择一张<font color=\"red\">♥</font>手牌→选择一名其他角色→点击确定",
+	
+	
 }

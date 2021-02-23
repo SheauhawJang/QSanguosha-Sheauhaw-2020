@@ -20,6 +20,19 @@
 #include "roomthread.h"
 #include "nostalgia-ol.h"
 
+class dummyVS : public ZeroCardViewAsSkill
+{
+public:
+    dummyVS() : ZeroCardViewAsSkill("dummy")
+    {
+    }
+
+    virtual const Card *viewAs() const
+    {
+        return NULL;
+    }
+};
+
 NOLQingjianAllotCard::NOLQingjianAllotCard()
 {
     will_throw = false;
@@ -516,6 +529,207 @@ public:
     }
 };
 
+class NOLLeiji : public TriggerSkill
+{
+public:
+    NOLLeiji() : TriggerSkill("nolleiji")
+    {
+        events << CardResponded;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(player)) return QStringList();
+        const Card *card_star = data.value<CardResponseStruct>().m_card;
+        if (card_star->isKindOf("Jink"))
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &, ServerPlayer *) const
+    {
+        ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
+        if (target) {
+            zhangjiao->broadcastSkillInvoke("nolleiji");
+
+            JudgeStruct judge;
+            judge.patterns << ".|spade" << ".|club";
+            judge.good = false;
+            judge.negative = true;
+            judge.reason = objectName();
+            judge.who = target;
+
+            room->judge(judge);
+
+            int damage = 0;
+            if (judge.pattern == ".|spade") {
+                damage = 2;
+            } else if (judge.pattern == ".|club") {
+                damage = 1;
+                room->recover(zhangjiao, RecoverStruct(zhangjiao));
+            }
+            if (damage)
+                room->damage(DamageStruct(objectName(), zhangjiao, target, damage, DamageStruct::Thunder));
+        }
+        return false;
+    }
+};
+
+class NOLGuidao : public TriggerSkill
+{
+public:
+    NOLGuidao() : TriggerSkill("nolguidao")
+    {
+        events << AskForRetrial;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && !(target->isNude() && target->getHandPile().isEmpty());
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        JudgeStruct *judge = data.value<JudgeStruct *>();
+
+        QStringList prompt_list;
+        prompt_list << "@nolguidao-card" << judge->who->objectName()
+                    << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
+        QString prompt = prompt_list.join(":");
+        const Card *card = room->askForCard(player, ".|black", prompt, data, Card::MethodResponse, judge->who, true, "nolguidao");
+
+        if (card != NULL) {
+            room->retrial(card, player, judge, objectName(), true);
+        }
+        return false;
+    }
+};
+
+NOLQimouCard::NOLQimouCard()
+{
+    target_fixed = true;
+}
+
+void NOLQimouCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    room->removePlayerMark(card_use.from, "@scheme");
+    room->loseHp(card_use.from, user_string.toInt());
+}
+
+void NOLQimouCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &) const
+{
+    room->setPlayerMark(source, "#nolqimou", user_string.toInt());
+}
+
+class NOLQimouViewAsSkill : public ZeroCardViewAsSkill
+{
+public:
+    NOLQimouViewAsSkill() : ZeroCardViewAsSkill("nolqimou")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getMark("@scheme") > 0 && player->getHp() > 0;
+    }
+
+    virtual const Card *viewAs() const
+    {
+        QString user_string = Self->tag["nolqimou"].toString();
+        if (user_string.isEmpty()) return NULL;
+        NOLQimouCard *skill_card = new NOLQimouCard;
+        skill_card->setUserString(user_string);
+        skill_card->setSkillName("nolqimou");
+        return skill_card;
+    }
+};
+
+class NOLQimou : public TriggerSkill
+{
+public:
+    NOLQimou() : TriggerSkill("nolqimou")
+    {
+        events << EventPhaseStart;
+        frequency = Limited;
+        limit_mark = "@scheme";
+        view_as_skill = new NOLQimouViewAsSkill;
+    }
+
+    virtual void record(TriggerEvent, Room *room, ServerPlayer *weiyan, QVariant &) const
+    {
+        if (weiyan->getPhase() == Player::NotActive)
+            room->setPlayerMark(weiyan, "#nolqimou", 0);
+    }
+
+    virtual bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+
+    QString getSelectBox() const
+    {
+        QStringList hp_num;
+        for (int i = 1; i <= Self->getHp(); hp_num << QString::number(i++)) {}
+        return hp_num.join("+");
+    }
+
+};
+
+class NOLQimouDistance : public DistanceSkill
+{
+public:
+    NOLQimouDistance() : DistanceSkill("#nolqimou-distance")
+    {
+    }
+
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
+        return -from->getMark("#nolqimou");
+    }
+};
+
+class NOLQimouTargetMod : public TargetModSkill
+{
+public:
+    NOLQimouTargetMod() : TargetModSkill("#nolqimou-target")
+    {
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        return from->getMark("#nolqimou");
+    }
+};
+
+class NOLHongyan : public FilterSkill
+{
+public:
+    NOLHongyan() : FilterSkill("nolhongyan")
+    {
+    }
+
+    static WrappedCard *changeToHeart(int cardId)
+    {
+        WrappedCard *new_card = Sanguosha->getWrappedCard(cardId);
+        new_card->setSkillName("nolhongyan");
+        new_card->setSuit(Card::Heart);
+        new_card->setModified(true);
+        return new_card;
+    }
+
+    virtual bool viewFilter(const Card *to_select) const
+    {
+        return to_select->getSuit() == Card::Spade;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        return changeToHeart(originalCard->getEffectiveId());
+    }
+};
+
 NostalOLPackage::NostalOLPackage()
     : Package("nostalgia_ol")
 {
@@ -535,12 +749,32 @@ NostalOLPackage::NostalOLPackage()
     zhaoyun->addSkill(new NOLLongdan);
     zhaoyun->addSkill(new NOLYajiao);
 
+    General *xiahouyuan = new General(this, "nol_xiahouyuan", "wei", 4, true, true);
+    xiahouyuan->addSkill("shensu");
+
+    General *weiyan = new General(this, "nol_weiyan", "wei", 4, true, true);
+    weiyan->addSkill("kuanggu");
+    weiyan->addSkill(new NOLQimou);
+    weiyan->addSkill(new NOLQimouDistance);
+    weiyan->addSkill(new NOLQimouTargetMod);
+    related_skills.insertMulti("nolqimou", "#nolqimou-distance");
+    related_skills.insertMulti("nolqimou", "#nolqimou-target");
+
+    General *xiaoqiao = new General(this, "nol_xiaoqiao", "wu", 3, false, true);
+    xiaoqiao->addSkill("tianxiang");
+    xiaoqiao->addSkill(new NOLHongyan);
+
+    General *zhangjiao = new General(this, "nol_zhangjiao$", "qun", 3, true, true);
+    zhangjiao->addSkill(new NOLLeiji);
+    zhangjiao->addSkill(new NOLGuidao);
+    zhangjiao->addSkill("huangtian");
 
     General *lidian = new General(this, "nol_lidian", "wei", 3, true, true);
     lidian->addSkill("wangxi");
     lidian->addSkill(new NOLXunxun);
 
     addMetaObject<NOLQingjianAllotCard>();
+    addMetaObject<NOLQimouCard>();
     skills << new NOLQingjianAllot;
 }
 

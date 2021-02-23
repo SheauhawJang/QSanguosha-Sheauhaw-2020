@@ -901,10 +901,10 @@ public:
     }
 };
 
-class HongyanFilter : public FilterSkill
+class Hongyan : public FilterSkill
 {
 public:
-    HongyanFilter() : FilterSkill("#hongyan-filter")
+    Hongyan() : FilterSkill("hongyan")
     {
     }
 
@@ -928,41 +928,20 @@ public:
     }
 };
 
-class Hongyan : public TriggerSkill
+class HongyanMaxCard : public MaxCardsSkill
 {
 public:
-    Hongyan() : TriggerSkill("hongyan")
+    HongyanMaxCard() : MaxCardsSkill("#hongyan")
     {
-        events << CardsMoveOneTime;
-        frequency = Compulsory;
     }
 
-    QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual int getFixed(const Player *target) const
     {
-        if (!TriggerSkill::triggerable(player)) return QStringList();
-        if (player->getPhase() == Player::NotActive && player->getHandcardNum() < player->getHp()) {
-            foreach (QVariant qvar, data.toList()) {
-                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
-                if (move.from == player && move.to != player)
-                    for (int i = 0; i < move.card_ids.length(); ++i) {
-                        const Card *card = Card::Parse(move.cards[i]);
-                        if (move.open[i] && card && card->getSuit() == Card::Heart) {
-                            delete card;
-                            return nameList();
-                        }
-                        if (card) delete card;
-                    }
-            }
-        }
-        return QStringList();
-    }
-
-    bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
-    {
-        room->sendCompulsoryTriggerLog(player, objectName());
-        player->broadcastSkillInvoke(objectName());
-        player->drawCards(1);
-        return false;
+        if (target->hasSkill("hongyan"))
+            foreach (const Card *card, target->getEquips())
+                if (card->getSuit() == Card::Heart)
+                    return target->getMaxHp();
+        return -1;
     }
 };
 
@@ -1034,6 +1013,59 @@ public:
         if (room->askForUseCard(xiaoqiao, "@@tianxiang", "@tianxiang-card", QVariant(), Card::MethodDiscard)) {
 
             return true;
+        }
+        return false;
+    }
+};
+
+class Piaoling : public TriggerSkill
+{
+public:
+    Piaoling() : TriggerSkill("piaoling")
+    {
+        events << EventPhaseChanging << FinishJudge;
+        frequency = Frequent;
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent == EventPhaseChanging) {
+            if (!TriggerSkill::triggerable(player)) return QStringList();
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::NotActive)
+                return nameList();
+        } else {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                return comList();
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *xiaoqiao, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == EventPhaseChanging) {
+            if (room->askForSkillInvoke(xiaoqiao, objectName(), data)) {
+                xiaoqiao->broadcastSkillInvoke(objectName());
+                JudgeStruct judge;
+                judge.good = true;
+                judge.pattern = ".|heart";
+                judge.who = xiaoqiao;
+                judge.reason = objectName();
+
+                room->judge(judge);
+            }
+        } else {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            ServerPlayer *target = room->askForPlayerChosen(xiaoqiao, room->getAlivePlayers(), objectName(), "@piaoling-target", true);
+            if (target) {
+                target->obtainCard(judge->card);
+                if (target == xiaoqiao)
+                    room->askForDiscard(xiaoqiao, objectName(), 1, 1, false, true);
+            } else {
+                CardMoveReason reason(CardMoveReason::S_REASON_PUT, xiaoqiao->objectName(), objectName(), QString());
+                room->moveCardTo(judge->card, NULL, Player::DrawPile, reason);
+            }
         }
         return false;
     }
@@ -1394,8 +1426,9 @@ WindPackage::WindPackage()
     General *xiaoqiao = new General(this, "xiaoqiao", "wu", 3, false); // WU 011
     xiaoqiao->addSkill(new Tianxiang);
     xiaoqiao->addSkill(new Hongyan);
-    xiaoqiao->addSkill(new HongyanFilter);
-    related_skills.insertMulti("hongyan", "#hongyan-filter");
+    xiaoqiao->addSkill(new HongyanMaxCard);
+    xiaoqiao->addSkill(new Piaoling);
+    related_skills.insertMulti("hongyan", "#hongyan");
 
     General *zhoutai = new General(this, "zhoutai", "wu"); // WU 013
     zhoutai->addSkill(new Buqu);
