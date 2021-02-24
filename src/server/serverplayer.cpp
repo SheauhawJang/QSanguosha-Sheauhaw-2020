@@ -16,9 +16,9 @@ const int ServerPlayer::S_NUM_SEMAPHORES = 6;
 
 ServerPlayer::ServerPlayer(Room *room)
     : Player(room), m_isClientResponseReady(false), m_isWaitingReply(false),
-    socket(NULL), room(room),
-    ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL),
-    _m_phases_index(0), next(NULL)
+      socket(NULL), room(room),
+      ai(NULL), trust_ai(new TrustAI(this)), recorder(NULL),
+      _m_phases_index(0), next(NULL)
 {
     semas = new QSemaphore *[S_NUM_SEMAPHORES];
     for (int i = 0; i < S_NUM_SEMAPHORES; i++)
@@ -62,14 +62,14 @@ void ServerPlayer::broadcastSkillInvoke(const Card *card) const
             room->broadcastSkillInvoke(card->getCommonEffectName(), "common");
         return;
     } else {
-		if (card->getSkillName(false).startsWith("_") && card->subcardsLength() == 0)
-			return;
+        if (card->getSkillName(false).startsWith("_") && card->subcardsLength() == 0)
+            return;
 
-		int index = skill->getEffectIndex(this, card);
+        int index = skill->getEffectIndex(this, card);
         if (index == 0) return;
         QList<int> types;
         if (index != -1)
-        types << index;
+            types << index;
         if (index == -2 || !room->broadcastSkillInvoke(skill_name, this, types)) {
             if (card->getCommonEffectName().isNull())
                 broadcastSkillInvoke(card->objectName());
@@ -125,7 +125,7 @@ void ServerPlayer::sealAreas(const QString &names)
         room->moveCardsAtomic(moves, true);
 
     foreach (QString area_name, area_names)
-        room->setPlayerMark(this, area_name+"Sealed", 1);
+        room->setPlayerMark(this, area_name + "Sealed", 1);
 }
 
 void ServerPlayer::throwAllEquips()
@@ -161,7 +161,7 @@ void ServerPlayer::throwAllMarks(bool visible_only)
     // throw all marks
     foreach (QString mark_name, marks.keys()) {
         if (mark_name == "@bossExp" || mark_name == "@boattreasure" ||
-            mark_name == "#ganlu" || (visible_only && !mark_name.startsWith("@")) || (mark_name == "@waked" && visible_only))
+                mark_name == "#ganlu" || (visible_only && !mark_name.startsWith("@")) || (mark_name == "@waked" && visible_only))
             continue;
 
         int n = marks.value(mark_name, 0);
@@ -323,7 +323,7 @@ void ServerPlayer::getMessage(QByteArray request)
         case S_DEST_ROOM:
             emit roomPacketReceived(packet);
             break;
-            //unused destination. Lobby hasn't been implemented.
+        //unused destination. Lobby hasn't been implemented.
         case S_DEST_LOBBY:
             emit lobbyPacketReceived(packet);
             break;
@@ -388,7 +388,7 @@ QString ServerPlayer::findReasonable(const QStringList &generals, bool no_unreas
             }
 
             if (Config.EnableHegemony && getGeneral()
-                && getGeneral()->getKingdom() != Sanguosha->getGeneral(name)->getKingdom())
+                    && getGeneral()->getKingdom() != Sanguosha->getGeneral(name)->getKingdom())
                 continue;
         }
         if (extra_ban_list.contains(name)) continue;
@@ -617,18 +617,25 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
     log.to = targets;
     room->sendLog(log);
 
-    RoomThread *room_thread = room->getThread();
 
-    QVariant data_ask = 1;
+    PindianStruct *pindian = new PindianStruct;
+    pindian->from = this;
+    pindian->tos = targets;
+    QVariant data = QVariant::fromValue(pindian);
+    RoomThread *thread = room->getThread();
+    Q_ASSERT(thread != NULL);
+    for (int i = 0; i < targets.length(); ++i)
+        pindian->totags.append(QStringList());
     if (card1 == NULL)
-        room_thread->trigger(AskforPindianCard, room, this, data_ask);
-    data_ask = 2;
+        thread->trigger(AskForPindianCard, room, this, data);
     foreach (ServerPlayer *target, targets)
-        room_thread->trigger(AskforPindianCard, room, target, data_ask);
+        thread->trigger(AskForPindianCard, room, target, data);
 
     room->tryPause();
 
-    QList<const Card *> cards = room->askForPindianRace(this, targets, reason, card1);
+    QList<QStringList> tags;
+    tags << pindian->fromtag << pindian->totags;
+    QList<const Card *> cards = room->askForPindianRace(this, targets, reason, card1, tags);
     card1 = cards.first();
     QList<int> ids;
     foreach (const Card *card, cards) {
@@ -637,9 +644,6 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
     }
     cards.removeOne(card1);
 
-    PindianStruct *pindian = new PindianStruct;
-    pindian->from = this;
-    pindian->tos = targets;
     pindian->from_card = card1;
     pindian->to_cards = cards;
     pindian->from_number = card1->getNumber();
@@ -681,20 +685,19 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
 
     room->moveCardsAtomic(pd_move, true);
 
-    QVariant data = QVariant::fromValue(pindian);
-    RoomThread *thread = room->getThread();
-    Q_ASSERT(thread != NULL);
     thread->trigger(PindianVerifying, room, this, data);
     pindian->from_number = data.value<PindianStruct *>()->from_number;
 
     for (int i = 0; i < targets.length(); i++) {
         pindian->to = pindian->tos.at(i);
+        pindian->totag = pindian->totags.at(i);
         pindian->to_card = pindian->to_cards.at(i);
         pindian->to_number = pindian->to_numbers.at(i);
         data = QVariant::fromValue(pindian);
         thread->trigger(PindianVerifying, room, pindian->tos.at(i), data);
         pindian->to_numbers[i] = data.value<PindianStruct *>()->to_number;
         pindian->to = NULL;
+        pindian->totag = QStringList();
         pindian->to_card = NULL;
         pindian->to_number = 0;
     }
@@ -709,10 +712,12 @@ PindianStruct *ServerPlayer::pindianResult(PindianStruct *pd, int index)
     room->tryPause();
 
     ServerPlayer *target = pd->tos.at(index - 1);
+    QStringList pdtag = pd->totags.at(index - 1);
     const Card *to_card = pd->to_cards.at(index - 1);
     int to_number = pd->to_numbers.at(index - 1);
     PindianStruct &pindian_struct = *pd;
     pindian_struct.to = target;
+    pindian_struct.totag = pdtag;
     pindian_struct.to_card = to_card;
     pindian_struct.to_number = to_number;
     pindian_struct.success = (pindian_struct.from_number > pindian_struct.to_number);
@@ -744,11 +749,11 @@ PindianStruct *ServerPlayer::pindianResult(PindianStruct *pd, int index)
     thread->trigger(Pindian, room, this, data);
 
     QVariant decisionData = QVariant::fromValue(QString("pindian:%1:%2:%3:%4:%5")
-        .arg(pd->reason)
-        .arg(this->objectName())
-        .arg(pindian_struct.from_card->getEffectiveId())
-        .arg(pd->to->objectName())
-        .arg(pindian_struct.to_card->getEffectiveId()));
+                            .arg(pd->reason)
+                            .arg(this->objectName())
+                            .arg(pindian_struct.from_card->getEffectiveId())
+                            .arg(pd->to->objectName())
+                            .arg(pindian_struct.to_card->getEffectiveId()));
     thread->trigger(ChoiceMade, room, this, decisionData);
 
     return pindian_star;
@@ -756,6 +761,10 @@ PindianStruct *ServerPlayer::pindianResult(PindianStruct *pd, int index)
 
 void ServerPlayer::pindianFinish(PindianStruct *pd)
 {
+    RoomThread *thread = room->getThread();
+    QVariant data = QVariant::fromValue(pd);
+    thread->trigger(PindianSummary, room, this, data);
+
     QList<CardsMoveStruct> pd_move;
 
     if (room->getCardPlace(pd->from_card->getEffectiveId()) == Player::PlaceTable) {
@@ -764,7 +773,7 @@ void ServerPlayer::pindianFinish(PindianStruct *pd)
         move1.to = NULL;
         move1.to_place = Player::DiscardPile;
         CardMoveReason reason1(CardMoveReason::S_REASON_PINDIAN, pd->from->objectName(), QString(),
-            pd->reason, QString());
+                               pd->reason, QString());
         move1.reason = reason1;
         pd_move << move1;
     }
@@ -784,6 +793,8 @@ void ServerPlayer::pindianFinish(PindianStruct *pd)
     if (!pd_move.isEmpty())
         room->moveCardsAtomic(pd_move, true);
 
+    thread->trigger(PindianFinished, room, this, data);
+
     delete pd;
 }
 
@@ -801,6 +812,17 @@ PindianStruct *ServerPlayer::pindianStruct(ServerPlayer *target, const QString &
     return pd2;
 }
 
+QList<PindianStruct *> ServerPlayer::pindianStruct(QList<ServerPlayer *>targets, const QString &reason, const Card *card1)
+{
+    PindianStruct *pd = pindianStart(targets, reason, card1);
+    QList<PindianStruct *> results;
+    for (int i = 1; i <= targets.length(); i++) {
+        results << pindianResult(pd, i);
+    }
+    pindianFinish(pd);
+    return results;
+}
+
 void ServerPlayer::turnOver(const QString &skill_name)
 {
     QStringList unturnedSkills;
@@ -808,8 +830,7 @@ void ServerPlayer::turnOver(const QString &skill_name)
 
     bool unturned = false;
     foreach (QString sk, unturnedSkills)
-        if (hasSkill(sk))
-        {
+        if (hasSkill(sk)) {
             broadcastSkillInvoke(sk);
             room->notifySkillInvoked(this, sk);
             LogMessage turnlog;
@@ -824,6 +845,7 @@ void ServerPlayer::turnOver(const QString &skill_name)
     TurnStruct turnst;
     turnst.who = this;
     turnst.name = skill_name;
+    turnst.from_up = faceUp();
     QVariant data = QVariant::fromValue(turnst);
 
     setFaceUp(!faceUp());
@@ -877,7 +899,7 @@ void ServerPlayer::play(QList<Player::Phase> set_phases)
             set_phases << NotActive;
     } else
         set_phases << RoundStart << Start << Judge << Draw << Play
-        << Discard << Finish << NotActive;
+                   << Discard << Finish << NotActive;
 
     phases = set_phases;
     _m_phases_state.clear();
@@ -949,7 +971,7 @@ void ServerPlayer::skip(Player::Phase phase, bool isCost)
     static QStringList phase_strings;
     if (phase_strings.isEmpty())
         phase_strings << "round_start" << "start" << "judge" << "draw"
-        << "play" << "discard" << "finish" << "not_active";
+                      << "play" << "discard" << "finish" << "not_active";
     int index = static_cast<int>(phase);
 
     LogMessage log;
@@ -963,8 +985,8 @@ void ServerPlayer::insertPhase(Player::Phase phase)
 {
     PhaseStruct _phase;
     _phase.phase = phase;
-    phases.insert(_m_phases_index+1, phase);
-    _m_phases_state.insert(_m_phases_index+1, _phase);
+    phases.insert(_m_phases_index + 1, phase);
+    _m_phases_state.insert(_m_phases_index + 1, _phase);
 }
 
 bool ServerPlayer::hasSkipped(Player::Phase phase)
@@ -1004,7 +1026,8 @@ void ServerPlayer::loseMark(const QString &mark, int n)
     if (getMark(mark) == 0) return;
     int value = getMark(mark) - n;
     if (value < 0) {
-        value = 0; n = getMark(mark);
+        value = 0;
+        n = getMark(mark);
     }
 
     LogMessage log;
@@ -1105,7 +1128,8 @@ ServerPlayer *ServerPlayer::getNextAlive(int n) const
     ServerPlayer *next = const_cast<ServerPlayer *>(this);
     if (!hasAlive) return next;
     for (int i = 0; i < n; i++) {
-        do next = next->next; while (next->isDead());
+        do next = next->next;
+        while (next->isDead());
     }
     return next;
 }
@@ -1124,11 +1148,18 @@ int ServerPlayer::getGeneralMaxHp() const
         if (Config.GameMode.contains("_mini_") || Config.GameMode == "custom_scenario") plan = 1;
 
         switch (plan) {
-        case 3: max_hp = (first + second) / 2; break;
-        case 2: max_hp = qMax(first, second); break;
-        case 1: max_hp = qMin(first, second); break;
+        case 3:
+            max_hp = (first + second) / 2;
+            break;
+        case 2:
+            max_hp = qMax(first, second);
+            break;
+        case 1:
+            max_hp = qMin(first, second);
+            break;
         default:
-            max_hp = first + second - Config.Scheme0Subtraction; break;
+            max_hp = first + second - Config.Scheme0Subtraction;
+            break;
         }
 
         max_hp = qMax(max_hp, 1);
@@ -1154,11 +1185,18 @@ int ServerPlayer::getGeneralHp() const
         if (Config.GameMode.contains("_mini_") || Config.GameMode == "custom_scenario") plan = 1;
 
         switch (plan) {
-        case 3: max_hp = (first + second) / 2; break;
-        case 2: max_hp = qMax(first, second); break;
-        case 1: max_hp = qMin(first, second); break;
+        case 3:
+            max_hp = (first + second) / 2;
+            break;
+        case 2:
+            max_hp = qMax(first, second);
+            break;
+        case 1:
+            max_hp = qMin(first, second);
+            break;
         default:
-            max_hp = first + second - Config.Scheme0Subtraction; break;
+            max_hp = first + second - Config.Scheme0Subtraction;
+            break;
         }
 
         max_hp = qMax(max_hp, 1);
@@ -1225,7 +1263,7 @@ void ServerPlayer::marshal(ServerPlayer *player) const
     if (isChained())
         room->notifyProperty(player, this, "chained");
 
-    QList<ServerPlayer*> players;
+    QList<ServerPlayer *> players;
     players << player;
 
     QList<CardsMoveStruct> moves;
@@ -1358,7 +1396,7 @@ void ServerPlayer::addToPile(const QString &pile_name, QList<int> card_ids, bool
 }
 
 void ServerPlayer::addToPile(const QString &pile_name, QList<int> card_ids,
-    bool open, QList<ServerPlayer *> open_players, CardMoveReason reason)
+                             bool open, QList<ServerPlayer *> open_players, CardMoveReason reason)
 {
     setCardsToPile(pile_name, card_ids, open, open_players);
 
@@ -1372,7 +1410,7 @@ void ServerPlayer::addToPile(const QString &pile_name, QList<int> card_ids,
 }
 
 void ServerPlayer::setCardsToPile(const QString &pile_name, QList<int> card_ids,
-    bool open, QList<ServerPlayer *> open_players)
+                                  bool open, QList<ServerPlayer *> open_players)
 {
     if (!open) {
         if (open_players.isEmpty()) {
@@ -1473,13 +1511,10 @@ void ServerPlayer::gainAnExtraTurn()
 
 void ServerPlayer::gainAnImmediateTurn(bool broken)
 {
-    if (broken)
-    {
+    if (broken) {
         gainAnExtraTurn();
         throw TurnBroken;
-    }
-    else
-    {
+    } else {
         room->setTag("ExtraTurn", true);
         ServerPlayer *ori = room->getCurrent(), *current = room->getNormalCurrent();
         room->setCurrent(this);

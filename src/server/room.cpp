@@ -7815,7 +7815,7 @@ QStringList Room::askForJixu(const QList<ServerPlayer *> &targets, const QString
     return result;
 }
 
-QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<ServerPlayer *> &to, const QString &reason, const Card *card)
+QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<ServerPlayer *> &to, const QString &reason, const Card *card, QList<QStringList> tags)
 {
     QList<const Card *> cards;
     for (int i = 0; i < to.length(); i++)
@@ -7830,7 +7830,6 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<Serv
         if (!p->isAlive())
             return cards << NULL;
     }
-
     tryPause();
     Countdown countdown;
     countdown.max = ServerInfo.getCommandTimeout(S_COMMAND_PINDIAN, S_CLIENT_INSTANCE);
@@ -7850,13 +7849,18 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<Serv
     AI *ai = from->getAI();
 
     if (!from_card) {
-        if (ai) {
-            if (from->getHandcardNum() == 1)
-                from_card = from->getHandcards().first();
-            else
-                from_card = ai->askForPindian(from, reason);
-        } else
-            players << from;
+        if (tags.first().contains("hanzhan")) {
+            from_card = from->getRandomHandCard();
+        }
+        if (!from_card) {
+            if (ai) {
+                if (from->getHandcardNum() == 1)
+                    from_card = from->getHandcards().first();
+                else
+                    from_card = ai->askForPindian(from, reason);
+            } else
+                players << from;
+        }
     }
 
     if (from_card) {
@@ -7873,14 +7877,21 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<Serv
         to_names << to.at(i)->objectName();
 
         ai = to.at(i)->getAI();
-        if (ai) {
-            if (to.at(i)->getHandcardNum() == 1)
-                cards[i] = to.at(i)->getHandcards().first();
-            else
-                cards[i] = ai->askForPindian(from, reason);
-        } else
-            players << to.at(i);
 
+
+        if (tags.at(i + 1).contains("hanzhan")) {
+            cards[i] = to.at(i)->getRandomHandCard();
+        }
+
+        if (!cards.at(i)) {
+            if (ai) {
+                if (to.at(i)->getHandcardNum() == 1)
+                    cards[i] = to.at(i)->getHandcards().first();
+                else
+                    cards[i] = ai->askForPindian(from, reason);
+            } else
+                players << to.at(i);
+        }
         if (cards.at(i)) {
             stepArgs.clear();
             stepArgs << S_GUANXING_MOVE;
@@ -7889,6 +7900,7 @@ QList<const Card *> Room::askForPindianRace(ServerPlayer *from, const QList<Serv
             doBroadcastNotify(S_COMMAND_PINDIAN, stepArgs);
         } else
             check = false;
+
     }
 
     if (from_card && check) {

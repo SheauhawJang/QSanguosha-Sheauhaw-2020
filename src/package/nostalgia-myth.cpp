@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "guhuodialog.h"
 #include "nostalgia-myth.h"
+#include "maneuvering.h"
 
 class dummyVS : public ZeroCardViewAsSkill
 {
@@ -829,7 +830,7 @@ public:
         view_as_skill = new NosTianxiangViewAsSkill;
     }
 
-    TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    TriggerList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data) const
     {
         TriggerList list;
         if (triggerEvent == DamageInflicted) {
@@ -954,6 +955,119 @@ public:
     }
 };
 
+class NosLianhuan : public OneCardViewAsSkill
+{
+public:
+    NosLianhuan() : OneCardViewAsSkill("noslianhuan")
+    {
+        filter_pattern = ".|club|.|hand";
+        response_or_use = true;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        IronChain *chain = new IronChain(originalCard->getSuit(), originalCard->getNumber());
+        chain->addSubcard(originalCard);
+        chain->setSkillName(objectName());
+        return chain;
+    }
+};
+
+class NosNiepan : public TriggerSkill
+{
+public:
+    NosNiepan() : TriggerSkill("nosniepan")
+    {
+        events << AskForPeaches;
+        frequency = Limited;
+        limit_mark = "@nosnirvana";
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer * &) const
+    {
+        if (TriggerSkill::triggerable(target) && target->getMark("@nosnirvana") > 0) {
+            DyingStruct dying_data = data.value<DyingStruct>();
+
+            if (target->getHp() > 0)
+                return QStringList();
+
+            if (dying_data.who != target)
+                return QStringList();
+            return nameList();
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *pangtong, QVariant &, ServerPlayer *) const
+    {
+        if (pangtong->askForSkillInvoke(this)) {
+            pangtong->broadcastSkillInvoke(objectName());
+
+            room->removePlayerMark(pangtong, "@nosnirvana");
+
+            pangtong->throwAllHandCardsAndEquips();
+            QList<const Card *> tricks = pangtong->getJudgingArea();
+            foreach (const Card *trick, tricks) {
+                CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, pangtong->objectName());
+                room->throwCard(trick, reason, NULL);
+            }
+
+            if (pangtong->isChained())
+                room->setPlayerProperty(pangtong, "chained", false);
+
+            if (!pangtong->faceUp())
+                pangtong->turnOver();
+
+            pangtong->drawCards(3, objectName());
+            room->recover(pangtong, RecoverStruct(pangtong, NULL, 3 - pangtong->getHp()));
+        }
+
+        return false;
+    }
+};
+
+class NosHuoji : public OneCardViewAsSkill
+{
+public:
+    NosHuoji() : OneCardViewAsSkill("noshuoji")
+    {
+        filter_pattern = ".|red|.|hand";
+        response_or_use = true;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        FireAttack *fire_attack = new FireAttack(originalCard->getSuit(), originalCard->getNumber());
+        fire_attack->addSubcard(originalCard->getId());
+        fire_attack->setSkillName(objectName());
+        return fire_attack;
+    }
+};
+
+class NosKanpo : public OneCardViewAsSkill
+{
+public:
+    NosKanpo() : OneCardViewAsSkill("noskanpo")
+    {
+        filter_pattern = ".|black|.|hand";
+        response_pattern = "nullification";
+        response_or_use = true;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Card *ncard = new Nullification(originalCard->getSuit(), originalCard->getNumber());
+        ncard->addSubcard(originalCard);
+        ncard->setSkillName(objectName());
+        return ncard;
+    }
+
+    virtual bool isEnabledAtNullification(const ServerPlayer *player) const
+    {
+        return !player->isNude() || !player->getHandPile().isEmpty();
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -1002,6 +1116,18 @@ NostalFirePackage::NostalFirePackage()
     General *nos_xunyu = new General(this, "nos_xunyu", "wei", 3, true, true);
     nos_xunyu->addSkill("quhu");
     nos_xunyu->addSkill(new NosJieming);
+
+    General *nos_pangtong = new General(this, "nos_pangtong", "shu", 3, true, true);
+    nos_pangtong->addSkill(new NosLianhuan);
+    nos_pangtong->addSkill(new NosNiepan);
+
+    General *nos_wolong = new General(this, "nos_wolong", "shu", 3, true, true);
+    nos_wolong->addSkill("bazhen");
+    nos_wolong->addSkill(new NosHuoji);
+    nos_wolong->addSkill(new NosKanpo);
+
+    General *nos_taishici = new General(this, "nos_taishici", "wu", 4, true, true);
+    nos_taishici->addSkill("tianyi");
 
     addMetaObject<NosQiangxiCard>();
 }

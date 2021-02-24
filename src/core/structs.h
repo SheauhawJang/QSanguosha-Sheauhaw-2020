@@ -380,8 +380,11 @@ struct PindianStruct
     bool isSuccess() const;
 
     ServerPlayer *from;
+    QStringList fromtag;
     QList<ServerPlayer *>tos;
+    QList<QStringList> totags;
     ServerPlayer *to;
+    QStringList totag;
     const Card *from_card;
     QList<const Card *> to_cards;
     const Card *to_card;
@@ -505,6 +508,27 @@ struct TurnStruct
     TurnStruct();
     ServerPlayer *who;
     QString name;
+    bool from_up;
+
+    inline bool fromFaceUp() const
+    {
+        return from_up;
+    }
+
+    inline bool fromFaceDown() const
+    {
+        return !from_up;
+    }
+
+    inline bool toFaceUp() const
+    {
+        return !from_up;
+    }
+
+    inline bool toFaceDown() const
+    {
+        return from_up;
+    }
 };
 
 enum TriggerEvent
@@ -540,8 +564,11 @@ enum TriggerEvent
     FinishRetrial,
     FinishJudge,
 
+    AskForPindianCard,
     PindianVerifying,
     Pindian,
+    PindianSummary,
+    PindianFinished,
 
     TurnedOver,
     ChainStateChanged,
@@ -615,8 +642,6 @@ enum TriggerEvent
     Debut, // For 1v1 only
 
     TurnBroken, // For the skill 'DanShou'. Do not use it to trigger events
-
-    AskforPindianCard, // For ZY
 
     NumOfEvents
 };

@@ -368,10 +368,10 @@ public:
     }
 };
 
-class NPhyXunxun : public PhaseChangeSkill
+class NJieXunxun : public PhaseChangeSkill
 {
 public:
-    NPhyXunxun() : PhaseChangeSkill("nphyxunxun")
+    NJieXunxun() : PhaseChangeSkill("njiexunxun")
     {
         frequency = Frequent;
     }
@@ -790,10 +790,6 @@ NostalLimitationBrokenPackage::NostalLimitationBrokenPackage()
     xiahoudun->addSkill("ganglie");
     xiahoudun->addSkill(new NJieQingjian);
 
-    General *lidian = new General(this, "nol_lidian", "wei", 3, true, true);
-    lidian->addSkill("wangxi");
-    lidian->addSkill(new NPhyXunxun);
-
     General *zhangliao = new General(this, "njie_zhangliao", "wei", 4, true, true);
     zhangliao->addSkill(new NJieTuxi);
 
@@ -803,6 +799,10 @@ NostalLimitationBrokenPackage::NostalLimitationBrokenPackage()
 
     General *xuchu = new General(this, "njie_xuchu", "wei", 4, true, true);
     xuchu->addSkill(new NJieLuoyi);
+
+    General *lidian = new General(this, "njie_lidian", "wei", 3, true, true);
+    lidian->addSkill("wangxi");
+    lidian->addSkill(new NJieXunxun);
 
     General *guanyu = new General(this, "njie_guanyu", "shu", 4, true, true);
     guanyu->addSkill(new NJieWusheng);

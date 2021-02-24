@@ -87512,7 +87512,7 @@ static swig_lua_const_info swig_constants[] = {
     {SWIG_LUA_CONSTTAB_INT("ActionedReset", ActionedReset)},
     {SWIG_LUA_CONSTTAB_INT("Debut", Debut)},
     {SWIG_LUA_CONSTTAB_INT("TurnBroken", TurnBroken)},
-    {SWIG_LUA_CONSTTAB_INT("AskforPindianCard", AskforPindianCard)},
+    {SWIG_LUA_CONSTTAB_INT("AskforPindianCard", AskForPindianCard)},
     {SWIG_LUA_CONSTTAB_INT("NumOfEvents", NumOfEvents)},
     {SWIG_LUA_CONSTTAB_INT("Card_Spade", Card::Spade)},
     {SWIG_LUA_CONSTTAB_INT("Card_Club", Card::Club)},

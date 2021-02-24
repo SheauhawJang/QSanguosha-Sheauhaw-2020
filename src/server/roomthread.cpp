@@ -260,7 +260,7 @@ MarkStruct::MarkStruct()
 }
 
 TurnStruct::TurnStruct()
-    : who(NULL), name(QString())
+    : who(NULL), name(QString()), from_up(true)
 {
 
 }

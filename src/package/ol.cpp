@@ -909,10 +909,13 @@ bool GusheCard::targetFilter(const QList<const Player *> &targets, const Player 
 
 void GusheCard::use(Room *, ServerPlayer *wangsitu, QList<ServerPlayer *> &targets) const
 {
+    wangsitu->pindianStruct(targets, "gushe");
+    /*
     PindianStruct *pd = wangsitu->pindianStart(targets, "gushe");
     for (int i = 1; i <= targets.length(); i++)
         wangsitu->pindianResult(pd, i);
     wangsitu->pindianFinish(pd);
+    */
 }
 
 class GusheViewAsSkill : public ZeroCardViewAsSkill

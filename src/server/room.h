@@ -403,7 +403,7 @@ public:
         const QString &prompt = QString(), const QString &expand_pile = QString(), bool notify_skill = false);
     QList<const Card *> askForFurong(ServerPlayer *from, ServerPlayer *to, const QString &reason);
     QStringList askForJixu(const QList<ServerPlayer *> &targets, const QString &skill_name, const QString &choices, const QVariant &data = QVariant(), const QString &prompt = QString(), QString all_choices = QString());
-    QList<const Card *> askForPindianRace(ServerPlayer *from, const QList<ServerPlayer *> &to, const QString &reason, const Card *card = NULL);
+    QList<const Card *> askForPindianRace(ServerPlayer *from, const QList<ServerPlayer *> &to, const QString &reason, const Card *card = NULL, QList<QStringList> tags = QList<QStringList>());
     ServerPlayer *askForPlayerChosen(ServerPlayer *player, const QList<ServerPlayer *> &targets, const QString &reason,
         const QString &prompt = QString(), bool optional = false, bool notify_skill = false);
 

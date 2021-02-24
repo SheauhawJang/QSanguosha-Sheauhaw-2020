@@ -348,7 +348,7 @@ public:
     {
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    virtual bool isEnabledAtPlay(const Player *) const
     {
         return true;
     }
@@ -394,6 +394,98 @@ public:
     }
 };
 
+NMOLNiepanCard::NMOLNiepanCard()
+{
+    target_fixed = true;
+}
+
+void NMOLNiepanCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    room->removePlayerMark(card_use.from, "@nmolnirvana");
+}
+
+void NMOLNiepanCard::use(Room *room, ServerPlayer *pangtong, QList<ServerPlayer *> &) const
+{
+    doNiepan(room, pangtong);
+}
+
+void NMOLNiepanCard::doNiepan(Room *room, ServerPlayer *pangtong)
+{
+    pangtong->throwAllHandCardsAndEquips();
+    QList<const Card *> tricks = pangtong->getJudgingArea();
+    foreach (const Card *trick, tricks) {
+        CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, pangtong->objectName());
+        room->throwCard(trick, reason, NULL);
+    }
+
+    if (pangtong->isChained())
+        room->setPlayerProperty(pangtong, "chained", false);
+
+    if (!pangtong->faceUp())
+        pangtong->turnOver();
+
+    pangtong->drawCards(3, "nmolniepan");
+    room->recover(pangtong, RecoverStruct(pangtong, NULL, 3 - pangtong->getHp()));
+}
+
+class NMOLNiepanViewAsSkill : public ZeroCardViewAsSkill
+{
+public:
+    NMOLNiepanViewAsSkill() : ZeroCardViewAsSkill("nmolniepan")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getMark("@nmolnirvana") > 0;
+    }
+
+    virtual const Card *viewAs() const
+    {
+        return new NMOLNiepanCard;
+    }
+};
+
+class NMOLNiepan : public TriggerSkill
+{
+public:
+    NMOLNiepan() : TriggerSkill("nmolniepan")
+    {
+        events << AskForPeaches;
+        frequency = Limited;
+        limit_mark = "@nmolnirvana";
+        view_as_skill = new NMOLNiepanViewAsSkill;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer * &) const
+    {
+        if (TriggerSkill::triggerable(target) && target->getMark("@nmolnirvana") > 0) {
+            DyingStruct dying_data = data.value<DyingStruct>();
+
+            if (target->getHp() > 0)
+                return QStringList();
+
+            if (dying_data.who != target)
+                return QStringList();
+            return nameList();
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *pangtong, QVariant &, ServerPlayer *) const
+    {
+        if (pangtong->askForSkillInvoke(this)) {
+            pangtong->broadcastSkillInvoke(objectName());
+
+            room->removePlayerMark(pangtong, "@nmolnirvana");
+
+            NMOLNiepanCard::doNiepan(room, pangtong);
+        }
+
+        return false;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -414,8 +506,18 @@ NostalMOLPackage::NostalMOLPackage()
     General *dianwei = new General(this, "nmol_dianwei", "wei", 4, true, true);
     dianwei->addSkill(new NMOLQiangxi);
 
+    General *pangtong = new General(this, "nmol_pangtong", "shu", 3, true, true);
+    pangtong->addSkill("lianhuan");
+    pangtong->addSkill(new NMOLNiepan);
+
+    General *wolong = new General(this, "nmol_wolong", "shu", 3, true, true);
+    wolong->addSkill("bazhen");
+    wolong->addSkill("huoji");
+    wolong->addSkill("kanpo");
+
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();
+    addMetaObject<NMOLNiepanCard>();
     skills << new NMOLQingjianAllot;
 }
 
