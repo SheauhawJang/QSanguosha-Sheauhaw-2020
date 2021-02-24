@@ -301,6 +301,99 @@ public:
     }
 };
 
+NMOLQiangxiCard::NMOLQiangxiCard()
+{
+}
+
+bool NMOLQiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty() || to_select == Self)
+        return false;
+
+    QStringList nmolqiangxi_prop = Self->property("nmolqiangxi").toString().split("+");
+    if (nmolqiangxi_prop.contains(to_select->objectName()))
+        return false;
+
+    int rangefix = 0;
+    if (!subcards.isEmpty() && Self->getWeapon() && Self->getWeapon()->getId() == subcards.first()) {
+        const Weapon *card = qobject_cast<const Weapon *>(Self->getWeapon()->getRealCard());
+        rangefix += card->getRange() - Self->getAttackRange(false);;
+    }
+
+    return Self->inMyAttackRange(to_select, rangefix);
+}
+
+void NMOLQiangxiCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    if (subcards.isEmpty())
+        room->loseHp(card_use.from);
+    else {
+        CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
+        room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
+    }
+}
+
+void NMOLQiangxiCard::onEffect(const CardEffectStruct &effect) const
+{
+    QSet<QString> nmolqiangxi_prop = effect.from->property("nmolqiangxi").toString().split("+").toSet();
+    nmolqiangxi_prop.insert(effect.to->objectName());
+    effect.from->getRoom()->setPlayerProperty(effect.from, "nmolqiangxi", QStringList(nmolqiangxi_prop.toList()).join("+"));
+    effect.to->getRoom()->damage(DamageStruct("nmolqiangxi", effect.from, effect.to));
+}
+
+class NMOLQiangxiViewAsSkill : public ViewAsSkill
+{
+public:
+    NMOLQiangxiViewAsSkill() : ViewAsSkill("nmolqiangxi")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return true;
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        return selected.isEmpty() && to_select->isKindOf("Weapon") && !Self->isJilei(to_select);
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return new NMOLQiangxiCard;
+        else if (cards.length() == 1) {
+            NMOLQiangxiCard *card = new NMOLQiangxiCard;
+            card->addSubcards(cards);
+
+            return card;
+        } else
+            return NULL;
+    }
+};
+
+class NMOLQiangxi : public TriggerSkill
+{
+public:
+    NMOLQiangxi() : TriggerSkill("nmolqiangxi")
+    {
+        events << EventPhaseChanging;
+        view_as_skill = new NMOLQiangxiViewAsSkill;
+    }
+
+    bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+
+    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (data.value<PhaseChangeStruct>().from == Player::Play) {
+            room->setPlayerProperty(player, "nmolqiangxi", QVariant());
+        }
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -318,8 +411,11 @@ NostalMOLPackage::NostalMOLPackage()
     caoren->addSkill("jushou");
     caoren->addSkill(new NMOLJiewei);
 
+    General *dianwei = new General(this, "nmol_dianwei", "wei", 4, true, true);
+    dianwei->addSkill(new NMOLQiangxi);
 
     addMetaObject<NMOLQingjianAllotCard>();
+    addMetaObject<NMOLQiangxiCard>();
     skills << new NMOLQingjianAllot;
 }
 

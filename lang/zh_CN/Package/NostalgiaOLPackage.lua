@@ -47,13 +47,5 @@ return {
 	[":nolguidao"] = "每当一名角色的判定牌生效前，你可以打出一张黑色牌替换之。",
 	["@nolguidao-card"] = CommonTranslationTable["@askforretrial"],
 	["~nolguidao"] = "选择一张黑色牌→点击确定",
-
-	["nol_lidian"] = "李典-旧OL",
-	["&nol_lidian"] = "李典",
-	["nolxunxun"] = "恂恂",
-	[":nolxunxun"] = "摸牌阶段开始时，你可以放弃摸牌，观看牌堆顶的四张牌并获得其中的两张牌，然后将其余的牌置于牌堆底。",
-	["@nolxunxun"] = "请选择卡牌",
-	["nolxunxun#up"] = "置于牌堆底",
-	["nolxunxun#down"] = "获得",
 	
 }

@@ -9,7 +9,6 @@ return {
 
 	["nostal_general"] = "怀旧-测试",
 	["nostal_standard"] = "怀旧-标准",
-	["nostal_wind"] = "怀旧-风",
 	["nostal_yjcm"] = "怀旧-一将",
 	["nostal_yjcm2012"] = "怀旧-一将2",
 	["nostal_yjcm2013"] = "怀旧-一将3",

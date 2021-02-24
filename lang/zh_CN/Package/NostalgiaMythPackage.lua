@@ -1,4 +1,7 @@
 return {
+	
+	["nostal_wind"] = "怀旧-风",
+	["nostal_fire"] = "怀旧-火",
 
 	["nos_caoren"] = "曹仁-旧",
 	["&nos_caoren"] = "曹仁",
@@ -51,5 +54,15 @@ return {
 	["@nostianxiang-card"] = "请选择“天香”的目标",
 	["~nostianxiang"] = "选择一张<font color=\"red\">♥</font>手牌→选择一名其他角色→点击确定",
 	
+	["nos_dianwei"] = "典韦-旧",
+	["&nos_dianwei"] = "典韦",
+	["nosqiangxi"] = "强袭",
+	[":nosqiangxi"] = "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，然后对其造成1点伤害。",
+	
+	["nos_xunyu"] = "荀彧-旧",
+	["&nos_xunyu"] = "荀彧",
+	["nosjieming"] = "节命",
+	[":nosjieming"] = "当你受到1点伤害后，你可以令一名角色将手牌摸至X张（X为其体力上限且最多为5）。",
+	["nosjieming-invoke"] = "你可以对一名角色发动“节命”",
 	
 }

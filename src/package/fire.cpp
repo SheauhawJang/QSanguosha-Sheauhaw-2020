@@ -86,11 +86,7 @@ public:
     {
         if (TriggerSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
-            QStringList trigger_list;
-            for (int i = 1; i <= damage.damage; i++) {
-                trigger_list << objectName();
-            }
-            return trigger_list;
+            return nameList(damage.damage);
         }
 
         return QStringList();
@@ -102,7 +98,9 @@ public:
         ServerPlayer *to = room->askForPlayerChosen(xunyu, room->getAlivePlayers(), objectName(), "jieming-invoke", true, true);
         if (to != NULL) {
             xunyu->broadcastSkillInvoke(objectName());
-            to->fillHandCards(qMin(5, to->getMaxHp()), objectName());
+            room->drawCards(to, 2, objectName());
+            if (to->getHandcardNum() < to->getMaxHp())
+                room->drawCards(xunyu, 1, objectName());
         }
     }
 };
@@ -114,6 +112,10 @@ QiangxiCard::QiangxiCard()
 bool QiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
     if (!targets.isEmpty() || to_select == Self)
+        return false;
+
+    QStringList qiangxi_prop = Self->property("qiangxi").toString().split("+");
+    if (qiangxi_prop.contains(to_select->objectName()))
         return false;
 
     int rangefix = 0;
@@ -137,19 +139,22 @@ void QiangxiCard::extraCost(Room *room, const CardUseStruct &card_use) const
 
 void QiangxiCard::onEffect(const CardEffectStruct &effect) const
 {
+    QSet<QString> qiangxi_prop = effect.from->property("qiangxi").toString().split("+").toSet();
+    qiangxi_prop.insert(effect.to->objectName());
+    effect.from->getRoom()->setPlayerProperty(effect.from, "qiangxi", QStringList(qiangxi_prop.toList()).join("+"));
     effect.to->getRoom()->damage(DamageStruct("qiangxi", effect.from, effect.to));
 }
 
-class Qiangxi : public ViewAsSkill
+class QiangxiViewAsSkill : public ViewAsSkill
 {
 public:
-    Qiangxi() : ViewAsSkill("qiangxi")
+    QiangxiViewAsSkill() : ViewAsSkill("qiangxi")
     {
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
     {
-        return !player->hasUsed("QiangxiCard");
+        return player->usedTimes("QiangxiCard") < 2;
     }
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
@@ -168,6 +173,28 @@ public:
             return card;
         } else
             return NULL;
+    }
+};
+
+class Qiangxi : public TriggerSkill
+{
+public:
+    Qiangxi() : TriggerSkill("qiangxi")
+    {
+        events << EventPhaseChanging;
+        view_as_skill = new QiangxiViewAsSkill;
+    }
+
+    bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+
+    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+            room->setPlayerProperty(player, "qiangxi", QVariant());
+        }
     }
 };
 

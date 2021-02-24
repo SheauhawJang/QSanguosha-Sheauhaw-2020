@@ -361,7 +361,7 @@ public:
     {
         if (triggerEvent == TurnedOver) {
             if (TriggerSkill::triggerable(player)) {
-                TurnStruct turn = data.value<TurnStart>();
+                TurnStruct turn = data.value<TurnStruct>();
                 if (turn.name == objectName() || turn.name == "turn_start")
                     return nameList();
             }
@@ -444,7 +444,6 @@ public:
         return false;
     }
 };
-
 
 class NPhyLeiji : public TriggerSkill
 {

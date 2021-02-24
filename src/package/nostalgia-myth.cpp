@@ -857,6 +857,103 @@ public:
     }
 };
 
+NosQiangxiCard::NosQiangxiCard()
+{
+}
+
+bool NosQiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty() || to_select == Self)
+        return false;
+
+    int rangefix = 0;
+    if (!subcards.isEmpty() && Self->getWeapon() && Self->getWeapon()->getId() == subcards.first()) {
+        const Weapon *card = qobject_cast<const Weapon *>(Self->getWeapon()->getRealCard());
+        rangefix += card->getRange() - Self->getAttackRange(false);;
+    }
+
+    return Self->inMyAttackRange(to_select, rangefix);
+}
+
+void NosQiangxiCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    if (subcards.isEmpty())
+        room->loseHp(card_use.from);
+    else {
+        CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
+        room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
+    }
+}
+
+void NosQiangxiCard::onEffect(const CardEffectStruct &effect) const
+{
+    effect.to->getRoom()->damage(DamageStruct("nosqiangxi", effect.from, effect.to));
+}
+
+class NosQiangxi : public ViewAsSkill
+{
+public:
+    NosQiangxi() : ViewAsSkill("nosqiangxi")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("NosQiangxiCard");
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        return selected.isEmpty() && to_select->isKindOf("Weapon") && !Self->isJilei(to_select);
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return new NosQiangxiCard;
+        else if (cards.length() == 1) {
+            NosQiangxiCard *card = new NosQiangxiCard;
+            card->addSubcards(cards);
+
+            return card;
+        } else
+            return NULL;
+    }
+};
+
+class NosJieming : public MasochismSkill
+{
+public:
+    NosJieming() : MasochismSkill("nosjieming")
+    {
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            DamageStruct damage = data.value<DamageStruct>();
+            QStringList trigger_list;
+            for (int i = 1; i <= damage.damage; i++) {
+                trigger_list << objectName();
+            }
+            return trigger_list;
+        }
+
+        return QStringList();
+    }
+
+    virtual void onDamaged(ServerPlayer *xunyu, const DamageStruct &) const
+    {
+        Room *room = xunyu->getRoom();
+        ServerPlayer *to = room->askForPlayerChosen(xunyu, room->getAlivePlayers(), objectName(), "nosjieming-invoke", true, true);
+        if (to != NULL) {
+            xunyu->broadcastSkillInvoke(objectName());
+            to->fillHandCards(qMin(5, to->getMaxHp()), objectName());
+        }
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -896,4 +993,18 @@ NostalWindPackage::NostalWindPackage()
     addMetaObject<NosTianxiangCard>();
 }
 
+NostalFirePackage::NostalFirePackage()
+    : Package("nostal_fire")
+{
+    General *nos_dianwei = new General(this, "nos_dianwei", "wei", 4, true, true);
+    nos_dianwei->addSkill(new NosQiangxi);
+
+    General *nos_xunyu = new General(this, "nos_xunyu", "wei", 3, true, true);
+    nos_xunyu->addSkill("quhu");
+    nos_xunyu->addSkill(new NosJieming);
+
+    addMetaObject<NosQiangxiCard>();
+}
+
 ADD_PACKAGE(NostalWind)
+ADD_PACKAGE(NostalFire)
