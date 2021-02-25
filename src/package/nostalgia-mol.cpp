@@ -293,7 +293,7 @@ public:
         return TriggerSkill::triggerable(target) && target->faceUp() && !target->isNude();
     }
 
-    virtual bool effect(TriggerEvent , Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
     {
         if (room->askForCard(player, ".", "@jiewei", data, objectName()))
             room->askForUseCard(player, "@@jiewei_move", "@jiewei-move");
@@ -457,7 +457,7 @@ public:
         view_as_skill = new NMOLNiepanViewAsSkill;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer * &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(target) && target->getMark("@nmolnirvana") > 0) {
             DyingStruct dying_data = data.value<DyingStruct>();
@@ -483,6 +483,136 @@ public:
         }
 
         return false;
+    }
+};
+
+class NMOLLuanjiViewAsSkill : public ViewAsSkill
+{
+public:
+    NMOLLuanjiViewAsSkill() : ViewAsSkill("nmolluanji")
+    {
+        response_or_use = true;
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        QSet<QString> used = Self->property("nmolluanjiUsedSuits").toString().split("+").toSet();
+        return selected.length() < 2 && !to_select->isEquipped() && !used.contains(to_select->getSuitString());
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() == 2) {
+            ArcheryAttack *aa = new ArcheryAttack(Card::SuitToBeDecided, 0);
+            aa->addSubcards(cards);
+            aa->setSkillName(objectName());
+            return aa;
+        } else
+            return NULL;
+    }
+};
+
+class NMOLLuanji : public TriggerSkill
+{
+public:
+    NMOLLuanji() : TriggerSkill("nmolluanji")
+    {
+        events << PreCardUsed << EventPhaseChanging << TargetSpecified << Damage << CardResponded << CardFinished;
+        view_as_skill = new NMOLLuanjiViewAsSkill;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        switch (triggerEvent) {
+        case PreCardUsed: {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card && use.card->isKindOf("ArcheryAttack") && use.card->getSkillName() == objectName()) {
+                QSet<QString> used = player->property("nphyluanjiUsedSuits").toString().split("+").toSet();
+                foreach (int id, use.card->getSubcards())
+                    used.insert(Sanguosha->getCard(id)->getSuitString());
+                room->setPlayerProperty(player, "nphyluanjiUsedSuits", QStringList(used.toList()).join("+"));
+            }
+            break;
+        }
+        case EventPhaseChanging: {
+            if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+                room->setPlayerProperty(player, "nmolluanjiUsedSuits", QVariant());
+            }
+            break;
+        }
+        case TargetSpecified: {
+            int cnt = 0;
+            CardUseStruct use = data.value<CardUseStruct>();
+            foreach (ServerPlayer *p, room->getAllPlayers())
+                if (use.to.contains(p))
+                    ++cnt;
+            use.card->tag["nmolluanjiTargetsCount"] = cnt;
+            break;
+        }
+        case Damage: {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card && damage.card->isKindOf("ArcheryAttack") && damage.card->getSkillName() == objectName()) {
+                damage.card->tag["nmolluanjiDamageCount"] = damage.card->tag["nmolluanjiDamageCount"].toInt() + 1;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        TriggerList list;
+        if (triggerEvent == CardResponded) {
+            CardResponseStruct res = data.value<CardResponseStruct>();
+            CardEffectStruct effect = res.m_data.value<CardEffectStruct>();
+            if (effect.card && effect.card->isKindOf("ArcheryAttack") && effect.card->getSkillName() == objectName()) {
+                list.insert(player, comList());
+            }
+        } else if (triggerEvent == CardFinished) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card && use.card->isKindOf("ArcheryAttack") && use.card->getSkillName() == objectName()) {
+                if (use.card->tag["nmolluanjiDamageCount"].toInt())
+                    if (use.from)
+                        list.insert(use.from, comList());
+            }
+        }
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *yuanshao) const
+    {
+        if (triggerEvent == CardResponded) {
+            room->drawCards(player, 1, objectName());
+        } else if (triggerEvent == CardFinished) {
+            yuanshao->broadcastSkillInvoke(objectName());
+            CardUseStruct use = data.value<CardUseStruct>();
+            room->drawCards(yuanshao, use.card->tag["nmolluanjiTargetsCount"].toInt(), objectName());
+        }
+        return false;
+    }
+};
+
+class NMOLXueyi : public MaxCardsSkill
+{
+public:
+    NMOLXueyi() : MaxCardsSkill("nmolxueyi$")
+    {
+    }
+
+    virtual int getExtra(const Player *target) const
+    {
+        if (target->hasLordSkill(this)) {
+            int extra = 0;
+            QList<const Player *> players = target->getAliveSiblings();
+            foreach (const Player *player, players) {
+                if (player->getKingdom() == "qun")
+                    extra += 2;
+            }
+            return extra;
+        } else
+            return 0;
     }
 };
 
@@ -514,6 +644,10 @@ NostalMOLPackage::NostalMOLPackage()
     wolong->addSkill("bazhen");
     wolong->addSkill("huoji");
     wolong->addSkill("kanpo");
+
+    General *yuanshao = new General(this, "nmol_yuanshao$", "qun", 4, true, true);
+    yuanshao->addSkill(new NMOLLuanji);
+    yuanshao->addSkill(new NMOLXueyi);
 
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();

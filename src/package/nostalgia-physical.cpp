@@ -165,7 +165,7 @@ public:
         return QStringList();
     }
 
-    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *yueying, QVariant &data) const
+    virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *yueying, QVariant &) const
     {
         if (room->askForSkillInvoke(yueying, objectName())) {
             yueying->broadcastSkillInvoke(objectName());
@@ -487,6 +487,104 @@ public:
     }
 };
 
+class NPhyLuanjiViewAsSkill : public ViewAsSkill
+{
+public:
+    NPhyLuanjiViewAsSkill() : ViewAsSkill("nphyluanji")
+    {
+        response_or_use = true;
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        QSet<QString> used = Self->property("nphyluanjiUsedSuits").toString().split("+").toSet();
+        return selected.length() < 2 && !to_select->isEquipped() && !used.contains(to_select->getSuitString());
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() == 2) {
+            ArcheryAttack *aa = new ArcheryAttack(Card::SuitToBeDecided, 0);
+            aa->addSubcards(cards);
+            aa->setSkillName(objectName());
+            return aa;
+        } else
+            return NULL;
+    }
+};
+
+class NPhyLuanji : public TriggerSkill
+{
+public:
+    NPhyLuanji() : TriggerSkill("nphyluanji")
+    {
+        events << PreCardUsed << EventPhaseChanging << Damage << CardResponded << CardFinished;
+        view_as_skill = new NPhyLuanjiViewAsSkill;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        switch (triggerEvent) {
+        case PreCardUsed: {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card && use.card->isKindOf("ArcheryAttack") && use.card->getSkillName() == objectName()) {
+                QSet<QString> used = player->property("nphyluanjiUsedSuits").toString().split("+").toSet();
+                foreach (int id, use.card->getSubcards())
+                    used.insert(Sanguosha->getCard(id)->getSuitString());
+                room->setPlayerProperty(player, "nphyluanjiUsedSuits", QStringList(used.toList()).join("+"));
+            }
+            break;
+        }
+        case EventPhaseChanging: {
+            if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+                room->setPlayerProperty(player, "nphyluanjiUsedSuits", QVariant());
+            }
+            break;
+        }
+        case Damage: {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card && damage.card->isKindOf("ArcheryAttack") && damage.card->getSkillName() == objectName()) {
+                damage.card->tag["nphyluanjiDamageCount"] = damage.card->tag["nphyluanjiDamageCount"].toInt() + 1;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data) const
+    {
+        TriggerList list;
+        if (triggerEvent == CardResponded) {
+            CardResponseStruct res = data.value<CardResponseStruct>();
+            CardEffectStruct effect = res.m_data.value<CardEffectStruct>();
+            if (effect.card && effect.card->isKindOf("ArcheryAttack") && effect.card->getSkillName() == objectName()) {
+                list.insert(player, comList());
+            }
+        } else if (triggerEvent == CardFinished) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card && use.card->isKindOf("ArcheryAttack") && use.card->getSkillName() == objectName()) {
+                if (!use.card->tag["nphyluanjiDamageCount"].toInt())
+                    if (use.from)
+                        list.insert(use.from, comList());
+            }
+        }
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *yuanshao) const
+    {
+        if (triggerEvent == CardResponded) {
+            room->drawCards(player, 1, objectName());
+        } else if (triggerEvent == CardFinished) {
+            yuanshao->broadcastSkillInvoke(objectName());
+            room->drawCards(yuanshao, 1, objectName());
+        }
+        return false;
+    }
+};
+
 NostalPhysicalPackage::NostalPhysicalPackage()
     : Package("nostal_physical")
 {
@@ -513,6 +611,10 @@ NostalPhysicalPackage::NostalPhysicalPackage()
     zhangjiao->addSkill(new NPhyLeiji);
     zhangjiao->addSkill("nolguidao");
     zhangjiao->addSkill("huangtian");
+
+    General *yuanshao = new General(this, "nphy_yuanshao$", "qun", 4, true, true);
+    yuanshao->addSkill(new NPhyLuanji);
+    yuanshao->addSkill("nmolxueyi");
 
     addMetaObject<NPhyRendeCard>();
 }

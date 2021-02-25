@@ -676,6 +676,387 @@ public:
     }
 };
 
+NOLGuhuoCard::NOLGuhuoCard()
+{
+    mute = true;
+    will_throw = false;
+    handling_method = Card::MethodNone;
+    m_skillName = "nolguhuo";
+}
+
+bool NOLGuhuoCard::nolguhuo(ServerPlayer *yuji) const
+{
+    Room *room = yuji->getRoom();
+
+    CardMoveReason reason1(CardMoveReason::S_REASON_SECRETLY_PUT, yuji->objectName(), QString(), "nolguhuo", QString());
+    room->moveCardTo(this, NULL, Player::PlaceTable, reason1, false);
+
+    QList<ServerPlayer *> players = room->getOtherPlayers(yuji);
+
+    room->setTag("NOLGuhuoType", user_string);
+
+    ServerPlayer *questioned = NULL;
+    foreach (ServerPlayer *player, players) {
+        if (player->hasSkill("nolchanyuan")) {
+            LogMessage log;
+            log.type = "#NOLChanyuan";
+            log.from = player;
+            log.arg = "nolchanyuan";
+            room->sendLog(log);
+
+            continue;
+        }
+
+        QString choice = room->askForChoice(player, "nolguhuo", "noquestion+question");
+
+        LogMessage log;
+        log.type = "#NOLGuhuoQuery";
+        log.from = player;
+        log.arg = choice;
+        room->sendLog(log);
+        if (choice == "question") {
+            questioned = player;
+            break;
+        }
+    }
+
+    LogMessage log;
+    log.type = "$NOLGuhuoResult";
+    log.from = yuji;
+    log.card_str = QString::number(subcards.first());
+    room->sendLog(log);
+
+    const Card *card = Sanguosha->getCard(subcards.first());
+
+    CardMoveReason reason_ui(CardMoveReason::S_REASON_TURNOVER, yuji->objectName(), QString(), "nolguhuo", QString());
+    CardResponseStruct resp(card);
+    reason_ui.m_extraData = QVariant::fromValue(resp);
+    room->showVirtualMove(reason_ui);
+
+    bool success = true;
+    if (questioned) {
+        success = (card->objectName() == user_string);
+
+        if (success) {
+            room->acquireSkill(questioned, "nolchanyuan");
+        } else {
+            room->moveCardTo(this, yuji, NULL, Player::DiscardPile,
+                             CardMoveReason(CardMoveReason::S_REASON_PUT, yuji->objectName(), QString(), "nolguhuo"), true);
+        }
+    }
+    room->setPlayerFlag(yuji, "NOLGuhuoUsed");
+    return success;
+}
+
+bool NOLGuhuoCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, card, targets);
+    } else if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE) {
+        return false;
+    }
+
+    Card *card = Sanguosha->cloneCard(user_string);
+    if (card == NULL)
+        return false;
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetFilter(targets, to_select, Self) && !Self->isProhibited(to_select, card, targets);
+}
+
+bool NOLGuhuoCard::targetFixed() const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetFixed();
+    } else if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE) {
+        return true;
+    }
+
+    Card *card = Sanguosha->cloneCard(user_string);
+    if (card == NULL)
+        return false;
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetFixed();
+}
+
+bool NOLGuhuoCard::targetsFeasible(const QList<const Player *> &targets, const Player *Self) const
+{
+    if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE_USE) {
+        const Card *card = NULL;
+        if (!user_string.isEmpty())
+            card = Sanguosha->cloneCard(user_string.split("+").first());
+        return card && card->targetsFeasible(targets, Self);
+    } else if (Sanguosha->currentRoomState()->getCurrentCardUseReason() == CardUseStruct::CARD_USE_REASON_RESPONSE) {
+        return true;
+    }
+
+    Card *card = Sanguosha->cloneCard(user_string);
+    if (card == NULL)
+        return false;
+    card->setCanRecast(false);
+    card->deleteLater();
+    return card && card->targetsFeasible(targets, Self);
+}
+
+const Card *NOLGuhuoCard::validate(CardUseStruct &card_use) const
+{
+    ServerPlayer *yuji = card_use.from;
+    Room *room = yuji->getRoom();
+
+    QString to_nolguhuo = user_string;
+    yuji->broadcastSkillInvoke("nolguhuo");
+
+    LogMessage log;
+    log.type = card_use.to.isEmpty() ? "#NOLGuhuoNoTarget" : "#NOLGuhuo";
+    log.from = yuji;
+    log.to = card_use.to;
+    log.arg = to_nolguhuo;
+    log.arg2 = "nolguhuo";
+    room->sendLog(log);
+
+    const Card *nolguhuo_card = Sanguosha->cloneCard(user_string, Card::NoSuit, 0);
+    if (card_use.to.isEmpty())
+        card_use.to = nolguhuo_card->defaultTargets(room, yuji);
+
+    foreach (ServerPlayer *to, card_use.to)
+        room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, yuji->objectName(), to->objectName());
+
+    CardMoveReason reason_ui(CardMoveReason::S_REASON_USE, yuji->objectName(), QString(), "nolguhuo", QString());
+    if (card_use.to.size() == 1 && !card_use.card->targetFixed())
+        reason_ui.m_targetId = card_use.to.first()->objectName();
+
+    CardUseStruct nolguhuo_use = card_use;
+    nolguhuo_use.card = nolguhuo_card;
+    reason_ui.m_extraData = QVariant::fromValue(nolguhuo_use);
+    room->showVirtualMove(reason_ui);
+
+    if (nolguhuo(card_use.from)) {
+        const Card *card = Sanguosha->getCard(subcards.first());
+        Card *use_card = Sanguosha->cloneCard(to_nolguhuo, card->getSuit(), card->getNumber());
+        use_card->setSkillName("_nolguhuo");
+        use_card->addSubcard(subcards.first());
+        use_card->deleteLater();
+        return use_card;
+    } else
+        return NULL;
+}
+
+const Card *NOLGuhuoCard::validateInResponse(ServerPlayer *yuji) const
+{
+    Room *room = yuji->getRoom();
+    yuji->broadcastSkillInvoke("nolguhuo");
+
+    QString to_nolguhuo = user_string;
+
+    LogMessage log;
+    log.type = "#NOLGuhuoNoTarget";
+    log.from = yuji;
+    log.arg = to_nolguhuo;
+    log.arg2 = "nolguhuo";
+    room->sendLog(log);
+
+    CardMoveReason reason_ui(CardMoveReason::S_REASON_RESPONSE, yuji->objectName(), QString(), "nolguhuo", QString());
+    const Card *nolguhuo_card = Sanguosha->cloneCard(user_string, Card::NoSuit, 0);
+    CardResponseStruct resp(nolguhuo_card);
+    reason_ui.m_extraData = QVariant::fromValue(resp);
+    room->showVirtualMove(reason_ui);
+
+    if (nolguhuo(yuji)) {
+        const Card *card = Sanguosha->getCard(subcards.first());
+        Card *use_card = Sanguosha->cloneCard(to_nolguhuo, card->getSuit(), card->getNumber());
+        use_card->setSkillName("_nolguhuo");
+        use_card->addSubcard(subcards.first());
+        use_card->deleteLater();
+        return use_card;
+    } else
+        return NULL;
+}
+
+class NOLGuhuo : public OneCardViewAsSkill
+{
+public:
+    NOLGuhuo() : OneCardViewAsSkill("nolguhuo")
+    {
+        filter_pattern = ".|.|.|hand";
+        response_or_use = true;
+    }
+
+    virtual bool isEnabledAtResponse(const Player *player, const QString &pattern) const
+    {
+        bool current = false;
+        QList<const Player *> players = player->getAliveSiblings();
+        players.append(player);
+        foreach (const Player *p, players) {
+            if (p->getPhase() != Player::NotActive) {
+                current = true;
+                break;
+            }
+        }
+        if (!current) return false;
+
+        if (player->hasFlag("NOLGuhuoUsed") || pattern.startsWith(".") || pattern.startsWith("@"))
+            return false;
+        for (int i = 0; i < pattern.length(); i++) {
+            QChar ch = pattern[i];
+            if (ch.isUpper() || ch.isDigit()) return false; // This is an extremely dirty hack!! For we need to prevent patterns like 'BasicCard'
+        }
+        return true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        bool current = false;
+        QList<const Player *> players = player->getAliveSiblings();
+        players.append(player);
+        foreach (const Player *p, players) {
+            if (p->getPhase() != Player::NotActive) {
+                current = true;
+                break;
+            }
+        }
+        if (!current) return false;
+        return !player->hasFlag("NOLGuhuoUsed");
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        NOLGuhuoCard *card = new NOLGuhuoCard;
+        card->addSubcard(originalCard);
+        return card;
+    }
+
+    QString getSelectBox() const
+    {
+        return "nolguhuo_bt";
+    }
+
+    virtual int getEffectIndex(const ServerPlayer *, const Card *card) const
+    {
+        if (card->isKindOf("NOLGuhuoCard"))
+            return -1;
+        else
+            return 0;
+    }
+
+    virtual bool isEnabledAtNullification(const ServerPlayer *player) const
+    {
+        ServerPlayer *current = player->getRoom()->getCurrent();
+        if (!current || current->isDead() || current->getPhase() == Player::NotActive) return false;
+        return !player->isKongcheng() && !player->hasFlag("NOLGuhuoUsed");
+    }
+};
+
+class NOLChanyuan : public TriggerSkill
+{
+public:
+    NOLChanyuan() : TriggerSkill("nolchanyuan")
+    {
+        events << GameStart << HpChanged << MaxHpChanged << EventAcquireSkill << EventLoseSkill;
+        frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return target != NULL;
+    }
+
+    virtual int getPriority(TriggerEvent) const
+    {
+        return 5;
+    }
+
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == EventLoseSkill) {
+            if (data.toString() != objectName()) return false;
+            room->removePlayerTip(player, "#nolchanyuan");
+        } else if (triggerEvent == EventAcquireSkill) {
+            if (data.toString() != objectName()) return false;
+            room->addPlayerTip(player, "#nolchanyuan");
+        }
+        if (triggerEvent != EventLoseSkill && !player->hasSkill(this)) return false;
+
+        foreach(ServerPlayer *p, room->getOtherPlayers(player))
+            room->filterCards(p, p->getCards("he"), true);
+        JsonArray args;
+        args << QSanProtocol::S_GAME_EVENT_UPDATE_SKILL;
+        room->doBroadcastNotify(QSanProtocol::S_COMMAND_LOG_EVENT, args);
+        return false;
+    }
+};
+
+class NOLChanyuanInvalidity : public InvaliditySkill
+{
+public:
+    NOLChanyuanInvalidity() : InvaliditySkill("#nolchanyuan-inv")
+    {
+    }
+
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const
+    {
+        return skill->objectName() == "nolchanyuan" || !player->hasSkill("nolchanyuan")
+               || player->getHp() != 1 || skill->isAttachedLordSkill();
+    }
+};
+
+class NOLJianchu : public TriggerSkill
+{
+public:
+    NOLJianchu() : TriggerSkill("noljianchu")
+    {
+        events << TargetSpecified;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card != NULL && use.card->isKindOf("Slash")) {
+                ServerPlayer *to = use.to.at(use.index);
+
+                if (to && to->isAlive() && player->canDiscard(to, "he"))
+                    return nameList();
+            }
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *, QVariant &data, ServerPlayer *player) const
+    {
+        CardUseStruct use = data.value<CardUseStruct>();
+        int index = use.index;
+        ServerPlayer *to = use.to.at(index);
+        if (player->askForSkillInvoke(this, QVariant::fromValue(to))) {
+            player->broadcastSkillInvoke(objectName());
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), to->objectName());
+
+            int to_throw = room->askForCardChosen(player, to, "he", objectName(), false, Card::MethodDiscard);
+            bool no_jink = Sanguosha->getCard(to_throw)->getTypeId() == Card::TypeEquip;
+            room->throwCard(to_throw, to, player);
+            if (no_jink) {
+                LogMessage log;
+                log.type = "#NoJink";
+                log.from = to;
+                room->sendLog(log);
+                QVariantList jink_list = use.card->tag["Jink_List"].toList();
+                jink_list[index] = 0;
+                use.card->setTag("Jink_List", jink_list);
+
+            } else if (room->isAllOnPlace(use.card, Player::PlaceTable))
+                to->obtainCard(use.card);
+        }
+
+        return false;
+    }
+};
+
 NostalOLPackage::NostalOLPackage()
     : Package("nostalgia_ol")
 {
@@ -715,9 +1096,20 @@ NostalOLPackage::NostalOLPackage()
     zhangjiao->addSkill(new NOLGuidao);
     zhangjiao->addSkill("huangtian");
 
+    General *yuji = new General(this, "nol_yuji", "qun", 3, true, true);
+    yuji->addSkill(new NOLGuhuo);
+    yuji->addRelateSkill("nolchanyuan");
+
+    General *pangde = new General(this, "nol_pangde", "qun", 4, true, true);
+    pangde->addSkill("mashu");
+    pangde->addSkill(new NOLJianchu);
+
     addMetaObject<NOLQingjianAllotCard>();
     addMetaObject<NOLQimouCard>();
-    skills << new NOLQingjianAllot;
+    addMetaObject<NOLGuhuoCard>();
+
+    skills << new NOLQingjianAllot << new NOLChanyuan << new NOLChanyuanInvalidity;
+    related_skills.insertMulti("nolchanyuan", "#nolchanyuan-inv");
 }
 
 ADD_PACKAGE(NostalOL)

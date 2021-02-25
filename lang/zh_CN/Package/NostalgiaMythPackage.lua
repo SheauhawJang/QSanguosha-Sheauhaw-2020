@@ -82,4 +82,19 @@ return {
 	["nos_taishici"] = "太史慈-旧",
 	["&nos_taishici"] = "太史慈",
 	
+	["nos_yuanshao"] = "袁绍-旧",
+	["&nos_yuanshao"] = "袁绍",
+	["nosluanji"] = "乱击",
+	[":nosluanji"] = "当你需要使用【万箭齐发】时，你可使用对应的实体牌为你的两张花色相同的手牌的【万箭齐发】。",
+	
+	["nos_yanliangwenchou"] = "颜良&文丑-旧",
+	["&nos_yanliangwenchou"] = "颜良文丑",
+	["nosshuangxiong"] = "双雄",
+	[":nosshuangxiong"] = "摸牌阶段开始时，你可以放弃摸牌。若如此做，你进行判定，当判定牌生效后，你获得之，然后直到回合结束，你可以将与判定结果颜色不同的一张手牌当【决斗】使用。",
+	
+	["nos_pangde"] = "庞德-旧",
+	["&nos_pangde"] = "庞德",
+	["mengjin"] = "猛进",
+	[":mengjin"] = "你使用的【杀】被目标角色的【闪】抵消后，你可以弃置该角色的一张牌。",
+	
 }

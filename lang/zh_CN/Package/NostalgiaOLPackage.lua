@@ -48,4 +48,27 @@ return {
 	["@nolguidao-card"] = CommonTranslationTable["@askforretrial"],
 	["~nolguidao"] = "选择一张黑色牌→点击确定",
 	
+	["nol_yuji"] = "于吉-旧OL",
+	["&nol_yuji"] = "于吉",
+	["nolguhuo"] = "蛊惑",
+	[":nolguhuo"] = "每名角色的回合限一次，你可以扣置一张手牌当任意一张基本牌或普通锦囊牌使用或打出。此时，一旦有其他角色质疑则翻开此牌：若为假则此牌作废，若为真则质疑角色获得技能“缠怨”（锁定技，你不能质疑“蛊惑”；若你的体力值为1，则你的其他技能失效）。",
+	["nolchanyuan"] = "缠怨",
+	[":nolchanyuan"] = "锁定技，你不能质疑“蛊惑”；若你的体力值为1，则你的其他技能失效。",
+	["question"] = "质疑",
+	["noquestion"] = "不质疑",
+	["nolguhuo_saveself"] = "“蛊惑”【桃】或【酒】",
+	["nolguhuo_slash"] = "“蛊惑”【杀】",
+	["normal_slash"] = "普通杀",
+	["#NOLGuhuo"] = "%from 发动了“%arg2”，声明此牌为 【%arg】，指定的目标为 %to",
+	["#NOLGuhuoNoTarget"] = "%from 发动了“%arg2”，声明此牌为 【%arg】",
+	["#NOLGuhuoCannotQuestion"] = "%from 当前体力值为 %arg，无法质疑",
+	["#NOLGuhuoQuery"] = "%from 表示 %arg",
+	["$NOLGuhuoResult"] = "%from 的“<font color=\"yellow\"><b>蛊惑</b></font>”牌是 %card",
+	["#NOLChanyuan"] = "%from 的“%arg”被触发，无法质疑",
+	
+	["nol_pangde"] = "庞德-旧OL",
+	["&nol_pangde"] = "庞德",
+	["noljianchu"] = "鞬出",
+	[":noljianchu"] = "当你使用【杀】指定一个目标后，你可以弃置其一张牌，若此牌：为装备牌，此【杀】不可被【闪】响应；不为装备牌，其获得此【杀】。",
+	
 }

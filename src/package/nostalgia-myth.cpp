@@ -1067,6 +1067,168 @@ public:
         return !player->isNude() || !player->getHandPile().isEmpty();
     }
 };
+class NosShuangxiongViewAsSkill : public OneCardViewAsSkill
+{
+public:
+    NosShuangxiongViewAsSkill() : OneCardViewAsSkill("nosshuangxiong")
+    {
+        response_or_use = true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return player->getMark("nosshuangxiong") != 0;
+    }
+
+    virtual bool viewFilter(const Card *card) const
+    {
+        if (card->isEquipped())
+            return false;
+
+        int value = Self->getMark("nosshuangxiong");
+        if (value == 1)
+            return card->isBlack();
+        else if (value == 2)
+            return card->isRed();
+
+        return false;
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Duel *duel = new Duel(originalCard->getSuit(), originalCard->getNumber());
+        duel->addSubcard(originalCard);
+        duel->setSkillName(objectName());
+        return duel;
+    }
+};
+
+class NosShuangxiong : public TriggerSkill
+{
+public:
+    NosShuangxiong() : TriggerSkill("nosshuangxiong")
+    {
+        events << EventPhaseStart << FinishJudge;
+        view_as_skill = new NosShuangxiongViewAsSkill;
+    }
+
+    int getPriority(TriggerEvent triggerEvent) const
+    {
+        if (triggerEvent == FinishJudge)
+            return 5;
+        return TriggerSkill::getPriority(triggerEvent);
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *nosshuangxiong, QVariant &) const
+    {
+        if (triggerEvent == EventPhaseStart && nosshuangxiong->getPhase() == Player::NotActive) {
+            room->setPlayerMark(nosshuangxiong, "nosshuangxiong", 0);
+            room->setPlayerMark(nosshuangxiong, "ViewAsSkill_nosshuangxiongEffect", 0);
+        }
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent == EventPhaseStart && player->getPhase() == Player::Draw) {
+            if (TriggerSkill::triggerable(player))
+                return nameList();
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                return QStringList("nosshuangxiong!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *nosshuangxiong, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            if (nosshuangxiong->askForSkillInvoke(this)) {
+                room->setPlayerFlag(nosshuangxiong, "nosshuangxiong");
+                nosshuangxiong->broadcastSkillInvoke("nosshuangxiong");
+                JudgeStruct judge;
+                judge.good = true;
+                judge.reason = objectName();
+                judge.pattern = ".";
+                judge.who = nosshuangxiong;
+                judge.play_animation = false;
+                room->judge(judge);
+                room->setPlayerMark(nosshuangxiong, "nosshuangxiong", judge.card->isRed() ? 1 : 2);
+                room->setPlayerMark(nosshuangxiong, "ViewAsSkill_nosshuangxiongEffect", 1);
+                return true;
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            const Card *card = judge->card;
+            nosshuangxiong->obtainCard(card);
+        }
+        return false;
+    }
+};
+
+class NosLuanji : public ViewAsSkill
+{
+public:
+    NosLuanji() : ViewAsSkill("nosluanji")
+    {
+        response_or_use = true;
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        if (selected.isEmpty())
+            return !to_select->isEquipped();
+        else if (selected.length() == 1) {
+            const Card *card = selected.first();
+            return !to_select->isEquipped() && to_select->getSuit() == card->getSuit();
+        } else
+            return false;
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.length() == 2) {
+            ArcheryAttack *aa = new ArcheryAttack(Card::SuitToBeDecided, 0);
+            aa->addSubcards(cards);
+            aa->setSkillName(objectName());
+            return aa;
+        } else
+            return NULL;
+    }
+};
+
+class Mengjin : public TriggerSkill
+{
+public:
+    Mengjin() :TriggerSkill("mengjin")
+    {
+        events << SlashMissed;
+    }
+
+    QStringList triggerable(TriggerEvent, Room *, ServerPlayer *pangde, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(pangde)) {
+            SlashEffectStruct effect = data.value<SlashEffectStruct>();
+            if (effect.to->isAlive() && pangde->canDiscard(effect.to, "he"))
+                return nameList();
+        }
+        return QStringList();
+    }
+
+    bool trigger(TriggerEvent, Room *room, ServerPlayer *pangde, QVariant &data) const
+    {
+        SlashEffectStruct effect = data.value<SlashEffectStruct>();
+        if (effect.to->isAlive() && pangde->canDiscard(effect.to, "he")) {
+            if (pangde->askForSkillInvoke(this, data)) {
+                room->broadcastSkillInvoke(objectName());
+                int to_throw = room->askForCardChosen(pangde, effect.to, "he", objectName(), false, Card::MethodDiscard);
+                room->throwCard(Sanguosha->getCard(to_throw), effect.to, pangde);
+            }
+        }
+
+        return false;
+    }
+};
 
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
@@ -1128,6 +1290,17 @@ NostalFirePackage::NostalFirePackage()
 
     General *nos_taishici = new General(this, "nos_taishici", "wu", 4, true, true);
     nos_taishici->addSkill("tianyi");
+
+    General *nos_yuanshao = new General(this, "nos_yuanshao$", "qun", 4, true, true);
+    nos_yuanshao->addSkill(new NosLuanji);
+    nos_yuanshao->addSkill("nmolxueyi");
+
+    General *nos_yanliangwenchou = new General(this, "nos_yanliangwenchou", "qun", 4, true, true);
+    nos_yanliangwenchou->addSkill(new NosShuangxiong);
+
+    General *nos_pangde = new General(this, "nos_pangde", "qun", 4, true, true);
+    nos_pangde->addSkill("mashu");
+    nos_pangde->addSkill(new Mengjin);
 
     addMetaObject<NosQiangxiCard>();
 }

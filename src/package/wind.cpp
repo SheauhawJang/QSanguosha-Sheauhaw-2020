@@ -1133,10 +1133,16 @@ bool GuhuoCard::guhuo(ServerPlayer *yuji) const
         success = (card->objectName() == user_string);
 
         if (success) {
+            QString choice = room->askForChoice(questioned, objectName(), "discard+losshp");
+            if (choice == "discard")
+                room->askForDiscard(questioned, objectName(), 1, 1, false, true);
+            else
+                room->loseHp(questioned);
             room->acquireSkill(questioned, "chanyuan");
         } else {
             room->moveCardTo(this, yuji, NULL, Player::DiscardPile,
                              CardMoveReason(CardMoveReason::S_REASON_PUT, yuji->objectName(), QString(), "guhuo"), true);
+            room->drawCards(questioned, 1, objectName());
         }
     }
     room->setPlayerFlag(yuji, "GuhuoUsed");
@@ -1397,7 +1403,7 @@ public:
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
         return skill->objectName() == "chanyuan" || !player->hasSkill("chanyuan")
-               || player->getHp() != 1 || skill->isAttachedLordSkill();
+               || player->getHp() > 1 || skill->isAttachedLordSkill();
     }
 };
 
