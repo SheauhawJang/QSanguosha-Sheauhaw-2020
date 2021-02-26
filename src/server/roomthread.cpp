@@ -773,6 +773,7 @@ static bool compareByPriority(const TriggerSkill *a, const TriggerSkill *b)
 
 bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *target, QVariant &data)
 {
+    // qDebug() << triggerEvent << "Start"; // For Debug
     // push it to event stack
     EventTriplet triplet(triggerEvent, room, target);
     event_stack.push_back(triplet);
@@ -841,6 +842,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
             }
 
             if (!will_trigger.isEmpty()) {
+                double now_priority = will_trigger.last()->getDynamicPriority(triggerEvent);
                 will_trigger.clear();
 
                 foreach (ServerPlayer *p, room->getAllPlayers(true)) {
@@ -968,7 +970,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
                                 continue; // dont assign them to some person.
                             } else {
                                 room->tryPause();
-                                if (skill->getDynamicPriority(triggerEvent) == triggered.last()->getDynamicPriority(triggerEvent)) {
+                                if (skill->getDynamicPriority(triggerEvent) == now_priority) {
 
                                     TriggerList triggerSkillList = skill->triggerable(triggerEvent, room, target, data);
 
@@ -1067,6 +1069,7 @@ bool RoomThread::trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *ta
     }
 
     room->tryPause();
+    // qDebug() << triggerEvent << "Finished";  // For Debug
     return broken;
 }
 

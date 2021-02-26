@@ -2803,7 +2803,7 @@ public:
         if (triggerEvent == HpRecover && room->getCurrentDyingPlayer() == player) {
             RecoverStruct recover = data.value<RecoverStruct>();
             if (player->getHp() > 0 && recover.recover >= player->getHp()) {
-                ServerPlayer *saver;
+                ServerPlayer *saver = NULL;
                 CardEffectStruct effect = recover.effect;
                 if (effect.card && effect.card->isKindOf("Peach") && effect.from)
                     saver = effect.from;

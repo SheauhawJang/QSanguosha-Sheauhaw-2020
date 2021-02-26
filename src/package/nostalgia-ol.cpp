@@ -934,7 +934,7 @@ public:
 
     QString getSelectBox() const
     {
-        return "nolguhuo_bt";
+        return "guhuo_bt";
     }
 
     virtual int getEffectIndex(const ServerPlayer *, const Card *card) const
@@ -1001,7 +1001,7 @@ public:
 
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
-        return skill->objectName() == "nolchanyuan" || !player->hasSkill("nolchanyuan")
+        return skill->objectName().contains("chanyuan") || !player->hasSkill("nolchanyuan")
                || player->getHp() != 1 || skill->isAttachedLordSkill();
     }
 };
@@ -1109,6 +1109,7 @@ NostalOLPackage::NostalOLPackage()
     addMetaObject<NOLGuhuoCard>();
 
     skills << new NOLQingjianAllot << new NOLChanyuan << new NOLChanyuanInvalidity;
+    //skills << new NOLQingjianAllot;
     related_skills.insertMulti("nolchanyuan", "#nolchanyuan-inv");
 }
 

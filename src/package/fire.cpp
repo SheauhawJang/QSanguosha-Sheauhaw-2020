@@ -536,7 +536,7 @@ public:
             bool no_jink = Sanguosha->getCard(to_throw)->getTypeId() == Card::TypeEquip;
             room->throwCard(to_throw, to, player);
             if (no_jink) {
-                player->addMark("JianchuResidue");
+                room->addPlayerMark(player, "JianchuResidue");
                 LogMessage log;
                 log.type = "#NoJink";
                 log.from = to;

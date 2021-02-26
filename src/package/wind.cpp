@@ -1402,7 +1402,7 @@ public:
 
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
-        return skill->objectName() == "chanyuan" || !player->hasSkill("chanyuan")
+        return skill->objectName().contains("chanyuan") || !player->hasSkill("chanyuan")
                || player->getHp() > 1 || skill->isAttachedLordSkill();
     }
 };
