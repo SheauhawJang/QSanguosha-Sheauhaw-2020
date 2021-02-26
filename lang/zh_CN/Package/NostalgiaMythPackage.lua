@@ -2,6 +2,7 @@ return {
 	
 	["nostal_wind"] = "怀旧-风",
 	["nostal_fire"] = "怀旧-火",
+	["nostal_thicket"] = "怀旧-林",
 
 	["nos_caoren"] = "曹仁-旧",
 	["&nos_caoren"] = "曹仁",
@@ -97,4 +98,21 @@ return {
 	["mengjin"] = "猛进",
 	[":mengjin"] = "你使用的【杀】被目标角色的【闪】抵消后，你可以弃置该角色的一张牌。",
 	
+	["nos_xuhuang"] = "徐晃-旧",
+	["&nos_xuhuang"] = "徐晃",
+	["nosduanliang"]  = "断粮",
+	[":nosduanliang"] = "你可以将一张黑色基本牌或黑色装备牌当【兵粮寸断】使用；你可以对距离为2的角色使用【兵粮寸断】。",
+	
+	["nos_caopi"] = "曹丕-旧",
+	["&nos_caopi"] = "曹丕",
+	["nosxingshang"] = "行殇",
+	[":nosxingshang"] = "当其他角色死亡时，你可以获得其所有牌。",
+	["nosfangzhu"] = "放逐",
+	[":nosfangzhu"] = "当你受到伤害后，你可以令一名其他角色翻面，然后其摸X张牌（X为你已损失的体力值）。",
+	["@nosfangzhu-invoke"] = "你可以发动“放逐”，令一名其他角色翻面并摸 %arg 张牌",
+	
+	["nos_menghuo"] = "孟获-旧",
+	["&nos_menghuo"] = "孟获",
+	["noszaiqi"] = "再起",
+	[":noszaiqi"] = "摸牌阶段开始时，若你已受伤，你可以放弃摸牌。若如此做，你亮出牌堆顶的X张牌（X为你已损失的体力值），然后回复等同于其中红桃牌数量的体力，将这些红桃牌置入弃牌堆，最后获得其余的牌。",
 }

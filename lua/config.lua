@@ -69,6 +69,7 @@ config = {
 		"NostalStandard",
 		"NostalWind",
 		"NostalFire",
+		"NostalThicket",
 		"NostalYJCM",
 		"NostalYJCM2012",
 		"NostalYJCM2013",

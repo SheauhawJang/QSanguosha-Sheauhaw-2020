@@ -930,7 +930,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual QStringList triggerable(TriggerEvent , Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(player)) {
             DamageStruct damage = data.value<DamageStruct>();
@@ -983,7 +983,7 @@ public:
         limit_mark = "@nosnirvana";
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer * &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *target, QVariant &data, ServerPlayer *&) const
     {
         if (TriggerSkill::triggerable(target) && target->getMark("@nosnirvana") > 0) {
             DyingStruct dying_data = data.value<DyingStruct>();
@@ -1200,7 +1200,7 @@ public:
 class Mengjin : public TriggerSkill
 {
 public:
-    Mengjin() :TriggerSkill("mengjin")
+    Mengjin() : TriggerSkill("mengjin")
     {
         events << SlashMissed;
     }
@@ -1258,12 +1258,125 @@ public:
         pattern = "SupplyShortage";
     }
 
-    int getDistanceLimit(const Player *from, const Card *) const
+    int getDistanceLimit(const Player *from, const Card *, const Player *) const
     {
         if (from->hasSkill("nosduanliang"))
             return 1;
         else
             return 0;
+    }
+};
+
+class NosXingshang : public TriggerSkill
+{
+public:
+    NosXingshang() : TriggerSkill("nosxingshang")
+    {
+        events << Death;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
+    {
+        DeathStruct death = data.value<DeathStruct>();
+        ServerPlayer *dead = death.who;
+        if (dead->isNude() || player == dead) return QStringList();
+        return (TriggerSkill::triggerable(player) && player->isAlive()) ? QStringList(objectName()) : QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *caopi, QVariant &data, ServerPlayer *) const
+    {
+        DeathStruct death = data.value<DeathStruct>();
+        ServerPlayer *player = death.who;
+        if (room->askForSkillInvoke(caopi, objectName(), data)) {
+            caopi->broadcastSkillInvoke(objectName());
+
+            DummyCard *dummy = new DummyCard(player->handCards());
+            QList <const Card *> equips = player->getEquips();
+            foreach(const Card *card, equips)
+                dummy->addSubcard(card);
+
+            if (dummy->subcardsLength() > 0) {
+                CardMoveReason reason(CardMoveReason::S_REASON_RECYCLE, caopi->objectName());
+                room->obtainCard(caopi, dummy, reason, false);
+            }
+            delete dummy;
+        }
+        return false;
+    }
+};
+
+class NosFangzhu : public MasochismSkill
+{
+public:
+    NosFangzhu() : MasochismSkill("nosfangzhu")
+    {
+        view_as_skill = new dummyVS;
+    }
+
+    virtual void onDamaged(ServerPlayer *caopi, const DamageStruct &) const
+    {
+        Room *room = caopi->getRoom();
+        ServerPlayer *to = room->askForPlayerChosen(caopi, room->getOtherPlayers(caopi), objectName(),
+            "@nosfangzhu-invoke:::" + QString::number(caopi->getLostHp()), true, true);
+        if (to) {
+            caopi->broadcastSkillInvoke("nosfangzhu");
+            to->turnOver();
+            if (caopi->isAlive() && caopi->getLostHp() > 0)
+                to->drawCards(caopi->getLostHp(), objectName());
+        }
+    }
+};
+
+class NosZaiqi : public PhaseChangeSkill
+{
+public:
+    NosZaiqi() : PhaseChangeSkill("noszaiqi")
+    {
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Draw && target->isWounded();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *menghuo) const
+    {
+        Room *room = menghuo->getRoom();
+        if (room->askForSkillInvoke(menghuo, objectName())) {
+            menghuo->broadcastSkillInvoke(objectName());
+
+            int x = menghuo->getLostHp();
+            QList<int> ids = room->getNCards(x, false);
+            CardsMoveStruct move(ids, menghuo, Player::PlaceTable,
+                                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, menghuo->objectName(), "noszaiqi", QString()));
+            room->moveCardsAtomic(move, true);
+
+            QList<int> card_to_throw;
+            QList<int> card_to_gotback;
+            for (int i = 0; i < x; i++) {
+                if (Sanguosha->getCard(ids[i])->getSuit() == Card::Heart)
+                    card_to_throw << ids[i];
+                else
+                    card_to_gotback << ids[i];
+            }
+            if (!card_to_throw.isEmpty()) {
+                room->recover(menghuo, RecoverStruct(menghuo, NULL, card_to_throw.length()));
+
+                DummyCard *dummy = new DummyCard(card_to_throw);
+                CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, menghuo->objectName(), "noszaiqi", QString());
+                room->throwCard(dummy, reason, NULL);
+                delete dummy;
+            }
+            if (!card_to_gotback.isEmpty()) {
+                DummyCard *dummy2 = new DummyCard(card_to_gotback);
+                room->obtainCard(menghuo, dummy2);
+                delete dummy2;
+            }
+
+
+            return true;
+        }
+        return false;
     }
 };
 
@@ -1342,5 +1455,25 @@ NostalFirePackage::NostalFirePackage()
     addMetaObject<NosQiangxiCard>();
 }
 
+NostalThicketPackage::NostalThicketPackage()
+    : Package("nostal_thicket")
+{
+    General *nos_xuhuang = new General(this, "nos_xuhuang", "wei", 4, true, true);
+    nos_xuhuang->addSkill(new NosDuanliang);
+    nos_xuhuang->addSkill(new NosDuanliangTargetMod);
+    related_skills.insertMulti("nosduanliang", "#nosduanliang-target");
+
+    General *nos_caopi = new General(this, "nos_caopi$", "wei", 3, true, true);
+    nos_caopi->addSkill(new NosFangzhu);
+    nos_caopi->addSkill(new NosXingshang);
+    nos_caopi->addSkill("songwei");
+
+    General *nos_menghuo = new General(this, "nos_menghuo", "shu", 4, true, true);
+    nos_menghuo->addSkill(new NosZaiqi);
+    nos_menghuo->addSkill("huoshou");
+    nos_menghuo->addSkill("#sa_avoid_huoshou");
+}
+
 ADD_PACKAGE(NostalWind)
 ADD_PACKAGE(NostalFire)
+ADD_PACKAGE(NostalThicket)

@@ -616,6 +616,61 @@ public:
     }
 };
 
+class NMOLZaiqi : public TriggerSkill
+{
+public:
+    NMOLZaiqi() : TriggerSkill("nmolzaiqi")
+    {
+        events << CardsMoveOneTime << EventPhaseEnd << EventPhaseChanging;
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (triggerEvent == CardsMoveOneTime && player->getPhase() != Player::NotActive) {
+            int x = 0;
+            QVariantList list = data.toList();
+            foreach (QVariant qvar, list) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.to_place == Player::DiscardPile) {
+                    foreach (int id, move.card_ids) {
+                        if (Sanguosha->getCard(id)->getColor() == Card::Red)
+                            ++x;
+                    }
+                }
+            }
+            room->setTag("NMOLZaiqiRecord", room->getTag("NMOLZaiqiRecord").toInt() + x);
+        } else if (triggerEvent == EventPhaseChanging) {
+            if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+                room->removeTag("NMOLZaiqiRecord");
+            }
+        }
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    {
+        if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player) &&
+                player->getPhase() == Player::Discard && room->getTag("NMOLZaiqiRecord").toInt())
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
+        int x = room->getTag("NMOLZaiqiRecord").toInt();
+        QList<ServerPlayer *> targets = room->askForPlayersChosen(player, room->getAlivePlayers(), objectName(), 0, x, QString(), true);
+        foreach (ServerPlayer *p, targets) {
+            if (!player->isWounded() ||
+                    room->askForChoice(p, objectName(), "draw+recover", QVariant::fromValue(player), "@nmolzaiqi-choose:" + player->objectName()) == "draw")
+                room->drawCards(p, 1);
+            else {
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, p->objectName(), player->objectName());
+                room->recover(player, RecoverStruct(p));
+            }
+        }
+        return false;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -649,6 +704,11 @@ NostalMOLPackage::NostalMOLPackage()
     General *yuanshao = new General(this, "nmol_yuanshao$", "qun", 4, true, true);
     yuanshao->addSkill(new NMOLLuanji);
     yuanshao->addSkill(new NMOLXueyi);
+
+    General *menghuo = new General(this, "nmol_menghuo", "shu", 4, true, true);
+    menghuo->addSkill(new NMOLZaiqi);
+    menghuo->addSkill("huoshou");
+    menghuo->addSkill("#sa_avoid_huoshou");
 
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();

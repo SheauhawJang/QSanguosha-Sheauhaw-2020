@@ -14,6 +14,22 @@ public:
     NostalWindPackage();
 };
 
+class NostalFirePackage : public Package
+{
+    Q_OBJECT
+
+public:
+    NostalFirePackage();
+};
+
+class NostalThicketPackage : public Package
+{
+    Q_OBJECT
+
+public:
+    NostalThicketPackage();
+};
+
 class NosGuhuoCard : public SkillCard
 {
     Q_OBJECT
@@ -49,14 +65,6 @@ public:
     Q_INVOKABLE NosTianxiangCard();
 
     void onEffect(const CardEffectStruct &effect) const;
-};
-
-class NostalFirePackage : public Package
-{
-    Q_OBJECT
-
-public:
-    NostalFirePackage();
 };
 
 class NosQiangxiCard : public SkillCard
