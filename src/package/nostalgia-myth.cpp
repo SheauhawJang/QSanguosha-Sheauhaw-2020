@@ -1230,6 +1230,43 @@ public:
     }
 };
 
+class NosDuanliang : public OneCardViewAsSkill
+{
+public:
+    NosDuanliang() : OneCardViewAsSkill("nosduanliang")
+    {
+        filter_pattern = "BasicCard,EquipCard|black";
+        response_or_use = true;
+    }
+
+    const Card *viewAs(const Card *originalCard) const
+    {
+        SupplyShortage *shortage = new SupplyShortage(originalCard->getSuit(), originalCard->getNumber());
+        shortage->setSkillName(objectName());
+        shortage->addSubcard(originalCard);
+
+        return shortage;
+    }
+};
+
+class NosDuanliangTargetMod : public TargetModSkill
+{
+public:
+    NosDuanliangTargetMod() : TargetModSkill("#nosduanliang-target")
+    {
+        frequency = NotFrequent;
+        pattern = "SupplyShortage";
+    }
+
+    int getDistanceLimit(const Player *from, const Card *) const
+    {
+        if (from->hasSkill("nosduanliang"))
+            return 1;
+        else
+            return 0;
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {

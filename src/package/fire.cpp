@@ -553,10 +553,10 @@ public:
     }
 };
 
-class LianhuanViewAsSkill : public OneCardViewAsSkill
+class Lianhuan : public OneCardViewAsSkill
 {
 public:
-    LianhuanViewAsSkill() : OneCardViewAsSkill("lianhuan")
+    Lianhuan() : OneCardViewAsSkill("lianhuan")
     {
         filter_pattern = ".|club|.|hand";
         response_or_use = true;
@@ -571,45 +571,19 @@ public:
     }
 };
 
-class Lianhuan : public TriggerSkill
+class LianhuanTargetMod : public TargetModSkill
 {
 public:
-    Lianhuan() : TriggerSkill("lianhuan")
+    LianhuanTargetMod() : TargetModSkill("#lianhuan-target")
     {
-        events << TargetChosed;
-        view_as_skill = new LianhuanViewAsSkill;
+        pattern = "IronChain";
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    int getExtraTargetNum(const Player *from, const Card *card) const
     {
-        CardUseStruct use = data.value<CardUseStruct>();
-        if (TriggerSkill::triggerable(player) && use.card->isKindOf("IronChain")
-                && !player->getUseExtraTargets(use, true).isEmpty())
-            return nameList();
-        return QStringList();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
-    {
-        CardUseStruct use = data.value<CardUseStruct>();
-        QList<ServerPlayer *> targets = player->getUseExtraTargets(use, true);
-        ServerPlayer *extra = room->askForPlayerChosen(player, targets, objectName(), "@lianhuan-add", true);
-        if (extra) {
-            LogMessage log;
-            log.type = "#QiaoshuiAdd";
-            log.from = player;
-            log.to << extra;
-            log.card_str = use.card->toString();
-            log.arg = objectName();
-            room->sendLog(log);
-            room->notifySkillInvoked(player, objectName());
-            player->broadcastSkillInvoke(objectName());
-            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), extra->objectName());
-            use.to.append(extra);
-            room->sortByActionOrder(use.to);
-            data = QVariant::fromValue(use);
-        }
-        return false;
+        if (from->hasSkill("lianhuan"))
+            return 1;
+        return 0;
     }
 };
 
@@ -930,10 +904,12 @@ FirePackage::FirePackage()
 
     General *pangtong = new General(this, "pangtong", "shu", 3); // SHU 010
     pangtong->addSkill(new Lianhuan);
+    pangtong->addSkill(new LianhuanTargetMod);
     pangtong->addSkill(new Niepan);
     pangtong->addRelateSkill("bazhen");
     pangtong->addRelateSkill("huoji");
     pangtong->addRelateSkill("kanpo");
+    related_skills.insertMulti("lianhuan", "#lianhuan-target");
 
     General *wolong = new General(this, "wolong", "shu", 3); // SHU 011
     wolong->addSkill(new Bazhen);

@@ -638,6 +638,7 @@ NostalMOLPackage::NostalMOLPackage()
 
     General *pangtong = new General(this, "nmol_pangtong", "shu", 3, true, true);
     pangtong->addSkill("lianhuan");
+    pangtong->addSkill("#lianhuan-target");
     pangtong->addSkill(new NMOLNiepan);
 
     General *wolong = new General(this, "nmol_wolong", "shu", 3, true, true);
