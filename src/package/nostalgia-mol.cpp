@@ -671,6 +671,42 @@ public:
     }
 };
 
+class Poluu : public TriggerSkill
+{
+public:
+    Poluu() : TriggerSkill("poluu")
+    {
+        events << Death;
+        //frequency = Frequent;
+    }
+
+    QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (player == NULL || !player->hasSkill(this)) return QStringList();
+        DeathStruct death = data.value<DeathStruct>();
+        if (death.who == player)
+            return nameList();
+        if (death.damage && death.damage->from == player)
+            return nameList();
+        return QStringList();
+    }
+
+    bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
+        if (room->askForSkillInvoke(player, objectName())) {
+            room->addPlayerMark(player, "#poluu");
+            int x = player->getMark("#poluu");
+            QList<ServerPlayer *> targets =
+                room->askForPlayersChosen(player, room->getAlivePlayers(), objectName(), 1,
+                                          room->getAlivePlayers().size(), "@poluu-invoke:::" + QString::number(x));
+            foreach (ServerPlayer *target, targets) {
+                room->drawCards(target, x);
+            }
+        }
+        return false;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -709,6 +745,10 @@ NostalMOLPackage::NostalMOLPackage()
     menghuo->addSkill(new NMOLZaiqi);
     menghuo->addSkill("huoshou");
     menghuo->addSkill("#sa_avoid_huoshou");
+
+    General *sunjian = new General(this, "nmol_sunjian", "wu", 4, true, true);
+    sunjian->addSkill("yinghun");
+    sunjian->addSkill(new Poluu);
 
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();
