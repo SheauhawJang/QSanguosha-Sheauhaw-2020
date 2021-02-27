@@ -385,14 +385,21 @@ public:
             zhurong->broadcastSkillInvoke(objectName());
             room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhurong->objectName(), target->objectName());
 
-            bool success = zhurong->pindian(target, "lieren", NULL);
-            if (!success) return false;
-
-            if (zhurong->canGetCard(target, "he")) {
-                int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodGet);
-                CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
-                room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, false);
+            PindianStruct *pindian = zhurong->pindianStart(target, objectName(), NULL);
+            PindianStruct *result = zhurong->pindianResult(pindian);
+            if (result->success) {
+                if (zhurong->canGetCard(target, "he")) {
+                    int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodGet);
+                    CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
+                    room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, false);
+                }
+            } else {
+                if (zhurong->isAlive() && result->to_card && room->isAllOnPlace(result->to_card, Player::PlaceTable))
+                    room->obtainCard(zhurong, result->to_card);
+                if (target->isAlive() && result->from_card && room->isAllOnPlace(result->from_card, Player::PlaceTable))
+                    room->obtainCard(target, result->from_card);
             }
+            zhurong->pindianFinish(pindian);
         }
         return false;
     }
@@ -435,6 +442,52 @@ public:
                     room->askForDiscard(to, objectName(), 1, 1, false, true);
                 }
             }
+        }
+        return false;
+    }
+};
+
+class Wulie : public TriggerSkill
+{
+public:
+    Wulie() : TriggerSkill("wulie")
+    {
+        events << EventPhaseStart << DamageInflicted;
+        frequency = Limited;
+        limit_mark = "@strongmartyr";
+    }
+
+    TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        TriggerList skill_list;
+        if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getMark(limit_mark) > 0 && player->getHp() > 0 && player->getPhase() == Player::Finish)
+            skill_list.insert(player, nameList());
+        else if (triggerEvent == DamageInflicted && player->isAlive() && player->getMark("#martyr") > 0) {
+            QList<ServerPlayer *> sunjians = room->findPlayersBySkillName(objectName());
+            foreach (ServerPlayer *sunjian, sunjians)
+                skill_list.insert(sunjian, comList());
+        }
+        return skill_list;
+    }
+
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *sunjian) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            QList<ServerPlayer *> list = room->askForPlayersChosen(player, room->getOtherPlayers(player), objectName(), 0, player->getHp(), "@wulie-invoke:::" + QString::number(player->getHp()));
+            if (!list.empty()) {
+                player->broadcastSkillInvoke(objectName());
+                room->removePlayerMark(player, "@strongmartyr");
+                room->loseHp(player, list.size());
+                foreach (ServerPlayer *p, list) {
+                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), p->objectName());
+                    room->addPlayerMark(p, "#martyr");
+                }
+            }
+        } else if (triggerEvent == DamageInflicted) {
+            room->sendCompulsoryTriggerLog(sunjian, objectName());
+            sunjian->broadcastSkillInvoke(objectName());
+            room->removePlayerMark(player, "#martyr");
+            return true;
         }
         return false;
     }
@@ -937,8 +990,9 @@ ThicketPackage::ThicketPackage()
     zhurong->addSkill(new Lieren);
     related_skills.insertMulti("juxiang", "#sa_avoid_juxiang");
 
-    General *sunjian = new General(this, "sunjian", "wu"); // WU 009
+    General *sunjian = new General(this, "sunjian", "wu", 5); // WU 009
     sunjian->addSkill(new Yinghun);
+    sunjian->addSkill(new Wulie);
 
     General *lusu = new General(this, "lusu", "wu", 3); // WU 014
     lusu->addSkill(new Haoshi);

@@ -812,7 +812,7 @@ PindianStruct *ServerPlayer::pindianStruct(ServerPlayer *target, const QString &
     return pd2;
 }
 
-QList<PindianStruct *> ServerPlayer::pindianStruct(QList<ServerPlayer *>targets, const QString &reason, const Card *card1)
+QList<PindianStruct *> ServerPlayer::pindianStructs(QList<ServerPlayer *>targets, const QString &reason, const Card *card1)
 {
     PindianStruct *pd = pindianStart(targets, reason, card1);
     QList<PindianStruct *> results;

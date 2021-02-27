@@ -1380,6 +1380,45 @@ public:
     }
 };
 
+class NosLieren : public TriggerSkill
+{
+public:
+    NosLieren() : TriggerSkill("noslieren")
+    {
+        events << Damage;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *zhurong, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(zhurong)) return QStringList();
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.card && damage.card->isKindOf("Slash") && zhurong->canPindian(damage.to)
+                && !damage.chain && !damage.transfer && !damage.to->hasFlag("Global_DebutFlag"))
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhurong, QVariant &data, ServerPlayer *) const
+    {
+        DamageStruct damage = data.value<DamageStruct>();
+        ServerPlayer *target = damage.to;
+        if (room->askForSkillInvoke(zhurong, objectName(), QVariant::fromValue(target))) {
+            zhurong->broadcastSkillInvoke(objectName());
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhurong->objectName(), target->objectName());
+
+            bool success = zhurong->pindian(target, "noslieren", NULL);
+            if (!success) return false;
+
+            if (zhurong->canGetCard(target, "he")) {
+                int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodGet);
+                CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
+                room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, false);
+            }
+        }
+        return false;
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -1472,6 +1511,11 @@ NostalThicketPackage::NostalThicketPackage()
     nos_menghuo->addSkill(new NosZaiqi);
     nos_menghuo->addSkill("huoshou");
     nos_menghuo->addSkill("#sa_avoid_huoshou");
+
+    General *nos_zhurong = new General(this, "nos_zhurong", "shu", 4, false, true);
+    nos_zhurong->addSkill(new NosLieren);
+    nos_zhurong->addSkill("juxiang");
+    nos_zhurong->addSkill("#sa_avoid_juxiang");
 }
 
 ADD_PACKAGE(NostalWind)
