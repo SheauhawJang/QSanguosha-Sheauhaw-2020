@@ -9,19 +9,6 @@
 #include "general.h"
 #include "json.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class Xingshang : public TriggerSkill
 {
 public:
@@ -810,10 +797,10 @@ public:
     }
 };
 
-class Jiuchi : public OneCardViewAsSkill
+class JiuchiViewAsSkill : public OneCardViewAsSkill
 {
 public:
-    Jiuchi() : OneCardViewAsSkill("jiuchi")
+    JiuchiViewAsSkill() : OneCardViewAsSkill("jiuchi")
     {
         filter_pattern = ".|spade|.|hand";
         response_or_use = true;
@@ -835,6 +822,45 @@ public:
         analeptic->setSkillName(objectName());
         analeptic->addSubcard(originalCard->getId());
         return analeptic;
+    }
+};
+
+class Jiuchi : public TriggerSkill
+{
+public:
+    Jiuchi() : TriggerSkill("jiuchi")
+    {
+        events << Damage;
+        view_as_skill = new JiuchiViewAsSkill;
+    }
+
+    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (!TriggerSkill::triggerable(player)) return;
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.card && damage.card->isKindOf("Slash") && damage.card->hasFlag("drank"))
+            room->setPlayerFlag(player, "noBenghuai");
+    }
+
+    bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+};
+
+class JiuchiTargetMod : public TargetModSkill
+{
+public:
+    JiuchiTargetMod() : TargetModSkill("#jiuchi-target")
+    {
+        pattern = "Analeptic";
+    }
+
+    int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        if (from->hasSkill("jiuchi"))
+            return 999;
+        return 0;
     }
 };
 
@@ -890,6 +916,7 @@ public:
     virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
+        if (player->hasFlag("noBenghuai")) return QStringList();
         if (player->getPhase() == Player::Finish) {
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
@@ -921,44 +948,55 @@ class Baonue : public TriggerSkill
 public:
     Baonue() : TriggerSkill("baonue$")
     {
-        events << Damage;
+        events << Damage << FinishJudge;
         view_as_skill = new dummyVS;
     }
 
-    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
     {
         TriggerList skill_list;
-        if (player->isAlive() && player->getKingdom() == "qun") {
-            foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
-                if (dongzhuo->hasLordSkill(objectName()))
-                    skill_list.insert(dongzhuo, QStringList("baonue!"));
+        if (event == Damage) {
+            if (player->isAlive() && player->getKingdom() == "qun") {
+                foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
+                    if (dongzhuo->hasLordSkill(objectName()))
+                        skill_list.insert(dongzhuo, QStringList("baonue!"));
+                }
             }
+        } else if (event == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->isGood() && judge->reason == objectName() && judge->who == player)
+                skill_list.insert(player, nameList());
         }
+
         return skill_list;
     }
 
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
+    virtual bool effect(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
     {
-        if (room->askForChoice(player, objectName(), "yes+no", data, "@baonue-to:" + dongzhuo->objectName()) == "yes") {
-            LogMessage log;
-            log.type = "#InvokeOthersSkill";
-            log.from = player;
-            log.to << dongzhuo;
-            log.arg = objectName();
-            room->sendLog(log);
-            room->notifySkillInvoked(dongzhuo, objectName());
-            dongzhuo->broadcastSkillInvoke(objectName());
+        if (event == Damage) {
+            if (room->askForChoice(player, objectName(), "yes+no", data, "@baonue-to:" + dongzhuo->objectName()) == "yes") {
+                LogMessage log;
+                log.type = "#InvokeOthersSkill";
+                log.from = player;
+                log.to << dongzhuo;
+                log.arg = objectName();
+                room->sendLog(log);
+                room->notifySkillInvoked(dongzhuo, objectName());
+                dongzhuo->broadcastSkillInvoke(objectName());
 
-            JudgeStruct judge;
-            judge.pattern = ".|spade";
-            judge.good = true;
-            judge.reason = objectName();
-            judge.who = dongzhuo;
+                JudgeStruct judge;
+                judge.pattern = ".|spade";
+                judge.good = true;
+                judge.reason = objectName();
+                judge.who = dongzhuo;
 
-            room->judge(judge);
-
-            if (judge.isGood())
-                room->recover(dongzhuo, RecoverStruct(player));
+                room->judge(judge);
+            }
+        } else if (event == FinishJudge) {
+            room->recover(dongzhuo, RecoverStruct());
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                player->obtainCard(judge->card);
         }
         return false;
     }
@@ -1000,9 +1038,11 @@ ThicketPackage::ThicketPackage()
 
     General *dongzhuo = new General(this, "dongzhuo$", "qun", 8); // QUN 006
     dongzhuo->addSkill(new Jiuchi);
+    dongzhuo->addSkill(new JiuchiTargetMod);
     dongzhuo->addSkill(new Roulin);
     dongzhuo->addSkill(new Benghuai);
     dongzhuo->addSkill(new Baonue);
+    related_skills.insertMulti("jiuchi", "#jiuchi-target");
 
     General *jiaxu = new General(this, "jiaxu", "qun", 3); // QUN 007
     jiaxu->addSkill(new Wansha);

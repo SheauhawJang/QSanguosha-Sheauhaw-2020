@@ -13,19 +13,6 @@
 #include "maneuvering.h"
 #include "json.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class NoDistanceTargetMod : public TargetModSkill
 {
 public:

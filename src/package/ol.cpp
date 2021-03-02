@@ -13,19 +13,6 @@
 #include <QCommandLinkButton>
 #include "settings.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class AocaiVeiw : public OneCardViewAsSkill
 {
 public:

@@ -15,19 +15,6 @@
 #include "standard-skillcards.h"
 #include "json.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class Huituo : public MasochismSkill
 {
 public:

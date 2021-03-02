@@ -708,3 +708,12 @@ ViewHasSkill::ViewHasSkill(const QString &name)
     : Skill(name, Skill::Compulsory), global(false)
 {
 }
+
+dummyVS::dummyVS() : ZeroCardViewAsSkill("dummy")
+{
+}
+
+const Card *dummyVS::viewAs() const
+{
+    return NULL;
+}

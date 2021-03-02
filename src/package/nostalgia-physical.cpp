@@ -20,19 +20,6 @@
 #include "roomthread.h"
 #include "nostalgia-physical.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 NPhyRendeCard::NPhyRendeCard()
 {
     will_throw = false;

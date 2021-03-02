@@ -7,19 +7,6 @@
 #include "engine.h"
 #include "maneuvering.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 bool isJianGeFriend(const Player *a, const Player *b)
 {
     return a->getRole() == b->getRole();

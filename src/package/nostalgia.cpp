@@ -8,19 +8,6 @@
 #include "yjcm2013.h"
 #include "settings.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class NosWuyan : public TriggerSkill
 {
 public:

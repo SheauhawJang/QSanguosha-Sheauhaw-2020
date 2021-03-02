@@ -9,19 +9,6 @@
 #include "settings.h"
 #include "json.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class Jilei : public TriggerSkill
 {
 public:

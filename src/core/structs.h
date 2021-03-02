@@ -380,11 +380,11 @@ struct PindianStruct
     bool isSuccess() const;
 
     ServerPlayer *from;
-    QStringList fromtag;
+    QStringList from_flag;
     QList<ServerPlayer *>tos;
-    QList<QStringList> totags;
+    QList<QStringList> to_flags;
     ServerPlayer *to;
-    QStringList totag;
+    QStringList to_flag;
     const Card *from_card;
     QList<const Card *> to_cards;
     const Card *to_card;
@@ -564,11 +564,12 @@ enum TriggerEvent
     FinishRetrial,
     FinishJudge,
 
+    StartPindian,
     AskForPindianCard,
     PindianVerifying,
     Pindian,
-    PindianSummary,
-    PindianFinished,
+    FinishPindian,
+    PindianComplete,
 
     TurnedOver,
     ChainStateChanged,

@@ -11,19 +11,6 @@
 #include "nostalgia-myth.h"
 #include "maneuvering.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class NosJushou : public PhaseChangeSkill
 {
 public:
@@ -1419,6 +1406,34 @@ public:
     }
 };
 
+class NosJiuchi : public OneCardViewAsSkill
+{
+public:
+    NosJiuchi() : OneCardViewAsSkill("nosjiuchi")
+    {
+        filter_pattern = ".|spade|.|hand";
+        response_or_use = true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return hasAvailable(player) || Analeptic::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    {
+        return  pattern.contains("analeptic");
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Analeptic *analeptic = new Analeptic(originalCard->getSuit(), originalCard->getNumber());
+        analeptic->setSkillName(objectName());
+        analeptic->addSubcard(originalCard->getId());
+        return analeptic;
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -1516,6 +1531,15 @@ NostalThicketPackage::NostalThicketPackage()
     nos_zhurong->addSkill(new NosLieren);
     nos_zhurong->addSkill("juxiang");
     nos_zhurong->addSkill("#sa_avoid_juxiang");
+
+    General *nos_sunjian = new General(this, "nos_sunjian", "wu", 4, true, true);
+    nos_sunjian->addSkill("yinghun");
+
+    General *nos_dongzhuo = new General(this, "nos_dongzhuo", "qun", 8, true, true);
+    nos_dongzhuo->addSkill(new NosJiuchi);
+    nos_dongzhuo->addSkill("roulin");
+    nos_dongzhuo->addSkill("benghuai");
+    nos_dongzhuo->addSkill("nmolbaonue");
 }
 
 ADD_PACKAGE(NostalWind)

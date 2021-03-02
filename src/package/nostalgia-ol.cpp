@@ -20,19 +20,6 @@
 #include "roomthread.h"
 #include "nostalgia-ol.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 NOLQingjianAllotCard::NOLQingjianAllotCard()
 {
     will_throw = false;

@@ -473,5 +473,12 @@ protected:
     bool global;
 };
 
+class dummyVS : public ZeroCardViewAsSkill
+{
+public:
+    dummyVS();
+    virtual const Card *viewAs() const;
+};
+
 #endif
 

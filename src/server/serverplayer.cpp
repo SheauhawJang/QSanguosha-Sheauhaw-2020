@@ -611,11 +611,6 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
         Q_ASSERT(p != this);
         if (p == this) return NULL;
     }
-    LogMessage log;
-    log.type = "#Pindian";
-    log.from = this;
-    log.to = targets;
-    room->sendLog(log);
 
 
     PindianStruct *pindian = new PindianStruct;
@@ -625,7 +620,13 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
     RoomThread *thread = room->getThread();
     Q_ASSERT(thread != NULL);
     for (int i = 0; i < targets.length(); ++i)
-        pindian->totags.append(QStringList());
+        pindian->to_flags.append(QStringList());
+    thread->trigger(StartPindian, room, this, data);
+    LogMessage log;
+    log.type = "#Pindian";
+    log.from = this;
+    log.to = targets;
+    room->sendLog(log);
     if (card1 == NULL)
         thread->trigger(AskForPindianCard, room, this, data);
     foreach (ServerPlayer *target, targets)
@@ -634,7 +635,7 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
     room->tryPause();
 
     QList<QStringList> tags;
-    tags << pindian->fromtag << pindian->totags;
+    tags << pindian->from_flag << pindian->to_flags;
     QList<const Card *> cards = room->askForPindianRace(this, targets, reason, card1, tags);
     card1 = cards.first();
     QList<int> ids;
@@ -690,14 +691,14 @@ PindianStruct *ServerPlayer::pindianStart(const QList<ServerPlayer *> &targets, 
 
     for (int i = 0; i < targets.length(); i++) {
         pindian->to = pindian->tos.at(i);
-        pindian->totag = pindian->totags.at(i);
+        pindian->to_flag = pindian->to_flags.at(i);
         pindian->to_card = pindian->to_cards.at(i);
         pindian->to_number = pindian->to_numbers.at(i);
         data = QVariant::fromValue(pindian);
         thread->trigger(PindianVerifying, room, pindian->tos.at(i), data);
         pindian->to_numbers[i] = data.value<PindianStruct *>()->to_number;
         pindian->to = NULL;
-        pindian->totag = QStringList();
+        pindian->to_flag = QStringList();
         pindian->to_card = NULL;
         pindian->to_number = 0;
     }
@@ -712,12 +713,12 @@ PindianStruct *ServerPlayer::pindianResult(PindianStruct *pd, int index)
     room->tryPause();
 
     ServerPlayer *target = pd->tos.at(index - 1);
-    QStringList pdtag = pd->totags.at(index - 1);
+    QStringList pdtag = pd->to_flags.at(index - 1);
     const Card *to_card = pd->to_cards.at(index - 1);
     int to_number = pd->to_numbers.at(index - 1);
     PindianStruct &pindian_struct = *pd;
     pindian_struct.to = target;
-    pindian_struct.totag = pdtag;
+    pindian_struct.to_flag = pdtag;
     pindian_struct.to_card = to_card;
     pindian_struct.to_number = to_number;
     pindian_struct.success = (pindian_struct.from_number > pindian_struct.to_number);
@@ -763,7 +764,7 @@ void ServerPlayer::pindianFinish(PindianStruct *pd)
 {
     RoomThread *thread = room->getThread();
     QVariant data = QVariant::fromValue(pd);
-    thread->trigger(PindianSummary, room, this, data);
+    thread->trigger(FinishPindian, room, this, data);
 
     QList<CardsMoveStruct> pd_move;
 
@@ -793,7 +794,7 @@ void ServerPlayer::pindianFinish(PindianStruct *pd)
     if (!pd_move.isEmpty())
         room->moveCardsAtomic(pd_move, true);
 
-    thread->trigger(PindianFinished, room, this, data);
+    thread->trigger(PindianComplete, room, this, data);
 
     delete pd;
 }

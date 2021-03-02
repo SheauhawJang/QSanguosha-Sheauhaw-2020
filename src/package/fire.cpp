@@ -6,19 +6,6 @@
 #include "engine.h"
 #include "maneuvering.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 QuhuCard::QuhuCard()
 {
 }
@@ -817,7 +804,7 @@ class Hanzhan : public TriggerSkill
 public:
     Hanzhan() : TriggerSkill("hanzhan")
     {
-        events << AskForPindianCard << PindianSummary;
+        events << AskForPindianCard << FinishPindian;
     }
 
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
@@ -864,11 +851,11 @@ public:
         if (triggerEvent == AskForPindianCard) {
             if (room->askForSkillInvoke(taishici, objectName(), QVariant::fromValue(player))) {
                 if (player == pindian->from) {
-                    pindian->fromtag << "hanzhan";
+                    pindian->from_flag << "hanzhan";
                 } else {
                     for (int i = 0; i < pindian->tos.size(); ++i)
                         if (player == pindian->tos.at(i)) {
-                            pindian->totags[i] << "hanzhan";
+                            pindian->to_flags[i] << "hanzhan";
                         }
                 }
             }

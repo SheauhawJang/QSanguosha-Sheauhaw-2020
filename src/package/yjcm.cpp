@@ -8,19 +8,6 @@
 #include "ai.h"
 #include "general.h"
 
-class dummyVS : public ZeroCardViewAsSkill
-{
-public:
-    dummyVS() : ZeroCardViewAsSkill("dummy")
-    {
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return NULL;
-    }
-};
-
 class Luoying : public TriggerSkill
 {
 public:
