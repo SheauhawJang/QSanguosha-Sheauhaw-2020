@@ -1048,7 +1048,7 @@ ThicketPackage::ThicketPackage()
     zhurong->addSkill(new Lieren);
     related_skills.insertMulti("juxiang", "#sa_avoid_juxiang");
 
-    General *sunjian = new General(this, "sunjian", "wu", 5); // WU 009
+    General *sunjian = new General(this, "sunjian", "wu", 5, true, false, false, 4); // WU 009
     sunjian->addSkill(new Yinghun);
     sunjian->addSkill(new Wulie);
 

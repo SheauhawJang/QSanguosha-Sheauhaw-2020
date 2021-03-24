@@ -1313,7 +1313,9 @@ bool Huashen::effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *, QVar
             SelectSkill(zuoci);
         } else if (choice == "recastHuashen") {
             zuoci->broadcastSkillInvoke(objectName());
-            AcquireGenerals(zuoci, ThrowGenerals(zuoci, 0, 2));
+            int del = ThrowGenerals(zuoci, 0, 2);
+            if (del > 0)
+                AcquireGenerals(zuoci, del);
         }
     }
     return false;
