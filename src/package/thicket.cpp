@@ -351,42 +351,62 @@ class Lieren : public TriggerSkill
 public:
     Lieren() : TriggerSkill("lieren")
     {
-        events << Damage;
+        events << TargetSpecified << Pindian;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *zhurong, QVariant &data, ServerPlayer *&) const
+    virtual QStringList triggerable(TriggerEvent event, Room *room, ServerPlayer *zhurong, QVariant &data, ServerPlayer *&) const
     {
-        if (!TriggerSkill::triggerable(zhurong)) return QStringList();
-        DamageStruct damage = data.value<DamageStruct>();
-        if (damage.card && damage.card->isKindOf("Slash") && zhurong->canPindian(damage.to)
-                && !damage.chain && !damage.transfer && !damage.to->hasFlag("Global_DebutFlag"))
-            return nameList();
+        if (event == TargetSpecified) {
+            if (!TriggerSkill::triggerable(zhurong)) return QStringList();
+            CardUseStruct use = data.value<CardUseStruct>();
+            if (use.card != NULL && use.card->isKindOf("Slash")) {
+                ServerPlayer *to = use.to.at(use.index);
+                if (to && to->isAlive() && zhurong->canPindian(to))
+                    return nameList();
+            }
+        } else {
+            PindianStruct *result = data.value<PindianStruct *>();
+            ServerPlayer *target = result->to;
+            if (result->reason == objectName()) {
+                if (result->isSuccess()) {
+                    if (target && zhurong->canGetCard(target, "he")) {
+                        return comList();
+                    }
+                } else {
+                    if (zhurong->isAlive() && result->to_card && room->isAllOnPlace(result->to_card, Player::PlaceTable))
+                        return comList();
+                    if (target->isAlive() && result->from_card && room->isAllOnPlace(result->from_card, Player::PlaceTable))
+                        return comList();
+                }
+            }
+        }
         return QStringList();
     }
 
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhurong, QVariant &data, ServerPlayer *) const
+    virtual bool effect(TriggerEvent event, Room *room, ServerPlayer *zhurong, QVariant &data, ServerPlayer *) const
     {
-        DamageStruct damage = data.value<DamageStruct>();
-        ServerPlayer *target = damage.to;
-        if (room->askForSkillInvoke(zhurong, objectName(), QVariant::fromValue(target))) {
-            zhurong->broadcastSkillInvoke(objectName());
-            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhurong->objectName(), target->objectName());
+        if (event == TargetSpecified) {
+            CardUseStruct use = data.value<CardUseStruct>();
+            ServerPlayer *target = use.to.at(use.index);
+            if (room->askForSkillInvoke(zhurong, objectName(), QVariant::fromValue(target))) {
+                zhurong->broadcastSkillInvoke(objectName());
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhurong->objectName(), target->objectName());
 
-            PindianStruct *pindian = zhurong->pindianStart(target, objectName(), NULL);
-            PindianStruct *result = zhurong->pindianResult(pindian);
-            if (result->success) {
-                if (zhurong->canGetCard(target, "he")) {
-                    int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodGet);
-                    CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
-                    room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, false);
-                }
+                zhurong->pindian(target, objectName());
+            }
+        } else {
+            PindianStruct *result = data.value<PindianStruct *>();
+            ServerPlayer *target = result->to;
+            if (result->isSuccess()) {
+                int card_id = room->askForCardChosen(zhurong, target, "he", objectName(), false, Card::MethodGet);
+                CardMoveReason reason(CardMoveReason::S_REASON_EXTRACTION, zhurong->objectName());
+                room->obtainCard(zhurong, Sanguosha->getCard(card_id), reason, false);
             } else {
                 if (zhurong->isAlive() && result->to_card && room->isAllOnPlace(result->to_card, Player::PlaceTable))
                     room->obtainCard(zhurong, result->to_card);
                 if (target->isAlive() && result->from_card && room->isAllOnPlace(result->from_card, Player::PlaceTable))
                     room->obtainCard(target, result->from_card);
             }
-            zhurong->pindianFinish(pindian);
         }
         return false;
     }

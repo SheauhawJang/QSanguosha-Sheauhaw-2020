@@ -568,7 +568,7 @@ enum TriggerEvent
     AskForPindianCard,
     PindianVerifying,
     Pindian,
-    FinishPindian,
+    PindianFinished,
     PindianComplete,
 
     TurnedOver,

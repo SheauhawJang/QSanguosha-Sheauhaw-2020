@@ -764,7 +764,7 @@ void ServerPlayer::pindianFinish(PindianStruct *pd)
 {
     RoomThread *thread = room->getThread();
     QVariant data = QVariant::fromValue(pd);
-    thread->trigger(FinishPindian, room, this, data);
+    thread->trigger(PindianFinished, room, this, data);
 
     QList<CardsMoveStruct> pd_move;
 

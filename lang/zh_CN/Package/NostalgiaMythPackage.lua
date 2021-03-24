@@ -121,8 +121,11 @@ return {
 	["noslieren"] = "烈刃",
 	[":noslieren"] = "当你使用【杀】对目标角色造成伤害后，你可以与其拼点，若你赢，你获得其一张牌。",
 
-	["nos_dongzhuo"] = "董卓",
-	["&nos_dongzhuo"] = "董卓-旧",
+	["nos_dongzhuo"] = "董卓-旧",
+	["&nos_dongzhuo"] = "董卓",
 	["nosjiuchi"] = "酒池",
 	[":nosjiuchi"] = "当你需要使用【酒】时，你可使用对应的实体牌为你的一张黑桃手牌的【酒】。",
+	
+	["nos_sunjian"] = "孙坚-旧",
+	["&nos_sunjian"] = "孙坚",
 }

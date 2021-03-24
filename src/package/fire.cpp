@@ -804,7 +804,7 @@ class Hanzhan : public TriggerSkill
 public:
     Hanzhan() : TriggerSkill("hanzhan")
     {
-        events << AskForPindianCard << FinishPindian;
+        events << AskForPindianCard << PindianFinished;
     }
 
     virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
