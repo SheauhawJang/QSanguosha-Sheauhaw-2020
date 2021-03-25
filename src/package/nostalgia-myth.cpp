@@ -1262,7 +1262,7 @@ public:
         events << Death;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer*&) const
     {
         DeathStruct death = data.value<DeathStruct>();
         ServerPlayer *dead = death.who;
@@ -1304,7 +1304,7 @@ public:
     {
         Room *room = caopi->getRoom();
         ServerPlayer *to = room->askForPlayerChosen(caopi, room->getOtherPlayers(caopi), objectName(),
-            "@nosfangzhu-invoke:::" + QString::number(caopi->getLostHp()), true, true);
+                           "@nosfangzhu-invoke:::" + QString::number(caopi->getLostHp()), true, true);
         if (to) {
             caopi->broadcastSkillInvoke("nosfangzhu");
             to->turnOver();
@@ -1434,6 +1434,134 @@ public:
     }
 };
 
+class NosTuntian : public TriggerSkill
+{
+public:
+    NosTuntian() : TriggerSkill("nostuntian")
+    {
+        events << CardsMoveOneTime << FinishJudge;
+        frequency = Frequent;
+    }
+
+    int getPriority(TriggerEvent triggerEvent) const
+    {
+        if (triggerEvent == FinishJudge)
+            return 5;
+        return TriggerSkill::getPriority(triggerEvent);
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
+            QVariantList move_datas = data.toList();
+            foreach(QVariant move_data, move_datas) {
+                CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
+                        && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
+                    return nameList();
+                }
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName() && judge->isGood() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                return QStringList("nostuntian!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == CardsMoveOneTime) {
+            if (player->askForSkillInvoke(objectName(), data)) {
+                player->broadcastSkillInvoke(objectName());
+                JudgeStruct judge;
+                judge.pattern = ".|heart";
+                judge.good = false;
+                judge.reason = objectName();
+                judge.who = player;
+                room->judge(judge);
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->card && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                player->addToPile("nosfield", judge->card->getEffectiveId());
+        }
+
+        return false;
+    }
+};
+
+class NosTuntianDistance : public DistanceSkill
+{
+public:
+    NosTuntianDistance() : DistanceSkill("#nostuntian-dist")
+    {
+    }
+
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
+        if (from->hasSkill("nostuntian"))
+            return -from->getPile("nosfield").length();
+        else
+            return 0;
+    }
+};
+
+class NosZaoxian : public PhaseChangeSkill
+{
+public:
+    NosZaoxian() : PhaseChangeSkill("noszaoxian")
+    {
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target)
+               && target->getPhase() == Player::Start
+               && target->getMark("noszaoxian") == 0
+               && target->getPile("nosfield").length() >= 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *dengai) const
+    {
+        Room *room = dengai->getRoom();
+        room->sendCompulsoryTriggerLog(dengai, objectName());
+
+        dengai->broadcastSkillInvoke(objectName());
+        //room->doLightbox("$NosZaoxianAnimate", 4000);
+
+        room->setPlayerMark(dengai, "noszaoxian", 1);
+        if (room->changeMaxHpForAwakenSkill(dengai) && dengai->getMark("noszaoxian") == 1)
+            room->acquireSkill(dengai, "nosjixi");
+
+        return false;
+    }
+};
+
+class NosJixi : public OneCardViewAsSkill
+{
+public:
+    NosJixi() : OneCardViewAsSkill("nosjixi")
+    {
+        filter_pattern = ".|.|.|nosfield";
+        expand_pile = "nosfield";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->getPile("nosfield").isEmpty();
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Snatch *snatch = new Snatch(originalCard->getSuit(), originalCard->getNumber());
+        snatch->addSubcard(originalCard);
+        snatch->setSkillName(objectName());
+        return snatch;
+    }
+};
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -1542,6 +1670,22 @@ NostalThicketPackage::NostalThicketPackage()
     nos_dongzhuo->addSkill("nmolbaonue");
 }
 
+NostalMountainPackage::NostalMountainPackage()
+    : Package("nostal_mountain")
+{
+    General *nos_dengai = new General(this, "nos_dengai", "wei", 4, true, true);
+    nos_dengai->addSkill(new NosTuntian);
+    nos_dengai->addSkill(new NosTuntianDistance);
+    nos_dengai->addSkill(new DetachEffectSkill("nostuntian", "nosfield"));
+    related_skills.insertMulti("nostuntian", "#nostuntian-dist");
+    related_skills.insertMulti("nostuntian", "#nostuntian-clear");
+    nos_dengai->addSkill(new NosZaoxian);
+    nos_dengai->addRelateSkill("nosjixi");
+
+    skills << new NosJixi;
+}
+
 ADD_PACKAGE(NostalWind)
 ADD_PACKAGE(NostalFire)
 ADD_PACKAGE(NostalThicket)
+ADD_PACKAGE(NostalMountain)

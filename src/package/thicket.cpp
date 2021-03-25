@@ -71,9 +71,9 @@ public:
         if (to) {
             caopi->broadcastSkillInvoke("fangzhu");
             int x = caopi->getLostHp();
-            if (to->getHp() <= 0 || (x > 0 ?
-                                     !room->askForDiscard(to, objectName(), x, x, true, true, "@fangzhu-discard:::" + QString::number(x)) :
-                                     room->askForChoice(to, objectName(), "losehp+turnover", QVariant(), "@fangzhu-choice") == "turnover")) {
+            if (x > 0 ?
+                    !room->askForDiscard(to, objectName(), x, x, true, true, "@fangzhu-discard:::" + QString::number(x)) :
+                    room->askForChoice(to, objectName(), "losehp+turnover", QVariant(), "@fangzhu-choice") == "turnover") {
                 if (x > 0) to->drawCards(x, objectName());
                 to->turnOver(objectName());
             } else {

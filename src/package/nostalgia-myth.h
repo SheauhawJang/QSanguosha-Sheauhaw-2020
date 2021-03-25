@@ -30,6 +30,14 @@ public:
     NostalThicketPackage();
 };
 
+class NostalMountainPackage : public Package
+{
+    Q_OBJECT
+
+public:
+    NostalMountainPackage();
+};
+
 class NosGuhuoCard : public SkillCard
 {
     Q_OBJECT

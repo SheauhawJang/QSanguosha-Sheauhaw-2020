@@ -3,6 +3,7 @@ return {
 	["nostal_wind"] = "怀旧-风",
 	["nostal_fire"] = "怀旧-火",
 	["nostal_thicket"] = "怀旧-林",
+	["nostal_mountain"] = "怀旧-山",
 
 	["nos_caoren"] = "曹仁-旧",
 	["&nos_caoren"] = "曹仁",
@@ -128,4 +129,15 @@ return {
 	
 	["nos_sunjian"] = "孙坚-旧",
 	["&nos_sunjian"] = "孙坚",
+	
+	["nos_dengai"] = "邓艾-旧",
+	["&nos_dengai"] = "邓艾",
+	["nostuntian"] = "屯田",
+	[":nostuntian"] = "当你于回合外失去牌后，你可以进行判定，当非红桃的判定牌生效后，你将此牌置于你的武将牌上，称为“田”；你计算与其他角色的距离-X（X为“田”的数量）。",
+	["#nostuntian-dist"] = "屯田",
+	["nosfield"] = "田",
+	["noszaoxian"] = "凿险",
+	[":noszaoxian"] = "觉醒技，准备阶段开始时，若“田”的数量不小于3，你减1点体力上限，然后获得技能“急袭”（你可以将一张“田”当【顺手牵羊】使用）。",
+	["nosjixi"] = "急袭",
+	[":nosjixi"] = "你可以将一张“田”当【顺手牵羊】使用。",
 }

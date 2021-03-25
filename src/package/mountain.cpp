@@ -329,13 +329,31 @@ public:
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
-        if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
-            QVariantList move_datas = data.toList();
-            foreach(QVariant move_data, move_datas) {
-                CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
-                if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
-                        && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
-                    return nameList();
+        if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player)) {
+            if (player->getPhase() == Player::NotActive) {
+                QVariantList move_datas = data.toList();
+                foreach(QVariant move_data, move_datas) {
+                    CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+                    if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
+                            && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
+                        return nameList();
+                    }
+                }
+            } else {
+                QVariantList move_datas = data.toList();
+                foreach(QVariant move_data, move_datas) {
+                    CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+                    if (move.from && move.from->objectName() == player->objectName()
+                            && (move.reason.m_reason & CardMoveReason::S_MASK_BASIC_REASON) == CardMoveReason::S_REASON_DISCARD) {
+                        int i = 0;
+                        foreach (QString card_str, move.cards) {
+                            const Card *card = Card::Parse(card_str);
+                            if (card && card->isKindOf("Slash") && (move.from_places[i] == Player::PlaceHand || move.from_places[i] == Player::PlaceEquip)) {
+                                return nameList();
+                            }
+                            i++;
+                        }
+                    }
                 }
             }
         } else if (triggerEvent == FinishJudge) {

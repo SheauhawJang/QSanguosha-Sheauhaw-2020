@@ -1066,7 +1066,7 @@ NostalOLPackage::NostalOLPackage()
     General *xiahouyuan = new General(this, "nol_xiahouyuan", "wei", 4, true, true);
     xiahouyuan->addSkill("shensu");
 
-    General *weiyan = new General(this, "nol_weiyan", "wei", 4, true, true);
+    General *weiyan = new General(this, "nol_weiyan", "shu", 4, true, true);
     weiyan->addSkill("kuanggu");
     weiyan->addSkill(new NOLQimou);
     weiyan->addSkill(new NOLQimouDistance);

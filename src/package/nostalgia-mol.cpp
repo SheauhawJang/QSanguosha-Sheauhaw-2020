@@ -806,6 +806,137 @@ public:
     }
 };
 
+class NMOLTuntian : public TriggerSkill
+{
+public:
+    NMOLTuntian() : TriggerSkill("nmoltuntian")
+    {
+        events << CardsMoveOneTime << FinishJudge;
+        frequency = Frequent;
+    }
+
+    int getPriority(TriggerEvent triggerEvent) const
+    {
+        if (triggerEvent == FinishJudge)
+            return 5;
+        return TriggerSkill::getPriority(triggerEvent);
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (triggerEvent == CardsMoveOneTime && TriggerSkill::triggerable(player) && player->getPhase() == Player::NotActive) {
+            QVariantList move_datas = data.toList();
+            foreach(QVariant move_data, move_datas) {
+                CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+                if (move.from == player && (move.from_places.contains(Player::PlaceHand) || move.from_places.contains(Player::PlaceEquip))
+                        && !(move.to == player && (move.to_place == Player::PlaceHand || move.to_place == Player::PlaceEquip))) {
+                    return nameList();
+                }
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->reason == objectName() && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                return QStringList("nmoltuntian!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == CardsMoveOneTime) {
+            if (player->askForSkillInvoke(objectName(), data)) {
+                player->broadcastSkillInvoke(objectName());
+                JudgeStruct judge;
+                judge.pattern = ".|heart";
+                judge.good = false;
+                judge.reason = objectName();
+                judge.who = player;
+                room->judge(judge);
+            }
+        } else if (triggerEvent == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->card && room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                if (judge->isGood())
+                    player->addToPile("nmolfield", judge->card->getEffectiveId());
+                else
+                    player->obtainCard(judge->card);
+        }
+
+        return false;
+    }
+};
+
+class NMOLTuntianDistance : public DistanceSkill
+{
+public:
+    NMOLTuntianDistance() : DistanceSkill("#nmoltuntian-dist")
+    {
+    }
+
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
+        if (from->hasSkill("nmoltuntian"))
+            return -from->getPile("nmolfield").length();
+        else
+            return 0;
+    }
+};
+
+class NMOLZaoxian : public PhaseChangeSkill
+{
+public:
+    NMOLZaoxian() : PhaseChangeSkill("nmolzaoxian")
+    {
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target)
+               && target->getPhase() == Player::Start
+               && target->getMark("nmolzaoxian") == 0
+               && target->getPile("nmolfield").length() >= 3;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *dengai) const
+    {
+        Room *room = dengai->getRoom();
+        room->sendCompulsoryTriggerLog(dengai, objectName());
+
+        dengai->broadcastSkillInvoke(objectName());
+        //room->doLightbox("$NMOLZaoxianAnimate", 4000);
+
+        room->setPlayerMark(dengai, "nmolzaoxian", 1);
+        if (room->changeMaxHpForAwakenSkill(dengai) && dengai->getMark("nmolzaoxian") == 1)
+            room->acquireSkill(dengai, "nmoljixi");
+
+        return false;
+    }
+};
+
+class NMOLJixi : public OneCardViewAsSkill
+{
+public:
+    NMOLJixi() : OneCardViewAsSkill("nmoljixi")
+    {
+        filter_pattern = ".|.|.|nmolfield";
+        expand_pile = "nmolfield";
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->getPile("nmolfield").isEmpty();
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Snatch *snatch = new Snatch(originalCard->getSuit(), originalCard->getNumber());
+        snatch->addSubcard(originalCard);
+        snatch->setSkillName(objectName());
+        return snatch;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -855,10 +986,19 @@ NostalMOLPackage::NostalMOLPackage()
     dongzhuo->addSkill("benghuai");
     dongzhuo->addSkill(new NMOLBaonue);
 
+    General *dengai = new General(this, "nmol_dengai", "wei", 4, true, true);
+    dengai->addSkill(new NMOLTuntian);
+    dengai->addSkill(new NMOLTuntianDistance);
+    dengai->addSkill(new DetachEffectSkill("nmoltuntian", "nmolfield"));
+    related_skills.insertMulti("nmoltuntian", "#nmoltuntian-dist");
+    related_skills.insertMulti("nmoltuntian", "#nmoltuntian-clear");
+    dengai->addSkill(new NMOLZaoxian);
+    dengai->addRelateSkill("nmoljixi");
+
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();
     addMetaObject<NMOLNiepanCard>();
-    skills << new NMOLQingjianAllot;
+    skills << new NMOLQingjianAllot << new NMOLJixi;
 }
 
 ADD_PACKAGE(NostalMOL)
