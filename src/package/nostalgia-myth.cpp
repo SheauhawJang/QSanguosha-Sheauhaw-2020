@@ -282,9 +282,15 @@ bool NosGuhuoCard::nosguhuo(ServerPlayer *yuji) const
         bool real;
         if (user_string == "peach+analeptic")
             real = card->objectName() == yuji->tag["NosGuhuoSaveSelf"].toString();
-        else if (user_string == "slash")
-            real = card->objectName().contains("slash");
-        else if (user_string == "normal_slash")
+        else if (user_string == "slash") {
+            QString to_nosguhuo = yuji->tag["NosGuhuoSlash"].toString();
+            if (to_nosguhuo == "slash")
+                real = card->objectName().contains("slash");
+            else if (to_nosguhuo == "normal_slash")
+                real = card->objectName() == "slash";
+            else
+                real = card->match(to_nosguhuo);
+        } else if (user_string == "normal_slash")
             real = card->objectName() == "slash";
         else
             real = card->match(user_string);
