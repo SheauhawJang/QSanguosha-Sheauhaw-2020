@@ -1568,6 +1568,44 @@ public:
     }
 };
 
+NosTiaoxinCard::NosTiaoxinCard()
+{
+}
+
+bool NosTiaoxinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    return targets.isEmpty() && to_select->inMyAttackRange(Self);
+}
+
+void NosTiaoxinCard::onEffect(const CardEffectStruct &effect) const
+{
+    Room *room = effect.from->getRoom();
+    bool use_slash = false;
+    if (effect.to->canSlash(effect.from, NULL, false))
+        use_slash = room->askForUseSlashTo(effect.to, effect.from, "@nostiaoxin-slash:" + effect.from->objectName());
+    if (!use_slash && effect.from->canDiscard(effect.to, "he"))
+        room->throwCard(room->askForCardChosen(effect.from, effect.to, "he", "nostiaoxin", false, Card::MethodDiscard), effect.to, effect.from);
+}
+
+class NosTiaoxin : public ZeroCardViewAsSkill
+{
+public:
+    NosTiaoxin() : ZeroCardViewAsSkill("nostiaoxin")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return !player->hasUsed("NosTiaoxinCard");
+    }
+
+    virtual const Card *viewAs() const
+    {
+        return new NosTiaoxinCard;
+    }
+};
+
+
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
 {
@@ -1687,6 +1725,13 @@ NostalMountainPackage::NostalMountainPackage()
     related_skills.insertMulti("nostuntian", "#nostuntian-clear");
     nos_dengai->addSkill(new NosZaoxian);
     nos_dengai->addRelateSkill("nosjixi");
+
+    General *nos_jiangwei = new General(this, "nos_jiangwei", "shu", 4, true, true);
+    nos_jiangwei->addSkill(new NosTiaoxin);
+    nos_jiangwei->addSkill("zhiji");
+    nos_jiangwei->addRelateSkill("guanxing");
+
+    addMetaObject<NosTiaoxinCard>();
 
     skills << new NosJixi;
 }
