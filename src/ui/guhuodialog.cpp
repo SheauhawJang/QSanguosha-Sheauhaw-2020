@@ -115,7 +115,7 @@ QGroupBox *GuhuoDialog::createLeft()
     QList<const Card *> cards = Sanguosha->findChildren<const Card *>();
     foreach (const Card *card, cards) {
         if (card->getTypeId() == Card::TypeBasic && !map.contains(card->objectName())
-            && Sanguosha->getRandomCards().contains(card->getId())
+            && ServerInfo.CardList.contains(card->getId())
             && !(slash_combined && map.contains("slash") && card->objectName().contains("slash"))) {
             Card *c = Sanguosha->cloneCard(card->objectName());
             c->setParent(this);
@@ -153,7 +153,7 @@ QGroupBox *GuhuoDialog::createRight()
     foreach (const Card *card, cards) {
         if (card->getTypeId() == Card::TypeTrick && (delayed_tricks || card->isNDTrick())
             && !map.contains(card->objectName())
-            && Sanguosha->getRandomCards().contains(card->getId())) {
+            && ServerInfo.CardList.contains(card->getId())) {
             Card *c = Sanguosha->cloneCard(card->objectName());
             c->setSkillName(object_name);
             c->setParent(this);

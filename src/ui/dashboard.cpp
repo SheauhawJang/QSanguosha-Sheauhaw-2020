@@ -1274,7 +1274,7 @@ void Dashboard::expandGuhuoCards(const QString &guhuo_type)
 {
     if (!_m_guhuo_expanded.isEmpty()) return;
     QStringList card_list;
-    QList<int> modecard = Sanguosha->getRandomCards();
+    QList<int> modecard = ServerInfo.CardList;
     if (guhuo_type.contains("b")) {
         QList<const BasicCard*> basics = Sanguosha->findChildren<const BasicCard*>();
         foreach (const BasicCard *card, basics) {

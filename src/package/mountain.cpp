@@ -671,7 +671,7 @@ TiaoxinCard::TiaoxinCard()
 
 bool TiaoxinCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    return targets.isEmpty() && to_select->inMyAttackRange(Self);
+    return targets.isEmpty() && to_select != Self;
 }
 
 void TiaoxinCard::onEffect(const CardEffectStruct &effect) const

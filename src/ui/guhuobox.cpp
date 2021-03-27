@@ -24,7 +24,7 @@ GuhuoBox::GuhuoBox(const QString &skillname, const QString &flag)
     this->skill_name = skillname;
     this->flags = flag;
     title = QString("%1 %2").arg(Sanguosha->translate(skill_name)).arg(tr("Please choose:"));;
-    QList<int> modecard = Sanguosha->getRandomCards();
+    QList<int> modecard = ServerInfo.CardList;
     //collect Cards' objectNames
     if (flags.contains("b")) {
         QList<const BasicCard*> basics = Sanguosha->findChildren<const BasicCard*>();

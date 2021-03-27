@@ -1087,13 +1087,19 @@ QString Engine::getSetupString() const
         mode = mode + Config.value("1v1/Rule", "2013").toString();
     else if (mode == "06_3v3")
         mode = mode + Config.value("3v3/OfficialRule", "2013").toString();
+    QList<int> cards = Sanguosha->getRandomCards();
+    QStringList card_string;
+    foreach (int card, cards)
+        card_string.append(QString::number(card));
+
     setup_items << server_name
                 << mode
                 << QString::number(timeout)
                 << QString::number(Config.NullificationCountDown)
                 << Sanguosha->getBanPackages().join("+")
                 << flags
-                << QString::number(Config.GeneralLevel);
+                << QString::number(Config.GeneralLevel)
+                << card_string.join("+");
 
     return setup_items.join(":");
 }
@@ -1528,8 +1534,8 @@ QStringList Engine::getRandomFemaleGenerals(int count, const QSet<QString> &ban_
 
 QList<int> Engine::getRandomCards() const
 {
-    bool exclude_disaters = false, using_2012_3v3 = false, using_2013_3v3 = false, exclude_zdyj = false,
-         exclude_dragonboat = false, exclude_swzs = false, exclude_year_18 = false, exclude_year_19 = false;
+    bool exclude_disaters = false, using_2012_3v3 = false, using_2013_3v3 = false, include_zdyj = false,
+         include_dragonboat = false, include_swzs = false, include_year_18 = false, include_year_19 = false;
     QStringList extra_ban = QStringList();
 
     if (Config.GameMode == "06_3v3") {
@@ -1542,7 +1548,7 @@ QList<int> Engine::getRandomCards() const
         exclude_disaters = true;
 
     if (Config.GameMode == "08_zdyj") {
-        exclude_zdyj = true;
+        include_zdyj = true;
         extra_ban << Config.BestLoyalistSets["cards_ban"];
         if (Config.value("zdyj/Rule", "2017").toString() != "2017")
             extra_ban << Config.BestLoyalistSets["cards_ban_old"];
@@ -1551,25 +1557,25 @@ QList<int> Engine::getRandomCards() const
     }
 
     if (Config.GameMode == "08_dragonboat") {
-        exclude_dragonboat = true;
+        include_dragonboat = true;
         exclude_disaters = true;
         extra_ban << Config.DragonBoatBanC["cards"];
     }
 
     if (Config.GameMode == "04_year") {
         if (Config.value("year/Mode", "2018").toString() == "2018") {
-            exclude_year_18 = true;
+            include_year_18 = true;
             exclude_disaters = false;
             extra_ban << Config.YearBossBanC["cards"];
         }
         if (Config.value("year/Mode", "2018").toString().contains("2019")) {
-            exclude_year_19 = true;
+            include_year_19 = true;
             exclude_disaters = false;
         }
     }
 
     if (Config.GameMode == "06_swzs") {
-        exclude_swzs = true;
+        include_swzs = true;
         extra_ban << Config.GodsReturnBanC["cards"];
     }
 
@@ -1597,15 +1603,15 @@ QList<int> Engine::getRandomCards() const
             list << card->getId();
         else if (card->getPackage() == "New3v3_2013Card" && using_2013_3v3)
             list << card->getId();
-        else if (card->getPackage() == "BestLoyalistCard" && exclude_zdyj)
+        else if (card->getPackage() == "BestLoyalistCard" && include_zdyj)
             list << card->getId();
-        else if (card->getPackage() == "DragonBoatCard" && exclude_dragonboat)
+        else if (card->getPackage() == "DragonBoatCard" && include_dragonboat)
             list << card->getId();
-        else if (card->getPackage() == "YearBoss2018Card" && exclude_year_18)
+        else if (card->getPackage() == "YearBoss2018Card" && include_year_18)
             list << card->getId();
-        else if (card->getPackage() == "YearBoss2019Card" && exclude_year_19)
+        else if (card->getPackage() == "YearBoss2019Card" && include_year_19)
             list << card->getId();
-        else if (card->getPackage() == "GodsReturnCard" && exclude_swzs)
+        else if (card->getPackage() == "GodsReturnCard" && include_swzs)
             list << card->getId();
 
         if (Config.GameMode == "02_1v1" && !Config.value("1v1/UsingCardExtension", false).toBool()) {

@@ -93,6 +93,12 @@ bool ServerInfoStruct::parse(const QString &_str)
         }
 
         GeneralLevel = str.at(6).toInt();
+
+        QList<int> card;
+        QStringList card_string = str.at(7).split("+");
+        foreach (QString str, card_string)
+           card.append(str.toInt());
+        CardList = card;
     }
 
     return true;

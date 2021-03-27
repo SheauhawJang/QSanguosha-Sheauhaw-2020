@@ -31,6 +31,7 @@ struct ServerInfoStruct
     bool DisableChat;
     int MaxHpScheme;
     int Scheme0Subtraction;
+    QList<int> CardList;
 
     bool DuringGame;
 };
