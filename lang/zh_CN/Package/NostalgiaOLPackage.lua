@@ -37,6 +37,13 @@ return {
 	["&nol_xiaoqiao"] = "小乔",
 	["nolhongyan"] = "红颜",
 	[":nolhongyan"] = "锁定技，你的黑桃牌或你的黑桃判定牌的花色视为红桃。",
+	["noltianxiang"] = "天香",
+	[":noltianxiang"] = "当你受到伤害时，你可以弃置一张红桃手牌并选择一名其他角色。你防止此伤害。选择：1.其受到来源的1点伤害。其摸X张牌（X为其已损失的体力值，且至多为5）；2.其失去1点体力。其获得弃牌堆或牌堆中的此牌。",
+	["@noltianxiang-card"] = "你可以弃置一张红桃手牌对一名其他角色发动“天香”",
+	["@noltianxiang-choose"] = "天香：请选择令%dest受到伤害并摸牌，或令%dest失去体力并获得【%arg】",
+	["noltianxiang:damage"] = "受到伤害",
+	["noltianxiang:losehp"] = "失去体力",
+	
 	
 	["nol_zhangjiao"] = "张角-旧OL",
 	["&nol_zhangjiao"] = "张角",

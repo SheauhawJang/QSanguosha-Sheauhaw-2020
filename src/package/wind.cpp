@@ -968,7 +968,7 @@ class TianxiangViewAsSkill : public OneCardViewAsSkill
 public:
     TianxiangViewAsSkill() : OneCardViewAsSkill("tianxiang")
     {
-        filter_pattern = ".|heart|.|hand!";
+        filter_pattern = ".|heart!";
         response_pattern = "@@tianxiang";
     }
 

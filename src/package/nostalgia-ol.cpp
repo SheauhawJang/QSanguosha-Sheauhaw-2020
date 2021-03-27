@@ -1044,6 +1044,48 @@ public:
     }
 };
 
+class NOLTianxiangViewAsSkill : public OneCardViewAsSkill
+{
+public:
+    NOLTianxiangViewAsSkill() : OneCardViewAsSkill("noltianxiang")
+    {
+        filter_pattern = ".|heart|.|hand!";
+        response_pattern = "@@noltianxiang";
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        TianxiangCard *noltianxiangCard = new TianxiangCard;
+        noltianxiangCard->addSubcard(originalCard);
+        return noltianxiangCard;
+    }
+};
+
+class NOLTianxiang : public TriggerSkill
+{
+public:
+    NOLTianxiang() : TriggerSkill("noltianxiang")
+    {
+        events << DamageInflicted;
+        view_as_skill = new NOLTianxiangViewAsSkill;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && !target->isKongcheng();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *xiaoqiao, QVariant &data, ServerPlayer *) const
+    {
+        xiaoqiao->tag["TianxiangDamage"] = data;
+        if (room->askForUseCard(xiaoqiao, "@@noltianxiang", "@noltianxiang-card", QVariant(), Card::MethodDiscard)) {
+
+            return true;
+        }
+        return false;
+    }
+};
+
 NostalOLPackage::NostalOLPackage()
     : Package("nostalgia_ol")
 {
@@ -1075,7 +1117,7 @@ NostalOLPackage::NostalOLPackage()
     related_skills.insertMulti("nolqimou", "#nolqimou-target");
 
     General *xiaoqiao = new General(this, "nol_xiaoqiao", "wu", 3, false, true);
-    xiaoqiao->addSkill("tianxiang");
+    xiaoqiao->addSkill(new NOLTianxiang);
     xiaoqiao->addSkill(new NOLHongyan);
 
     General *zhangjiao = new General(this, "nol_zhangjiao$", "qun", 3, true, true);
