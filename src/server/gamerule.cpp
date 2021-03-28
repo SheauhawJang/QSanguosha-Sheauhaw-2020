@@ -19,7 +19,7 @@ GameRule::GameRule(QObject *)
 
     events << GameStart << TurnStart << RoundStart
            << EventPhaseStart << EventPhaseProceeding << EventPhaseEnd << EventPhaseChanging
-           << PreCardUsed << TargetChosed << CardUsed << TargetConfirmed << CardFinished << CardEffected
+           << PreCardUsed << TargetChosen << CardUsed << TargetConfirmed << CardFinished << CardEffected
            << HpChanged
            << EventLoseSkill << EventAcquireSkill
            << CardsMoveOneTime

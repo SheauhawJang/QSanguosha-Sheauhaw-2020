@@ -725,7 +725,7 @@ class Lihuo : public TriggerSkill
 public:
     Lihuo() : TriggerSkill("lihuo")
     {
-        events << ConfirmCardUsed << TargetChosed << CardFinished;
+        events << ConfirmCardUsed << TargetChosen << CardFinished;
         view_as_skill = new dummyVS;
     }
 
@@ -734,7 +734,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (triggerEvent == ConfirmCardUsed && TriggerSkill::triggerable(player) && use.card->objectName() == "slash")
             return nameList();
-        else if (triggerEvent == TargetChosed && TriggerSkill::triggerable(player) && use.card->isKindOf("FireSlash")
+        else if (triggerEvent == TargetChosen && TriggerSkill::triggerable(player) && use.card->isKindOf("FireSlash")
                  && !player->getUseExtraTargets(use, true).isEmpty())
             return nameList();
         else if (triggerEvent == CardFinished && use.card->hasFlag("InvokedLihuo") && !use.card->tag["GlobalCardDamagedTag"].isNull()) {
@@ -755,7 +755,7 @@ public:
                 use.card = fire_slash;
                 data = QVariant::fromValue(use);
             }
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             CardUseStruct use = data.value<CardUseStruct>();
             QList<ServerPlayer *> targets = player->getUseExtraTargets(use, true);
             ServerPlayer *extra = room->askForPlayerChosen(player, targets, objectName(), "@lihuo-add", true);

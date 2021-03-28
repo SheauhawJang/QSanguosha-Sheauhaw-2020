@@ -425,7 +425,7 @@ class Xianzhen : public TriggerSkill
 public:
     Xianzhen() : TriggerSkill("xianzhen")
     {
-        events << EventPhaseStart << TargetChosed;
+        events << EventPhaseStart << TargetChosen;
         view_as_skill = new XianzhenViewAsSkill;
     }
 
@@ -445,7 +445,7 @@ public:
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *, QVariant &, ServerPlayer * &) const
     {
-        if (triggerEvent == TargetChosed) {
+        if (triggerEvent == TargetChosen) {
 
         }
         return QStringList();

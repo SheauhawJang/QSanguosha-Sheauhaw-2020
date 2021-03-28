@@ -265,12 +265,11 @@ int Player::distanceTo(const Player *other, int distance_fix) const
     if (this == other)
         return 0;
 
-    if (hasSkill("zhuiji") && other->getHp() <= getHp())
-        return 1;
+    int fixed = Sanguosha->correctFixedDistance(this, other);
 
-    if (fixed_distance.contains(other)) {
+    if (fixed > 0 || fixed_distance.contains(other)) {
         QList<int> distance_list = fixed_distance.values(other);
-        int min = 10000;
+        int min = fixed <= 0 ? 10000 : fixed;
         foreach (int d, distance_list) {
             if (min > d)
                 min = d;
@@ -1051,8 +1050,7 @@ bool Player::canSlash(const Player *other, const Card *slash, bool distance_limi
         return false;
 
     if (distance_limit)
-        return (inMyAttackRange(other, rangefix - Sanguosha->correctCardTarget(TargetModSkill::DistanceLimit, this, THIS_SLASH, other))
-                || (hasSkill("liegong") && slash->getNumber() > 0 && distanceTo(other) <= slash->getNumber()));
+        return inMyAttackRange(other, rangefix - Sanguosha->correctCardTarget(TargetModSkill::DistanceLimit, this, THIS_SLASH, other));
     else
         return true;
 #undef THIS_SLASH

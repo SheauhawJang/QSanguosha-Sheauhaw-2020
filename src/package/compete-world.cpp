@@ -1389,7 +1389,7 @@ class Canshii : public TriggerSkill
 public:
     Canshii() : TriggerSkill("canshii")
     {
-        events << TargetChosed << TargetConfirming;
+        events << TargetChosen << TargetConfirming;
     }
 
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer * &) const
@@ -1398,7 +1398,7 @@ public:
         CardUseStruct use = data.value<CardUseStruct>();
         if (use.card->getTypeId() != Card::TypeBasic && !use.card->isNDTrick()) return QStringList();
         if (use.card->isKindOf("Collateral") || use.card->isKindOf("BeatAnother")) return QStringList();
-        if (triggerEvent == TargetChosed) {
+        if (triggerEvent == TargetChosen) {
             QList<ServerPlayer *> available_targets = player->getUseExtraTargets(use, false);
             foreach (ServerPlayer *p, available_targets) {
                 if (p->getMark("@puppet") > 0)
@@ -1420,7 +1420,7 @@ public:
     virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
     {
         CardUseStruct use = data.value<CardUseStruct>();
-        if (triggerEvent == TargetChosed) {
+        if (triggerEvent == TargetChosen) {
             QList<ServerPlayer *> available_targets = player->getUseExtraTargets(use, false);
             foreach (ServerPlayer *p, available_targets) {
                 if (p->getMark("@puppet") == 0) available_targets.removeOne(p);

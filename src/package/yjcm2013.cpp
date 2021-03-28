@@ -343,7 +343,7 @@ class QiaoshuiUse : public TriggerSkill
 public:
     QiaoshuiUse() : TriggerSkill("#qiaoshui-use")
     {
-        events << TargetChosed;
+        events << TargetChosen;
         view_as_skill = new QiaoshuiViewAsSkill;
     }
 

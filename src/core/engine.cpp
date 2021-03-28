@@ -468,6 +468,11 @@ QList<const AttackRangeSkill *> Engine::getAttackRangeSkills() const
     return attack_range_skills;
 }
 
+QList<const StatusAbilitySkill *> Engine::getStatusAbilitySkills() const
+{
+    return status_ability_skills;
+}
+
 void Engine::addPackage(Package *package)
 {
     if (findChild<const Package *>(package->objectName()))
@@ -1825,6 +1830,19 @@ int Engine::correctDistance(const Player *from, const Player *to) const
     }
 
     return correct;
+}
+
+int Engine::correctFixedDistance(const Player *from, const Player *to) const
+{
+    int min = -1;
+
+    foreach (const DistanceSkill *skill, distance_skills) {
+        int fix = skill->getFixed(from, to);
+        if (fix > 0)
+            min = min <= 0 ? fix : qMin(fix, min);
+    }
+
+    return min;
 }
 
 int Engine::correctMaxCards(const Player *target, bool fixed) const

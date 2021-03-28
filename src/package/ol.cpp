@@ -4154,7 +4154,7 @@ class Neifa : public TriggerSkill
 public:
     Neifa() : TriggerSkill("neifa")
     {
-        events << EventPhaseStart << CardUsed << TargetChosed;
+        events << EventPhaseStart << CardUsed << TargetChosen;
         view_as_skill = new NeifaViewAsSkill;
     }
 
@@ -4175,7 +4175,7 @@ public:
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->getTypeId() == Card::TypeEquip)
                 return QStringList("neifa!");
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (((use.card->isKindOf("Slash") && player->hasFlag("NeifaBasic"))
                     || (use.card->isNDTrick() && player->hasFlag("NeifaNotBasic")))) {
@@ -4228,7 +4228,7 @@ public:
             room->addPlayerMark(player, "NeifaTimes");
             player->drawCards(player->getMark("#neifa"), objectName());
 
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             CardUseStruct use = data.value<CardUseStruct>();
             QList<ServerPlayer *> targets = player->getUseExtraTargets(use, true);
             targets.append(use.to);

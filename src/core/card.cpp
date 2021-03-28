@@ -764,7 +764,7 @@ void Card::onUse(Room *room, const CardUseStruct &use) const
     thread->trigger(ConfirmCardUsed, room, card_use.from, data);
     card_use = data.value<CardUseStruct>(); // Does it take any effect?
     if (!card_use.to.isEmpty() && !card_use.card->hasFlag("slashDisableExtraTarget"))
-        thread->trigger(TargetChosed, room, card_use.from, data);
+        thread->trigger(TargetChosen, room, card_use.from, data);
     card_use = data.value<CardUseStruct>(); // Does it take any effect?
     thread->trigger(CardUsed, room, card_use.from, data);
     card_use = data.value<CardUseStruct>(); // Does it take any effect?

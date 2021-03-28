@@ -618,7 +618,6 @@ enum TriggerEvent
     PreCardUsed, // for AI to filter events only.
     ConfirmCardUsed,
     TargetChosen,
-    TargetChosed,
     CardUsed,
     TargetSpecifying,
     TargetConfirming,

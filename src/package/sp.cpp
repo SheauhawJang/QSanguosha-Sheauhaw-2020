@@ -337,12 +337,16 @@ public:
     {
         events << TargetChosen;
         view_as_skill = new ShichouViewAsSkill;
+        qDebug() << objectName();
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
+        qDebug() << 0;
         CardUseStruct use = data.value<CardUseStruct>();
+        qDebug() << 1;
         if (use.card->isKindOf("Slash") && !use.card->hasFlag("slashDisableExtraTarget") && player->isWounded()) {
+            qDebug() << 2;
             QStringList available_targets;
             bool no_distance_limit = false;
             if (use.card->hasFlag("slashNoDistanceLimit")) {
@@ -359,6 +363,7 @@ public:
 
             if (available_targets.isEmpty())
                 return false;
+            qDebug() << 3;
             room->setPlayerProperty(player, "shichou_available_targets", available_targets.join("+"));
             player->tag["shichou-use"] = data;
             room->askForUseCard(player, "@@shichou", "@shichou-add:::" + QString::number(player->getLostHp()));
@@ -2753,6 +2758,22 @@ public:
     }
 };
 
+class Zhuiji : public DistanceSkill
+{
+public:
+    Zhuiji() : DistanceSkill("zhuiji")
+    {
+
+    }
+
+    virtual int getFixed(const Player *from, const Player *to) const
+    {
+        if (from->hasSkill(this) && from->getHp() >= to->getHp())
+            return 1;
+        return -1;
+    }
+};
+
 SPPackage::SPPackage()
     : Package("sp")
 {
@@ -2795,7 +2816,7 @@ SPPackage::SPPackage()
     sp_guanyu->addRelateSkill("nuzhan");
 
     General *sp_machao = new General(this, "sp_machao", "qun"); // SP 011
-    sp_machao->addSkill(new Skill("zhuiji", Skill::Compulsory));
+    sp_machao->addSkill(new Zhuiji);
     sp_machao->addSkill(new Shichou);
 
     General *sp_zhaoyun = new General(this, "sp_zhaoyun", "qun", 3); // *SP 001

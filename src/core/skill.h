@@ -294,7 +294,8 @@ class DistanceSkill : public Skill
 public:
     DistanceSkill(const QString &name);
 
-    virtual int getCorrect(const Player *from, const Player *to) const = 0;
+    virtual int getCorrect(const Player *from, const Player *to) const;
+    virtual int getFixed(const Player *from, const Player *to) const;
 };
 
 class MaxCardsSkill : public Skill

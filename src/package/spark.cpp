@@ -159,7 +159,7 @@ class Fumian : public TriggerSkill
 public:
     Fumian() : TriggerSkill("fumian")
     {
-        events << EventPhaseStart << DrawNCards << TargetChosed;
+        events << EventPhaseStart << DrawNCards << TargetChosen;
     }
 
     virtual void record(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &) const
@@ -176,7 +176,7 @@ public:
             return nameList();
         else if (triggerEvent == DrawNCards && player->tag["FumianChoice"].toString() == "draw")
             return QStringList("fumian!");
-        else if (triggerEvent == TargetChosed && player->tag["FumianChoice"].toString() == "target" && !player->hasFlag("FumianTargetUsed")) {
+        else if (triggerEvent == TargetChosen && player->tag["FumianChoice"].toString() == "target" && !player->hasFlag("FumianTargetUsed")) {
             CardUseStruct use = data.value<CardUseStruct>();
             if ((use.card->getTypeId() != Card::TypeBasic && !use.card->isNDTrick()) || !use.card->isRed()) return QStringList();
             if (use.card->isKindOf("Collateral") || use.card->isKindOf("BeatAnother")) return QStringList();
@@ -219,7 +219,7 @@ public:
             log.arg = objectName();
             room->sendLog(log);
             data = data.toInt() + (lastchoice == "target" ? 2 : 1);
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             QString lastchoice = player->tag["FumianLastChoice"].toString();
             int x = (lastchoice == "draw" ? 2 : 1);
             CardUseStruct use = data.value<CardUseStruct>();
@@ -3882,7 +3882,7 @@ class Jixu : public TriggerSkill
 public:
     Jixu() : TriggerSkill("jixu")
     {
-        events << TargetChosed << EventPhaseChanging;
+        events << TargetChosen << EventPhaseChanging;
         view_as_skill = new JixuViewAsSkill;
     }
 
@@ -3900,7 +3900,7 @@ public:
     }
     virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
-        if (triggerEvent == TargetChosed && player->getMark("#jixu_haveslash") > 0) {
+        if (triggerEvent == TargetChosen && player->getMark("#jixu_haveslash") > 0) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->isKindOf("Slash")) {
                 QList<ServerPlayer *> available_targets = player->getUseExtraTargets(use);
@@ -6000,7 +6000,7 @@ class Luanzhan : public TriggerSkill
 public:
     Luanzhan() : TriggerSkill("luanzhan")
     {
-        events << HpChanged << TargetChosed << TargetSpecified;
+        events << HpChanged << TargetChosen << TargetSpecified;
         view_as_skill = new LuanzhanViewAsSkill;
     }
 
@@ -6017,7 +6017,7 @@ public:
             if ((use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack())) && use.to.length() < player->getMark("#luanzhan")) {
                 return QStringList("luanzhan!");
             }
-        } else if (triggerEvent == TargetChosed && player->getMark("#luanzhan") > 0 && TriggerSkill::triggerable(player)) {
+        } else if (triggerEvent == TargetChosen && player->getMark("#luanzhan") > 0 && TriggerSkill::triggerable(player)) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (use.card->isKindOf("Slash") || (use.card->isNDTrick() && use.card->isBlack())) {
                 if (!player->getUseExtraTargets(use, true).isEmpty())
@@ -6039,7 +6039,7 @@ public:
             room->sendCompulsoryTriggerLog(player, objectName());
             player->broadcastSkillInvoke(objectName());
             room->setPlayerMark(player, "#luanzhan", 0);
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             CardUseStruct use = data.value<CardUseStruct>();
             if (!use.card->isKindOf("Slash") && !(use.card->isNDTrick() && use.card->isBlack())) return false;
             bool no_distance_limit = false;

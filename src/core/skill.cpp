@@ -519,6 +519,16 @@ DistanceSkill::DistanceSkill(const QString &name)
 {
 }
 
+int DistanceSkill::getCorrect(const Player *, const Player *) const
+{
+    return 0;
+}
+
+int DistanceSkill::getFixed(const Player *from, const Player *to) const
+{
+    return -1;
+}
+
 MaxCardsSkill::MaxCardsSkill(const QString &name)
     : Skill(name, Skill::Compulsory)
 {

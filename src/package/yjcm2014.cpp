@@ -428,7 +428,7 @@ class Benxi : public TriggerSkill
 public:
     Benxi() : TriggerSkill("benxi")
     {
-        events << EventPhaseChanging << CardUsed << TargetChosed << DamageCaused << CardFinished;
+        events << EventPhaseChanging << CardUsed << TargetChosen << DamageCaused << CardFinished;
         frequency = Compulsory;
     }
 
@@ -454,7 +454,7 @@ public:
                 CardUseStruct use = data.value<CardUseStruct>();
                 if (use.card->getTypeId() != Card::TypeSkill)
                     return nameList();
-            } else if (triggerEvent == TargetChosed) {
+            } else if (triggerEvent == TargetChosen) {
                 QList<ServerPlayer *> targets = room->getOtherPlayers(player);
                 foreach (ServerPlayer *p, targets) {
                     if (player->distanceTo(p) != 1)
@@ -489,7 +489,7 @@ public:
             room->sendCompulsoryTriggerLog(player, objectName());
             player->broadcastSkillInvoke(objectName());
             room->addPlayerMark(player, "#benxi");
-        } else if (triggerEvent == TargetChosed) {
+        } else if (triggerEvent == TargetChosen) {
             room->sendCompulsoryTriggerLog(player, objectName());
             player->broadcastSkillInvoke(objectName());
             CardUseStruct use = data.value<CardUseStruct>();

@@ -87491,7 +87491,7 @@ static swig_lua_const_info swig_constants[] = {
     {SWIG_LUA_CONSTTAB_INT("PreCardUsed", PreCardUsed)},
     {SWIG_LUA_CONSTTAB_INT("ConfirmCardUsed", ConfirmCardUsed)},
     {SWIG_LUA_CONSTTAB_INT("TargetChosen", TargetChosen)},
-    {SWIG_LUA_CONSTTAB_INT("TargetChosed", TargetChosed)},
+    {SWIG_LUA_CONSTTAB_INT("TargetChosed", TargetChosen)},
     {SWIG_LUA_CONSTTAB_INT("CardUsed", CardUsed)},
     {SWIG_LUA_CONSTTAB_INT("TargetSpecifying", TargetSpecifying)},
     {SWIG_LUA_CONSTTAB_INT("TargetConfirming", TargetConfirming)},

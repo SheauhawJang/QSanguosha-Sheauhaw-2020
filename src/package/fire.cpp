@@ -221,7 +221,7 @@ class Luanji : public TriggerSkill
 public:
     Luanji() : TriggerSkill("luanji")
     {
-        events << TargetChosed;
+        events << TargetChosen;
         view_as_skill = new LuanjiViewAsSkill;
     }
 

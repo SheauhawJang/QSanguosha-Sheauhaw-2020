@@ -630,6 +630,22 @@ public:
     }
 };
 
+class LiegongTargetMod : public TargetModSkill
+{
+public:
+    LiegongTargetMod() : TargetModSkill("#liegong-target")
+    {
+
+    }
+
+    virtual int getDistanceLimit(const Player *from, const Card *slash, const Player *other) const
+    {
+        if (from->hasSkill("liegong") && slash->getNumber() > 0 && from->distanceTo(other) <= slash->getNumber())
+            return 1000;
+        return 0;
+    }
+};
+
 class Kuanggu : public TriggerSkill
 {
 public:
@@ -1407,6 +1423,8 @@ WindPackage::WindPackage()
 
     General *huangzhong = new General(this, "huangzhong", "shu");
     huangzhong->addSkill(new Liegong);
+    huangzhong->addSkill(new LiegongTargetMod);
+    related_skills.insertMulti("liegong", "#liegong-target");
 
     General *weiyan = new General(this, "weiyan", "shu");
     weiyan->addSkill(new Kuanggu);

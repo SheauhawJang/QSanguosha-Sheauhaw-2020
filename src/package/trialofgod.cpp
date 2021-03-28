@@ -585,7 +585,7 @@ class BossKuangxiao : public TriggerSkill
 public:
     BossKuangxiao() : TriggerSkill("bosskuangxiao")
     {
-        events << TargetChosed;
+        events << TargetChosen;
         frequency = Compulsory;
     }
 
@@ -1067,7 +1067,7 @@ TrialOfGodPackage::TrialOfGodPackage()
     : Package("TrialOfGod")
 {
     General *qinglong = new General(this, "qinglong", "god", 4, true, true);
-    qinglong->addSkill(new Skill("bossshenyi", Skill::Compulsory));
+    qinglong->addSkill(new BossShenyi);
     qinglong->addSkill(new BossTengyun);
 
     General *mushengoumang = new General(this, "mushengoumang", "god", 5, true, true);
