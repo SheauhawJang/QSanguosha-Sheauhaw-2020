@@ -337,16 +337,12 @@ public:
     {
         events << TargetChosen;
         view_as_skill = new ShichouViewAsSkill;
-        qDebug() << objectName();
     }
 
     virtual bool trigger(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        qDebug() << 0;
         CardUseStruct use = data.value<CardUseStruct>();
-        qDebug() << 1;
         if (use.card->isKindOf("Slash") && !use.card->hasFlag("slashDisableExtraTarget") && player->isWounded()) {
-            qDebug() << 2;
             QStringList available_targets;
             bool no_distance_limit = false;
             if (use.card->hasFlag("slashNoDistanceLimit")) {
@@ -363,7 +359,6 @@ public:
 
             if (available_targets.isEmpty())
                 return false;
-            qDebug() << 3;
             room->setPlayerProperty(player, "shichou_available_targets", available_targets.join("+"));
             player->tag["shichou-use"] = data;
             room->askForUseCard(player, "@@shichou", "@shichou-add:::" + QString::number(player->getLostHp()));

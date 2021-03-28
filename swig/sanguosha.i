@@ -746,8 +746,12 @@ enum TriggerEvent
     FinishRetrial,
     FinishJudge,
 
+    StartPindian,
+    AskForPindianCard,
     PindianVerifying,
     Pindian,
+    PindianFinished,
+    PindianComplete,
 
     TurnedOver,
     ChainStateChanged,
@@ -796,7 +800,6 @@ enum TriggerEvent
     PreCardUsed, // for AI to filter events only.
     ConfirmCardUsed,
     TargetChosen,
-    TargetChosed,
     CardUsed,
     TargetSpecifying,
     TargetConfirming,
@@ -821,8 +824,6 @@ enum TriggerEvent
     Debut, // For 1v1 only
 
     TurnBroken, // For the skill 'DanShou'. Do not use it to trigger events
-
-    AskforPindianCard, // For ZY
 
     NumOfEvents
 };
