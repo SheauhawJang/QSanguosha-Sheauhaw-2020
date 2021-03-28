@@ -1124,6 +1124,20 @@ public:
     }
 };
 
+class BossXiongshouStatus : public StatusAbilitySkill
+{
+public:
+    BossXiongshouStatus() : StatusAbilitySkill("#bossxiongshou-status")
+    {
+
+    }
+
+    virtual bool canTurnOver(const Player *player) const
+    {
+        return !player->hasSkill("bossxiongshou");
+    }
+};
+
 class BossWake : public TriggerSkill
 {
 public:
@@ -2048,7 +2062,9 @@ BossModePackage::BossModePackage()
     General *boss_zhuyin = new General(this, "fierce_zhuyin", "qun", 4, true, true);
     boss_zhuyin->addSkill(new BossXiongshou);
     boss_zhuyin->addSkill(new BossXiongshouDistance);
+    boss_zhuyin->addSkill(new BossXiongshouStatus);
     related_skills.insertMulti("bossxiongshou", "#bossxiongshou-distance");
+    related_skills.insertMulti("bossxiongshou", "#bossxiongshou-status");
 
     General *boss_hundun = new General(this, "fierce_hundun", "qun", 25, true, true);
     boss_hundun->addSkill("bossxiongshou");

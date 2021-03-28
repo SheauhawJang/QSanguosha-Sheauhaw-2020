@@ -849,7 +849,7 @@ bool Player::isAllNude() const
 
 bool Player::canPindian(const Player *to) const
 {
-    return this != to && !isKongcheng() && !to->isKongcheng() && !to->hasSkill("qianjie");
+    return this != to && !isKongcheng() && !to->isKongcheng() && Sanguosha->correctCanPindian(to, this);
 }
 
 bool Player::canDiscard(const Player *to, const QString &flags) const
@@ -862,7 +862,8 @@ bool Player::canDiscard(const Player *to, const QString &flags) const
     if (flags.contains(judging_flag) && !to->getJudgingArea().isEmpty()) return true;
     if (flags.contains(equip_flag)) {
         if (to->getDefensiveHorse() || to->getOffensiveHorse()) return true;
-        if ((to->getWeapon() || to->getArmor() || to->getTreasure()) && (!to->hasSkill("qicai") || this == to)) return true;
+        if ((to->getArmor() || to->getTreasure()) && (!(to->hasSkill("qicai") && to->hasSkill("nphyqicai")) || this == to)) return true;
+        if (to->getWeapon() && (!to->hasSkill("nphyqicai") || this == to)) return true;
     }
     return false;
 }
@@ -996,7 +997,8 @@ bool Player::isChained() const
 
 void Player::setChained(bool chained)
 {
-    if (this->chained != chained && !(chained && hasSkill("qianjie")) && !(!chained && hasSkill("jieying"))) {
+    if (this->chained != chained && Sanguosha->correctCanSetChain(this, chained)) {
+        // !(chained && hasSkill("qianjie")) && !(!chained && hasSkill("jieying"))
         this->chained = chained;
         emit state_changed();
     }

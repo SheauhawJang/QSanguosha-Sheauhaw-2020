@@ -826,22 +826,20 @@ QList<PindianStruct *> ServerPlayer::pindianStructs(QList<ServerPlayer *>targets
 
 void ServerPlayer::turnOver(const QString &skill_name)
 {
-    QStringList unturnedSkills;
-    unturnedSkills << "bossxiongshou" << "bossshenyi" << "yearwuma" << "yearwuma19";
+    //QStringList unturnedSkills;
+    //unturnedSkills << "bossxiongshou" << "bossshenyi" << "yearwuma" << "yearwuma19";
 
-    bool unturned = false;
-    foreach (QString sk, unturnedSkills)
-        if (hasSkill(sk)) {
-            broadcastSkillInvoke(sk);
-            room->notifySkillInvoked(this, sk);
-            LogMessage turnlog;
-            turnlog.type = "#turnlog";
-            turnlog.from = this;
-            turnlog.arg = sk;
-            room->sendLog(turnlog);
-        }
-
-    if (unturned) return;
+    const Skill *sk = Sanguosha->turnOverSkill(this);
+    if (sk) {
+        broadcastSkillInvoke(sk->objectName());
+        room->notifySkillInvoked(this, sk->objectName());
+        LogMessage turnlog;
+        turnlog.type = "#turnlog";
+        turnlog.from = this;
+        turnlog.arg = sk->objectName();
+        room->sendLog(turnlog);
+        return;
+    }
 
     TurnStruct turnst;
     turnst.who = this;

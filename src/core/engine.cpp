@@ -428,6 +428,8 @@ void Engine::addSkills(const QList<const Skill *> &all_skills)
             invalidity_skills << qobject_cast<const InvaliditySkill *>(skill);
         else if (skill->inherits("AttackRangeSkill"))
             attack_range_skills << qobject_cast<const AttackRangeSkill *>(skill);
+        else if (skill->inherits("StatusAbilitySkill"))
+            status_ability_skills << qobject_cast<const StatusAbilitySkill *>(skill);
         else if (skill->inherits("TriggerSkill")) {
             const TriggerSkill *trigger_skill = qobject_cast<const TriggerSkill *>(skill);
             if (trigger_skill && trigger_skill->isGlobal())
@@ -1901,4 +1903,61 @@ int Engine::correctAttackRange(const Player *target, bool include_weapon, bool f
     }
 
     return extra;
+}
+
+const StatusAbilitySkill *Engine::turnOverSkill(const Player *target) const
+{
+    foreach (const StatusAbilitySkill *skill, status_ability_skills) {
+        if (!skill->canTurnOver(target))
+            return skill;
+    }
+    return NULL;
+}
+
+const StatusAbilitySkill *Engine::setChainSkill(const Player *target, bool setting) const
+{
+    foreach (const StatusAbilitySkill *skill, status_ability_skills) {
+        if (!skill->canSetChain(target, setting))
+            return skill;
+    }
+    return NULL;
+}
+
+const StatusAbilitySkill *Engine::pindianProhibitSkill(const Player *to, const Player *from) const
+{
+    foreach (const StatusAbilitySkill *skill, status_ability_skills) {
+        if (!skill->canPindian(to, from))
+            return skill;
+    }
+    return NULL;
+}
+
+QList<const StatusAbilitySkill *> Engine::turnDelayedTrickSkills(const Player *player, const Card *card) const
+{
+    QList<const StatusAbilitySkill *> skills;
+    foreach (const StatusAbilitySkill *skill, status_ability_skills) {
+        if (skill->turnDelayedTrickResult(player, card))
+            skills.append(skill);
+    }
+    return skills;
+}
+
+bool Engine::correctCanTurnOver(const Player *target) const
+{
+    return turnOverSkill(target) == NULL;
+}
+
+bool Engine::correctCanSetChain(const Player *target, bool setting) const
+{
+    return setChainSkill(target, setting) == NULL;
+}
+
+bool Engine::correctCanPindian(const Player *to, const Player *from) const
+{
+    return pindianProhibitSkill(to, from) == NULL;
+}
+
+bool Engine::correctTurnDelayedTrickResult(const Player *player, const Card *card) const
+{
+    return turnDelayedTrickSkills(player, card).size() & 1;
 }

@@ -223,7 +223,7 @@ public:
 
 protected:
     JudgeStruct judge;
-    QStringList turn_skills;
+    //QStringList turn_skills;
 
 private:
     bool movable;

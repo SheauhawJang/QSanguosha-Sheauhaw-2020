@@ -1919,7 +1919,8 @@ void Room::setPlayerFlag(ServerPlayer *player, const QString &flag)
 void Room::setPlayerProperty(ServerPlayer *player, const char *property_name, const QVariant &value)
 {
     if (strcmp(property_name, "chained") == 0) {
-        if ((player->isChained() && player->hasSkill("jieying")) || (!player->isChained() && player->hasSkill("qianjie"))) return;
+        //if ((player->isChained() && player->hasSkill("jieying")) || (!player->isChained() && player->hasSkill("qianjie"))) return;
+        if (!Sanguosha->correctCanSetChain(player, !player->isChained())) return;
         LogMessage log;
         log.type = "#ChainStateChange";
         log.from = player;

@@ -473,6 +473,19 @@ protected:
     bool global;
 };
 
+class StatusAbilitySkill : public Skill
+{
+    Q_OBJECT
+
+public:
+    StatusAbilitySkill(const QString &name);
+
+    virtual bool canTurnOver(const Player *player) const;
+    virtual bool canSetChain(const Player *player, bool setting) const;
+    virtual bool canPindian(const Player *player, const Player *from) const;
+    virtual bool turnDelayedTrickResult(const Player *player, const Card *card) const;
+};
+
 class dummyVS : public ZeroCardViewAsSkill
 {
 public:

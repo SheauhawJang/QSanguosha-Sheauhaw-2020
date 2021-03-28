@@ -1861,6 +1861,20 @@ public:
     }
 };
 
+class JieyingStatus : public StatusAbilitySkill
+{
+public:
+    JieyingStatus() : StatusAbilitySkill("#jieying-status")
+    {
+
+    }
+
+    virtual bool canSetChain(const Player *player, bool setting) const
+    {
+        return !player->hasSkill("jieying") || setting;
+    }
+};
+
 class Junlve : public TriggerSkill
 {
 public:
@@ -2701,8 +2715,10 @@ GodPackage::GodPackage()
     shenliubei->addSkill(new LongnuTarget);
     shenliubei->addSkill(new Jieying);
     shenliubei->addSkill(new JieyingMaxCards);
+    shenliubei->addSkill(new JieyingStatus);
     related_skills.insertMulti("longnu", "#longnu-target");
     related_skills.insertMulti("jieying", "#jieying-maxcards");
+    related_skills.insertMulti("jieying", "#jieying-s");
 
     General *shenluxun = new General(this, "shenluxun", "god");
     shenluxun->addSkill(new Junlve);

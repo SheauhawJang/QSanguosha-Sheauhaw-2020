@@ -1164,7 +1164,7 @@ Indulgence::Indulgence(Suit suit, int number)
     judge.good = true;
     judge.reason = objectName();
 
-    turn_skills << "yearyangshou" << "yearyinshou" << "yearxiongshou" << "bossshenyi";
+    //turn_skills << "yearyangshou" << "yearyinshou" << "yearxiongshou" << "bossshenyi";
 }
 
 bool Indulgence::targetRated(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const

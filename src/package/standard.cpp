@@ -256,7 +256,7 @@ bool SingleTargetTrick::targetRated(const QList<const Player *> &, const Player 
 }
 
 DelayedTrick::DelayedTrick(Suit suit, int number, bool movable)
-    : TrickCard(suit, number), movable(movable), turn_skills(QStringList() << "yearshenyi")
+    : TrickCard(suit, number), movable(movable)
 {
     judge.negative = true;
 }
@@ -293,14 +293,12 @@ void DelayedTrick::onEffect(const CardEffectStruct &effect) const
 
     JudgeStruct judge_struct = judge;
     judge_struct.who = effect.to;
-    bool turn_good = false;
-    foreach (QString str, turn_skills)
-        if (effect.to->hasSkill(str))
-        {
-            room->sendCompulsoryTriggerLog(effect.to, str);
-            room->notifySkillInvoked(effect.to, str);
-            turn_good = true;
-        }
+    bool turn_good = Sanguosha->correctTurnDelayedTrickResult(effect.to, this);
+    QList<const StatusAbilitySkill *> skills = Sanguosha->turnDelayedTrickSkills(effect.to, this);
+    foreach (const Skill *sk, skills) {
+        room->sendCompulsoryTriggerLog(effect.to, sk->objectName());
+        room->notifySkillInvoked(effect.to, sk->objectName());
+    }
     judge_struct.good = turn_good ? !judge.good : judge.good;
     room->judge(judge_struct);
 

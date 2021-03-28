@@ -1044,6 +1044,25 @@ public:
     }
 };
 
+class BossShenyi : public StatusAbilitySkill
+{
+public:
+    BossShenyi() : StatusAbilitySkill("bossshenyi")
+    {
+
+    }
+
+    virtual bool canTurnOver(const Player *player) const
+    {
+        return !player->hasSkill(this);
+    }
+
+    virtual bool turnDelayedTrickResult(const Player *player, const Card *) const
+    {
+        return player->hasSkill(this);
+    }
+};
+
 TrialOfGodPackage::TrialOfGodPackage()
     : Package("TrialOfGod")
 {
@@ -1085,8 +1104,6 @@ TrialOfGodPackage::TrialOfGodPackage()
     General *yandi = new General(this, "yandi", "god", 6, true, true);
     yandi->addSkill("bossshenyi");
     yandi->addSkill("bossshenen");
-    yandi->addSkill("#bossshenen-target");
-    yandi->addSkill("#bossshenen-maxcards");
     yandi->addSkill(new BossChiyi);
 
     General *baihu = new General(this, "baihu", "god", 4, true, true);
@@ -1109,8 +1126,6 @@ TrialOfGodPackage::TrialOfGodPackage()
     General *shaohao = new General(this, "shaohao", "god", 6, true, true);
     shaohao->addSkill("bossshenyi");
     shaohao->addSkill("bossshenen");
-    shaohao->addSkill("#bossshenen-target");
-    shaohao->addSkill("#bossshenen-maxcards");
     shaohao->addSkill(new BossBaiyi);
 
     General *xuanwu = new General(this, "xuanwu", "god", 4, false, true);
@@ -1130,8 +1145,6 @@ TrialOfGodPackage::TrialOfGodPackage()
     General *zhuanxu = new General(this, "zhuanxu", "god", 4, true, true);
     zhuanxu->addSkill("bossshenyi");
     zhuanxu->addSkill("bossshenen");
-    zhuanxu->addSkill("#bossshenen-target");
-    zhuanxu->addSkill("#bossshenen-maxcards");
     zhuanxu->addSkill(new BossZaoyi);
     zhuanxu->addSkill(new BossZaoyiTrigger);
     related_skills.insertMulti("bosszaoyi","#bosszaoyi-trigger");

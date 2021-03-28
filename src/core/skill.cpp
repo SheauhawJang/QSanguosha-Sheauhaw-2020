@@ -709,6 +709,32 @@ ViewHasSkill::ViewHasSkill(const QString &name)
 {
 }
 
+StatusAbilitySkill::StatusAbilitySkill(const QString &name)
+    : Skill(name, Skill::Compulsory)
+{
+
+}
+
+bool StatusAbilitySkill::canSetChain(const Player *, bool) const
+{
+    return true;
+}
+
+bool StatusAbilitySkill::canTurnOver(const Player *) const
+{
+    return true;
+}
+
+bool StatusAbilitySkill::canPindian(const Player *, const Player *) const
+{
+    return true;
+}
+
+bool StatusAbilitySkill::turnDelayedTrickResult(const Player *, const Card *) const
+{
+    return false;
+}
+
 dummyVS::dummyVS() : ZeroCardViewAsSkill("dummy")
 {
 }

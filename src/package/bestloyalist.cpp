@@ -440,7 +440,13 @@ void Thunder::onEffect(const CardEffectStruct &effect) const
 
     JudgeStruct judge_struct = judge;
     judge_struct.who = effect.to;
-    judge_struct.good = effect.to->hasSkill("bossshenyi") ? !judge.good : judge.good;
+    bool turn_good = Sanguosha->correctTurnDelayedTrickResult(effect.to, this);
+    QList<const StatusAbilitySkill *> skills = Sanguosha->turnDelayedTrickSkills(effect.to, this);
+    foreach (const Skill *sk, skills) {
+        room->sendCompulsoryTriggerLog(effect.to, sk->objectName());
+        room->notifySkillInvoked(effect.to, sk->objectName());
+    }
+    judge_struct.good = turn_good ? !judge.good : judge.good;
     room->judge(judge_struct);
 
     if (judge_struct.isBad())

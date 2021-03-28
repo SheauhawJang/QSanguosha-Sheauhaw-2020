@@ -1697,12 +1697,10 @@ NostalThicketPackage::NostalThicketPackage()
     General *nos_menghuo = new General(this, "nos_menghuo", "shu", 4, true, true);
     nos_menghuo->addSkill(new NosZaiqi);
     nos_menghuo->addSkill("huoshou");
-    nos_menghuo->addSkill("#sa_avoid_huoshou");
 
     General *nos_zhurong = new General(this, "nos_zhurong", "shu", 4, false, true);
     nos_zhurong->addSkill(new NosLieren);
     nos_zhurong->addSkill("juxiang");
-    nos_zhurong->addSkill("#sa_avoid_juxiang");
 
     General *nos_sunjian = new General(this, "nos_sunjian", "wu", 4, true, true);
     nos_sunjian->addSkill("yinghun");

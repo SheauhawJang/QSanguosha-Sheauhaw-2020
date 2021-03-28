@@ -959,7 +959,7 @@ NostalMOLPackage::NostalMOLPackage()
 
     General *pangtong = new General(this, "nmol_pangtong", "shu", 3, true, true);
     pangtong->addSkill("lianhuan");
-    pangtong->addSkill("#lianhuan-target");
+    //pangtong->addSkill("#lianhuan-target");
     pangtong->addSkill(new NMOLNiepan);
 
     General *wolong = new General(this, "nmol_wolong", "shu", 3, true, true);
@@ -974,7 +974,6 @@ NostalMOLPackage::NostalMOLPackage()
     General *menghuo = new General(this, "nmol_menghuo", "shu", 4, true, true);
     menghuo->addSkill(new NMOLZaiqi);
     menghuo->addSkill("huoshou");
-    menghuo->addSkill("#sa_avoid_huoshou");
 
     General *sunjian = new General(this, "nmol_sunjian", "wu", 4, true, true);
     sunjian->addSkill("yinghun");

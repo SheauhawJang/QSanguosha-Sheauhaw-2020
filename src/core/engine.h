@@ -127,6 +127,14 @@ public:
     int correctCardTarget(const TargetModSkill::ModType type, const Player *from, const Card *card, const Player *to = NULL) const;
     bool correctSkillValidity(const Player *player, const Skill *skill) const;
     int correctAttackRange(const Player *target, bool include_weapon = true, bool fixed = false) const;
+    const StatusAbilitySkill *turnOverSkill(const Player *target) const;
+    const StatusAbilitySkill *setChainSkill(const Player *target, bool setting) const;
+    const StatusAbilitySkill *pindianProhibitSkill(const Player *to, const Player *from) const;
+    QList<const StatusAbilitySkill *> turnDelayedTrickSkills(const Player *player, const Card *card) const;
+    bool correctCanTurnOver(const Player *target) const;
+    bool correctCanSetChain(const Player *target, bool setting) const;
+    bool correctCanPindian(const Player *to, const Player *from) const;
+    bool correctTurnDelayedTrickResult(const Player *player, const Card *card) const;
 
     void registerRoom(QObject *room);
     void unregisterRoom();
@@ -172,6 +180,7 @@ private:
     QList<const InvaliditySkill *> invalidity_skills;
     QList<const TriggerSkill *> global_trigger_skills;
     QList<const AttackRangeSkill *> attack_range_skills;
+    QList<const StatusAbilitySkill *> status_ability_skills;
 
     QList<Card *> cards;
     QStringList lord_list;
