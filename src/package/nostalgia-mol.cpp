@@ -937,6 +937,97 @@ public:
     }
 };
 
+class NMOLFangquan : public TriggerSkill
+{
+public:
+    NMOLFangquan() : TriggerSkill("nmolfangquan")
+    {
+        events << EventPhaseChanging;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::Play && !player->isSkipped(Player::Play)) {
+                return nameList();
+            } else if (change.to == Player::NotActive && player->hasFlag("nmolfangquanInvoked"))
+                return QStringList("nmolfangquan!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *liushan, QVariant &data, ServerPlayer *) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to == Player::Play && liushan->askForSkillInvoke(this)) {
+            liushan->broadcastSkillInvoke(objectName(), 1);
+            liushan->skip(Player::Play, true);
+            liushan->setFlags("nmolfangquanInvoked");
+        } else if (change.to == Player::NotActive) {
+            room->sendCompulsoryTriggerLog(liushan, objectName());
+            liushan->broadcastSkillInvoke(objectName(), 2);
+            room->askForUseCard(liushan, "@@fangquanask", "@fangquan-give", data, Card::MethodDiscard);
+        }
+        return false;
+    }
+};
+
+class NMOLFangquanMaxCards : public MaxCardsSkill
+{
+public:
+    NMOLFangquanMaxCards() : MaxCardsSkill("#nmolfangquan")
+    {
+
+    }
+
+    virtual int getFixed(const Player *target) const
+    {
+        if (target->hasSkill("nmolfangquan") && target->hasFlag("nmolfangquanInvoked"))
+            return target->getMaxHp();
+        else
+            return -1;
+    }
+};
+
+class NMOLRuoyu : public PhaseChangeSkill
+{
+public:
+    NMOLRuoyu() : PhaseChangeSkill("nmolruoyu$")
+    {
+        frequency = Wake;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        if (target != NULL && target->isAlive() && target->hasLordSkill("nmolruoyu") && target->getMark("nmolruoyu") == 0 && target->getPhase() == Player::Start) {
+            QList<ServerPlayer *> players = target->getRoom()->getAlivePlayers();
+            foreach (ServerPlayer *p, players) {
+                if (target->getHp() > p->getHp()) return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *liushan) const
+    {
+        Room *room = liushan->getRoom();
+
+        room->sendCompulsoryTriggerLog(liushan, objectName());
+
+        liushan->broadcastSkillInvoke(objectName());
+
+        room->setPlayerMark(liushan, "nmolruoyu", 1);
+        if (room->changeMaxHpForAwakenSkill(liushan, 1)) {
+            room->recover(liushan, RecoverStruct(liushan));
+            room->acquireSkill(liushan, "jijiang");
+        }
+
+        return false;
+    }
+};
+
 NostalMOLPackage::NostalMOLPackage()
     : Package("nostalgia_mol")
 {
@@ -993,6 +1084,13 @@ NostalMOLPackage::NostalMOLPackage()
     related_skills.insertMulti("nmoltuntian", "#nmoltuntian-clear");
     dengai->addSkill(new NMOLZaoxian);
     dengai->addRelateSkill("nmoljixi");
+
+    General *liushan = new General(this, "nmol_liushan$", "shu", 3, true, true);
+    liushan->addSkill("xiangle");
+    liushan->addSkill(new NMOLFangquan);
+    liushan->addSkill(new NMOLFangquanMaxCards);
+    liushan->addSkill(new NMOLRuoyu);
+    related_skills.insertMulti("nmolfangquan", "#nmolfangquan");
 
     addMetaObject<NMOLQingjianAllotCard>();
     addMetaObject<NMOLQiangxiCard>();

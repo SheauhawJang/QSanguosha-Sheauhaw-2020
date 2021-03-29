@@ -1076,9 +1076,23 @@ public:
         ServerPlayer *target = room->askForPlayerChosen(liushan, room->getAlivePlayers(), objectName(), "@sishu-invoke", true, true);
         if (target != NULL) {
             liushan->broadcastSkillInvoke(objectName());
-            room->setPlayerMark(target, "#sishu", 1 - target->getMark("#sishu"));
+            room->setPlayerMark(target, "#sishu", target->getMark("#sishu") ^ 1);
         }
         return false;
+    }
+};
+
+class SishuStatus : public StatusAbilitySkill
+{
+public:
+    SishuStatus() : StatusAbilitySkill("#sishu-status")
+    {
+
+    }
+
+    virtual bool turnDelayedTrickResult(const Player *player, const Card *card) const
+    {
+        return player->getMark("#sishu") && card->isKindOf("Indulgence");
     }
 };
 
@@ -1419,6 +1433,7 @@ MountainPackage::MountainPackage()
     liushan->addSkill(new Ruoyu);
     liushan->addRelateSkill("jijiang");
     liushan->addRelateSkill("sishu");
+    related_skills.insertMulti("sishu", "#sishu-status");
 
     General *sunce = new General(this, "sunce$", "wu"); // WU 010
     sunce->addSkill(new Jiang);
@@ -1447,7 +1462,7 @@ MountainPackage::MountainPackage()
     addMetaObject<ZhibaCard>();
     addMetaObject<FangquanAskCard>();
 
-    skills << new ZhibaPindian << new Jixi << new FangquanAsk << new QiaobianMove << new Sishu;
+    skills << new ZhibaPindian << new Jixi << new FangquanAsk << new QiaobianMove << new Sishu << new SishuStatus;
 }
 
 ADD_PACKAGE(Mountain)

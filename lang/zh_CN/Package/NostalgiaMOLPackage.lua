@@ -72,5 +72,18 @@ return {
 	[":nmolzaoxian"] = "觉醒技，准备阶段开始时，若“田”的数量不小于3，你减1点体力上限，然后获得技能“急袭”（你可以将一张“田”当【顺手牵羊】使用）。",
 	["nmoljixi"] = "急袭",
 	[":nmoljixi"] = "你可以将一张“田”当【顺手牵羊】使用。",
+	
+	["nmol_liushan"] = "刘禅-旧手",
+	["&nmol_liushan"] = "刘禅",
+	["nmolfangquan"] = "放权",
+	["nmolfangquanask"] = "放权",
+	["#nmolfangquan-next"] = "放权",
+	[":nmolfangquan"] = "你可以跳过出牌阶段。若如此做，本回合手牌上限等于你的体力上限，且本回合结束时，你可以弃置一张手牌并选择一名其他角色，然后令其获得一个额外的回合。",
+	["@nmolfangquan-give"] = "你可以弃置一张手牌令一名其他角色进行一个额外的回合",
+	["nmolruoyu"] = "若愚",
+	[":nmolruoyu"] = "主公技，觉醒技，准备阶段开始时，若你是体力值最小的角色（或之一），你加1点体力上限，回复1点体力，然后获得技能“激将”。",
+	["$NMOLRuoyuAnimate"] = "image=image/animate/ruoyu.png",
+	["#NMOLFangquan"] = "%to 将进行一个额外的回合",
+	["#NMOLRuoyuWake"] = "%from 的体力值 %arg 为场上最少，触发“%arg2”觉醒",
 
 }

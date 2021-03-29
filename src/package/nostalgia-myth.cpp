@@ -1605,6 +1605,42 @@ public:
     }
 };
 
+class NosFangquan : public TriggerSkill
+{
+public:
+    NosFangquan() : TriggerSkill("nosfangquan")
+    {
+        events << EventPhaseChanging;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::Play && !player->isSkipped(Player::Play)) {
+                return nameList();
+            } else if (change.to == Player::NotActive && player->hasFlag("nosfangquanInvoked"))
+                return QStringList("nosfangquan!");
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *liushan, QVariant &data, ServerPlayer *) const
+    {
+        PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+        if (change.to == Player::Play && liushan->askForSkillInvoke(this)) {
+            liushan->broadcastSkillInvoke(objectName(), 1);
+            liushan->skip(Player::Play, true);
+            liushan->setFlags("nosfangquanInvoked");
+        } else if (change.to == Player::NotActive) {
+            room->sendCompulsoryTriggerLog(liushan, objectName());
+            liushan->broadcastSkillInvoke(objectName(), 2);
+            room->askForUseCard(liushan, "@@fangquanask", "@fangquan-give", data, Card::MethodDiscard);
+        }
+        return false;
+    }
+};
+
 
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
@@ -1728,6 +1764,11 @@ NostalMountainPackage::NostalMountainPackage()
     nos_jiangwei->addSkill(new NosTiaoxin);
     nos_jiangwei->addSkill("zhiji");
     nos_jiangwei->addRelateSkill("guanxing");
+
+    General *nos_liushan = new General(this, "nos_liushan", "shu", 3, true, true);
+    nos_liushan->addSkill("xiangle");
+    nos_liushan->addSkill(new NosFangquan);
+    nos_liushan->addSkill("nmolruoyu");
 
     addMetaObject<NosTiaoxinCard>();
 

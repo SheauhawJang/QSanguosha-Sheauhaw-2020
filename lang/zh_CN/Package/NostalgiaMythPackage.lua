@@ -145,4 +145,12 @@ return {
 	["&nos_jiangwei"] = "姜维",
 	["nostiaoxin"] = "挑衅",
 	[":nostiaoxin"] = "出牌阶段限一次，你可以选择一名攻击范围内含有你的角色，然后除非该角色对你使用一张【杀】，否则你弃置其一张牌。",
+	
+	["nos_liushan"] = "刘禅-旧",
+	["&nos_liushan"] = "刘禅",
+	["nosfangquan"] = "放权",
+	["nosfangquanask"] = "放权",
+	["#nosfangquan-next"] = "放权",
+	[":nosfangquan"] = "你可以跳过出牌阶段。若如此做，本回合结束时，你可以弃置一张手牌并选择一名其他角色，然后令其获得一个额外的回合。",
+	["@nosfangquan-give"] = "你可以弃置一张手牌令一名其他角色进行一个额外的回合",
 }
