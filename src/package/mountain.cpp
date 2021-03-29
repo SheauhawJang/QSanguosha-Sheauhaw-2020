@@ -1076,7 +1076,7 @@ public:
         ServerPlayer *target = room->askForPlayerChosen(liushan, room->getAlivePlayers(), objectName(), "@sishu-invoke", true, true);
         if (target != NULL) {
             liushan->broadcastSkillInvoke(objectName());
-            room->setPlayerMark(target, "#sishu", target->getMark("#sishu") ^ 1);
+            room->addPlayerMark(target, "#sishu");
         }
         return false;
     }
@@ -1092,7 +1092,7 @@ public:
 
     virtual bool turnDelayedTrickResult(const Player *player, const Card *card) const
     {
-        return player->getMark("#sishu") && card->isKindOf("Indulgence");
+        return (player->getMark("#sishu") & 1) && card->isKindOf("Indulgence");
     }
 };
 
