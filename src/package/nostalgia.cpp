@@ -2155,7 +2155,7 @@ NostalStandardPackage::NostalStandardPackage()
 
     General *nos_diaochan = new General(this, "nos_diaochan", "qun", 3, false);
     nos_diaochan->addSkill(new NosLijian);
-    nos_diaochan->addSkill("nphybiyue");
+    nos_diaochan->addSkill("nos2013biyue");
 
     addMetaObject<NosTuxiCard>();
     addMetaObject<NosRendeCard>();

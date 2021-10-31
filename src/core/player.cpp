@@ -861,8 +861,8 @@ bool Player::canDiscard(const Player *to, const QString &flags) const
     if (flags.contains(judging_flag) && !to->getJudgingArea().isEmpty()) return true;
     if (flags.contains(equip_flag)) {
         if (to->getDefensiveHorse() || to->getOffensiveHorse()) return true;
-        if ((to->getArmor() || to->getTreasure()) && (!(to->hasSkill("qicai") && to->hasSkill("nphyqicai")) || this == to)) return true;
-        if (to->getWeapon() && (!to->hasSkill("nphyqicai") || this == to)) return true;
+        if ((to->getArmor() || to->getTreasure()) && (!(to->hasSkill("qicai") && to->hasSkill("nos2013qicai")) || this == to)) return true;
+        if (to->getWeapon() && (!to->hasSkill("nos2013qicai") || this == to)) return true;
     }
     return false;
 }
@@ -872,8 +872,8 @@ bool Player::canDiscard(const Player *to, int card_id) const
     if (to == NULL)
         return false;
 
-    if ((to->hasSkill("nphyqicai") || to->hasSkill("qicai")) && this != to) {
-        if ((to->hasSkill("nphyqicai") && to->getWeapon() && card_id == to->getWeapon()->getEffectiveId())
+    if ((to->hasSkill("nos2013qicai") || to->hasSkill("qicai")) && this != to) {
+        if ((to->hasSkill("nos2013qicai") && to->getWeapon() && card_id == to->getWeapon()->getEffectiveId())
                 || (to->getArmor() && card_id == to->getArmor()->getEffectiveId())
                 || (to->getTreasure() && card_id == to->getTreasure()->getEffectiveId()))
             return false;
