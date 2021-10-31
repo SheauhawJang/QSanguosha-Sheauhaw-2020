@@ -5,57 +5,46 @@
 #include "card.h"
 #include "skill.h"
 
-class LimitMOLPackage : public Package
+class NostalMOLPackage : public Package
 {
     Q_OBJECT
 
 public:
-    LimitMOLPackage();
+    NostalMOLPackage();
 };
 
-class MOLQingjianAllotCard : public SkillCard
+class NMOLQingjianAllotCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE MOLQingjianAllotCard();
+    Q_INVOKABLE NMOLQingjianAllotCard();
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class MOLQiangxiCard : public SkillCard
+class NMOLQiangxiCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE MOLQiangxiCard();
+    Q_INVOKABLE NMOLQiangxiCard();
 
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
     virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
     virtual void onEffect(const CardEffectStruct &effect) const;
 };
 
-class MOLNiepanCard : public SkillCard
+class NMOLNiepanCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE MOLNiepanCard();
+    Q_INVOKABLE NMOLNiepanCard();
 
     virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 
     static void doNiepan(Room *room, ServerPlayer *player);
-};
-
-class MOLZhibaCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MOLZhibaCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
 #endif // NOSTALMOL_H

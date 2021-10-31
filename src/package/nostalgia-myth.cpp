@@ -1641,39 +1641,6 @@ public:
     }
 };
 
-class NosHunzi : public PhaseChangeSkill
-{
-public:
-    NosHunzi() : PhaseChangeSkill("noshunzi")
-    {
-        frequency = Wake;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return PhaseChangeSkill::triggerable(target)
-               && target->getMark("noshunzi") == 0
-               && target->getPhase() == Player::Start
-               && target->getHp() == 1;
-    }
-
-    virtual bool onPhaseChange(ServerPlayer *sunce) const
-    {
-        Room *room = sunce->getRoom();
-        room->sendCompulsoryTriggerLog(sunce, objectName());
-
-        sunce->broadcastSkillInvoke(objectName());
-        //room->doLightbox("$HunziAnimate", 5000);
-
-        room->setPlayerMark(sunce, "noshunzi", 1);
-        room->setPlayerMark(sunce, "ZhibaReject", 1);
-        if (room->changeMaxHpForAwakenSkill(sunce) && sunce->getMark("noshunzi") == 1) {
-            room->handleAcquireDetachSkills(sunce, "yingzi|yinghun");
-        }
-        return false;
-    }
-};
-
 
 NostalWindPackage::NostalWindPackage()
     : Package("nostal_wind")
@@ -1690,7 +1657,7 @@ NostalWindPackage::NostalWindPackage()
 
     General *nos_zhangjiao = new General(this, "nos_zhangjiao$", "qun", 3);
     nos_zhangjiao->addSkill(new NosLeiji);
-    nos_zhangjiao->addSkill("olguidao");
+    nos_zhangjiao->addSkill("nolguidao");
     nos_zhangjiao->addSkill("huangtian");
 
     General *nos_yuji = new General(this, "nos_yuji", "qun", 3);
@@ -1707,7 +1674,7 @@ NostalWindPackage::NostalWindPackage()
 
     General *nos_xiaoqiao = new General(this, "nos_xiaoqiao", "wu", 3, false, true);
     nos_xiaoqiao->addSkill(new NosTianxiang);
-    nos_xiaoqiao->addSkill("olhongyan");
+    nos_xiaoqiao->addSkill("nolhongyan");
 
     addMetaObject<NosGuhuoCard>();
     addMetaObject<NosShensuCard>();
@@ -1738,7 +1705,7 @@ NostalFirePackage::NostalFirePackage()
 
     General *nos_yuanshao = new General(this, "nos_yuanshao$", "qun", 4, true, true);
     nos_yuanshao->addSkill(new NosLuanji);
-    nos_yuanshao->addSkill("molxueyi");
+    nos_yuanshao->addSkill("nmolxueyi");
 
     General *nos_yanliangwenchou = new General(this, "nos_yanliangwenchou", "qun", 4, true, true);
     nos_yanliangwenchou->addSkill(new NosShuangxiong);
@@ -1778,7 +1745,7 @@ NostalThicketPackage::NostalThicketPackage()
     nos_dongzhuo->addSkill(new NosJiuchi);
     nos_dongzhuo->addSkill("roulin");
     nos_dongzhuo->addSkill("benghuai");
-    nos_dongzhuo->addSkill("molbaonue");
+    nos_dongzhuo->addSkill("nmolbaonue");
 }
 
 NostalMountainPackage::NostalMountainPackage()
@@ -1801,12 +1768,7 @@ NostalMountainPackage::NostalMountainPackage()
     General *nos_liushan = new General(this, "nos_liushan", "shu", 3, true, true);
     nos_liushan->addSkill("xiangle");
     nos_liushan->addSkill(new NosFangquan);
-    nos_liushan->addSkill("molruoyu");
-
-    General *nos_sunce = new General(this, "nos_sunce", "wu", 4, true, true);
-    nos_sunce->addSkill("jiang");
-    nos_sunce->addSkill(new NosHunzi);
-    nos_sunce->addSkill("molzhiba");
+    nos_liushan->addSkill("nmolruoyu");
 
     addMetaObject<NosTiaoxinCard>();
 

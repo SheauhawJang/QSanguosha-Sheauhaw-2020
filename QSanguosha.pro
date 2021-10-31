@@ -141,12 +141,11 @@ SOURCES += \
     src/ui/guhuodialog.cpp \
     src/ui/yanjiaobox.cpp \
     src/package/dragonboat.cpp \
+    src/package/nostalgia-ol.cpp \
     src/package/nostalgia-limit.cpp \
+    src/package/nostalgia-mol.cpp \
     src/package/nostalgia-physical.cpp \
-    src/package/nostalgia-myth.cpp \
-    src/package/limit-ol.cpp \
-    src/package/limit-mol.cpp \
-    src/package/limit-szn.cpp
+    src/package/nostalgia-myth.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -280,13 +279,12 @@ HEADERS += \
     src/ui/guhuodialog.h \
     src/ui/yanjiaobox.h \
     src/package/dragonboat.h \
+    src/package/nostalgia-ol.h \
     src/package/nostalgia-limit.h \
+    src/package/nostalgia-mol.h \
     src/package/nostalgia-physical.h \
     nostalgia-myth.h \
-    src/package/nostalgia-myth.h \
-    src/package/limit-ol.h \
-    src/package/limit-mol.h \
-    src/package/limit-szn.h
+    src/package/nostalgia-myth.h
 
 FORMS += \
     src/dialog/cardoverview.ui \

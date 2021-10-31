@@ -5,32 +5,41 @@
 #include "card.h"
 #include "skill.h"
 
-class LimitOLPackage : public Package
+class NostalOLPackage : public Package
 {
     Q_OBJECT
 
 public:
-    LimitOLPackage();
+    NostalOLPackage();
 };
 
-class OLQimouCard : public SkillCard
+class NOLQingjianAllotCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE OLQimouCard();
+    Q_INVOKABLE NOLQingjianAllotCard();
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+};
+
+class NOLQimouCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NOLQimouCard();
 
     virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class OLGuhuoCard : public SkillCard
+class NOLGuhuoCard : public SkillCard
 {
     Q_OBJECT
 
 public:
-    Q_INVOKABLE OLGuhuoCard();
-    bool olguhuo(ServerPlayer *yuji) const;
+    Q_INVOKABLE NOLGuhuoCard();
+    bool nolguhuo(ServerPlayer *yuji) const;
 
     virtual bool targetFixed() const;
     virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;

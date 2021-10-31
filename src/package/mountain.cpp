@@ -512,26 +512,24 @@ public:
         //room->doLightbox("$HunziAnimate", 5000);
 
         room->setPlayerMark(sunce, "hunzi", 1);
-        if (room->changeMaxHpForAwakenSkill(sunce) && sunce->getMark("hunzi") == 1) {
-            room->recover(sunce, RecoverStruct());
+        if (room->changeMaxHpForAwakenSkill(sunce) && sunce->getMark("hunzi") == 1)
             room->handleAcquireDetachSkills(sunce, "yingzi|yinghun");
-        }
         return false;
     }
 };
 
-ZhibaAttachCard::ZhibaAttachCard()
+ZhibaCard::ZhibaCard()
 {
     mute = true;
-    m_skillName = "zhiba_attach";
+    m_skillName = "zhiba_pindian";
 }
 
-bool ZhibaAttachCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+bool ZhibaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
 {
-    return targets.isEmpty() && to_select->hasLordSkill("zhiba") && Self->canPindian(to_select) && !to_select->hasFlag("ZhibaAttachInvoked");
+    return targets.isEmpty() && to_select->hasLordSkill("zhiba") && Self->canPindian(to_select) && !to_select->hasFlag("ZhibaInvoked");
 }
 
-void ZhibaAttachCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
+void ZhibaCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
     ServerPlayer *sunce = targets.first();
     LogMessage log;
@@ -541,10 +539,10 @@ void ZhibaAttachCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *
     log.arg = "zhiba";
     room->sendLog(log);
     room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, source->objectName(), sunce->objectName());
-    room->setPlayerFlag(sunce, "ZhibaAttachInvoked");
+    room->setPlayerFlag(sunce, "ZhibaInvoked");
     room->notifySkillInvoked(sunce, "zhiba");
     sunce->broadcastSkillInvoke("zhiba");
-    if (room->askForChoice(sunce, "zhiba_attach", "yes+no", QVariant(), "@zhiba-pindianstart:" + source->objectName()) == "no") {
+    if (sunce->getMark("hunzi") > 0 && room->askForChoice(sunce, "zhiba_pindian", "yes+no", QVariant(), "@zhiba-pindianstart" + source->objectName()) == "no") {
         LogMessage log;
         log.type = "#ZhibaReject";
         log.from = sunce;
@@ -555,13 +553,13 @@ void ZhibaAttachCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *
         return;
     }
 
-    source->pindian(sunce, "zhiba_attach");
+    source->pindian(sunce, "zhiba");
 }
 
-class ZhibaAttach : public ZeroCardViewAsSkill
+class ZhibaPindian : public ZeroCardViewAsSkill
 {
 public:
-    ZhibaAttach() : ZeroCardViewAsSkill("zhiba_attach")
+    ZhibaPindian() : ZeroCardViewAsSkill("zhiba_pindian")
     {
         attached_lord_skill = true;
     }
@@ -570,7 +568,7 @@ public:
     {
         if (!shouldBeVisible(player) || player->isKongcheng()) return false;
         foreach(const Player *sib, player->getAliveSiblings())
-            if (sib->hasLordSkill("zhiba") && !sib->hasFlag("ZhibaAttachInvoked") && !sib->isKongcheng() && player->canPindian(sib))
+            if (sib->hasLordSkill("zhiba") && !sib->hasFlag("ZhibaInvoked") && !sib->isKongcheng())
                 return true;
         return false;
     }
@@ -578,49 +576,6 @@ public:
     virtual bool shouldBeVisible(const Player *Self) const
     {
         return Self && Self->getKingdom() == "wu";
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return new ZhibaAttachCard;
-    }
-};
-
-ZhibaCard::ZhibaCard()
-{
-    mute = true;
-    m_skillName = "zhiba";
-}
-
-bool ZhibaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
-{
-    return targets.isEmpty() && to_select->getKingdom() == "wu" && Self->canPindian(to_select) && !Self->hasFlag("ZhibaInvoked");
-}
-
-void ZhibaCard::use(Room *room, ServerPlayer *sunce, QList<ServerPlayer *> &targets) const
-{
-    ServerPlayer *target = targets.first();
-    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, sunce->objectName(), target->objectName());
-    room->setPlayerFlag(target, "ZhibaInvoked");
-    room->notifySkillInvoked(target, "zhiba");
-    target->broadcastSkillInvoke("zhiba");
-    sunce->pindian(target, "zhiba");
-}
-
-class ZhibaViewAs : public ZeroCardViewAsSkill
-{
-public:
-    ZhibaViewAs() : ZeroCardViewAsSkill("zhiba")
-    {
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const
-    {
-        if (player->isKongcheng() || player->hasFlag("ZhibaInvoked")) return false;
-        foreach(const Player *sib, player->getAliveSiblings())
-            if (sib->getKingdom() == "wu" && player->canPindian(sib))
-                return true;
-        return false;
     }
 
     virtual const Card *viewAs() const
@@ -635,36 +590,16 @@ public:
     Zhiba() : TriggerSkill("zhiba$")
     {
         events << GameStart << EventAcquireSkill << EventLoseSkill << Pindian << EventPhaseChanging;
-        view_as_skill = new ZhibaViewAs;
+        view_as_skill = new dummyVS;
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool triggerable(const ServerPlayer *target) const
     {
-        TriggerList list;
-        if (player == NULL) return list;
-        if (triggerEvent == Pindian) {
-            PindianStruct *pindian = data.value<PindianStruct *>();
-            if ((pindian->reason == "zhiba_attach" && !pindian->isSuccess()) ||
-                    (pindian->reason == "zhiba" && (pindian->isSuccess() || pindian->from_number == pindian->to_number))) {
-                bool on_table = false;
-                if (room->getCardPlace(pindian->from_card->getEffectiveId()) == Player::PlaceTable)
-                    on_table = true;
-                if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
-                    on_table = true;
-                if (on_table) {
-                    if (pindian->reason == "zhiba")
-                        list.insert(pindian->from, nameList());
-                    else
-                        list.insert(pindian->to, nameList());
-                }
-            }
-        }
-        return list;
+        return target != NULL;
     }
 
-    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual bool trigger(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (player == NULL) return;
         if ((triggerEvent == GameStart && player->isLord())
                 || (triggerEvent == EventAcquireSkill && data.toString() == "zhiba")) {
             QList<ServerPlayer *> lords;
@@ -672,7 +607,7 @@ public:
                 if (p->hasLordSkill(this))
                     lords << p;
             }
-            if (lords.isEmpty()) return;
+            if (lords.isEmpty()) return false;
 
             QList<ServerPlayer *> players;
             if (lords.length() > 1)
@@ -680,8 +615,8 @@ public:
             else
                 players = room->getOtherPlayers(lords.first());
             foreach (ServerPlayer *p, players) {
-                if (!p->hasSkill("zhiba_attach"))
-                    room->attachSkillToPlayer(p, "zhiba_attach");
+                if (!p->hasSkill("zhiba_pindian"))
+                    room->attachSkillToPlayer(p, "zhiba_pindian");
             }
         } else if (triggerEvent == EventLoseSkill && data.toString() == "zhiba") {
             QList<ServerPlayer *> lords;
@@ -689,7 +624,7 @@ public:
                 if (p->hasLordSkill(this))
                     lords << p;
             }
-            if (lords.length() > 2) return;
+            if (lords.length() > 2) return false;
 
             QList<ServerPlayer *> players;
             if (lords.isEmpty())
@@ -697,34 +632,35 @@ public:
             else
                 players << lords.first();
             foreach (ServerPlayer *p, players) {
-                if (p->hasSkill("zhiba_attach"))
-                    room->detachSkillFromPlayer(p, "zhiba_attach", true);
+                if (p->hasSkill("zhiba_pindian"))
+                    room->detachSkillFromPlayer(p, "zhiba_pindian", true);
             }
+        } else if (triggerEvent == Pindian) {
+            PindianStruct *pindian = data.value<PindianStruct *>();
+            if (pindian->reason != "zhiba" || !pindian->to->hasLordSkill(this))
+                return false;
+            if (!pindian->isSuccess()) {
+                DummyCard *dummy = new DummyCard;
+                if (room->getCardPlace(pindian->from_card->getEffectiveId()) == Player::PlaceTable)
+                    dummy->addSubcard(pindian->from_card);
+                if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
+                    dummy->addSubcard(pindian->to_card);
+                if (dummy->subcardsLength() > 0 && room->askForChoice(pindian->to, "zhiba", "yes+no", data, "@zhiba-pindianfinish") == "yes")
+                    pindian->to->obtainCard(dummy);
+                delete dummy;
+            }
+
         } else if (triggerEvent == EventPhaseChanging) {
             PhaseChangeStruct phase_change = data.value<PhaseChangeStruct>();
             if (phase_change.from != Player::Play)
-                return;
+                return false;
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach (ServerPlayer *p, players) {
                 if (p->hasFlag("ZhibaInvoked"))
                     room->setPlayerFlag(p, "-ZhibaInvoked");
-                if (p->hasFlag("ZhibaAttachInvoked"))
-                    room->setPlayerFlag(p, "-ZhibaAttachInvoked");
             }
         }
-    }
 
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *, QVariant &data, ServerPlayer *sunce) const
-    {
-        PindianStruct *pindian = data.value<PindianStruct *>();
-        DummyCard *dummy = new DummyCard;
-        if (room->getCardPlace(pindian->from_card->getEffectiveId()) == Player::PlaceTable)
-            dummy->addSubcard(pindian->from_card);
-        if (room->getCardPlace(pindian->to_card->getEffectiveId()) == Player::PlaceTable)
-            dummy->addSubcard(pindian->to_card);
-        if (room->askForChoice(sunce, "zhiba", "yes+no", data, "@zhiba-pindianfinish") == "yes")
-            sunce->obtainCard(dummy);
-        delete dummy;
         return false;
     }
 };
@@ -1524,10 +1460,9 @@ MountainPackage::MountainPackage()
     addMetaObject<TiaoxinCard>();
     addMetaObject<ZhijianCard>();
     addMetaObject<ZhibaCard>();
-    addMetaObject<ZhibaAttachCard>();
     addMetaObject<FangquanAskCard>();
 
-    skills << new ZhibaAttach << new Jixi << new FangquanAsk << new QiaobianMove << new Sishu << new SishuStatus;
+    skills << new ZhibaPindian << new Jixi << new FangquanAsk << new QiaobianMove << new Sishu << new SishuStatus;
 }
 
 ADD_PACKAGE(Mountain)
