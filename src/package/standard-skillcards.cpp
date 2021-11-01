@@ -279,12 +279,15 @@ QingnangCard::QingnangCard()
 
 bool QingnangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
 {
-    return targets.isEmpty() && to_select->isWounded();
+    return targets.isEmpty() && to_select->isWounded() && !to_select->getMark("QingnangUsed");
 }
 
 void QingnangCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
     ServerPlayer *target = targets.value(0, source);
+    if (getColor() == Card::Red)
+        room->addPlayerMark(source, "qingnangTimesIncrease");
+    room->addPlayerMark(target, "QingnangUsed");
     room->cardEffect(this, source, target);
 }
 

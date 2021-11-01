@@ -2188,11 +2188,12 @@ public:
     }
 };
 
-class Qingnang : public ZeroCardViewAsSkill
+class QingnangVS : public OneCardViewAsSkill
 {
 public:
-    Qingnang() : ZeroCardViewAsSkill("qingnang")
+    QingnangVS() : OneCardViewAsSkill("qingnang")
     {
+        filter_pattern = ".|.|.|hand!";
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const
@@ -2200,9 +2201,35 @@ public:
         return player->usedTimes("QingnangCard") <= player->getMark("qingnangTimesIncrease");
     }
 
-    virtual const Card *viewAs() const
+    virtual const Card *viewAs(const Card *originalCard) const
     {
-        return new QingnangCard;
+        QingnangCard *qingnang_card = new QingnangCard;
+        qingnang_card->addSubcard(originalCard->getId());
+        return qingnang_card;
+    }
+};
+
+class Qingnang : public TriggerSkill
+{
+public:
+    Qingnang() : TriggerSkill("qingnang")
+    {
+        events << EventPhaseStart;
+        view_as_skill = new QingnangVS;
+    }
+
+    virtual void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        if (player->getPhase() == Player::NotActive) {
+            room->setPlayerMark(player, "qingnangTimesIncrease", 0);
+            foreach (ServerPlayer *sp, room->getAllPlayers())
+                room->setPlayerMark(sp, "QingnangUsed", 0);
+        }
+    }
+
+    virtual bool triggerable(const ServerPlayer *) const
+    {
+        return false;
     }
 };
 
