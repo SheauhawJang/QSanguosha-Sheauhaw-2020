@@ -940,6 +940,7 @@ public:
     {
         if (triggerEvent == EventPhaseEnd && player->askForSkillInvoke(objectName())) {
             player->broadcastSkillInvoke(objectName());
+            room->showAllCards(player);
             DummyCard *dummy = new DummyCard;
             foreach (const Card *card, player->getCards("he")) {
                 if (card->getTypeId() == Card::TypeTrick || card->isKindOf("Horse"))
@@ -1275,7 +1276,7 @@ public:
     {
         if (triggerEvent != CardUsed || !TriggerSkill::triggerable(player)) return QStringList();
         CardUseStruct use = data.value<CardUseStruct>();
-        if (use.card && use.card->getTypeId() == Card::TypeTrick)
+        if (use.card && use.card->isNDTrick())
             return nameList();
         return QStringList();
     }
