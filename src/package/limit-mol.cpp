@@ -201,52 +201,6 @@ public:
     }
 };
 
-class MOLJieweiViewAsSkill : public OneCardViewAsSkill
-{
-public:
-    MOLJieweiViewAsSkill() : OneCardViewAsSkill("moljiewei")
-    {
-        filter_pattern = ".|.|.|equipped";
-        response_or_use = true;
-        response_pattern = "nullification";
-    }
-
-    virtual const Card *viewAs(const Card *originalCard) const
-    {
-        Nullification *ncard = new Nullification(originalCard->getSuit(), originalCard->getNumber());
-        ncard->addSubcard(originalCard);
-        ncard->setSkillName(objectName());
-        return ncard;
-    }
-
-    virtual bool isEnabledAtNullification(const ServerPlayer *player) const
-    {
-        return player->hasEquip();
-    }
-};
-
-class MOLJiewei : public TriggerSkill
-{
-public:
-    MOLJiewei() : TriggerSkill("moljiewei")
-    {
-        events << TurnedOver;
-        view_as_skill = new MOLJieweiViewAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return TriggerSkill::triggerable(target) && target->faceUp() && !target->isNude();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
-    {
-        if (room->askForCard(player, ".", "@jiewei", data, objectName()))
-            room->askForUseCard(player, "@@jiewei_move", "@jiewei-move");
-        return false;
-    }
-};
-
 MOLQiangxiCard::MOLQiangxiCard()
 {
 }
@@ -982,10 +936,6 @@ LimitMOLPackage::LimitMOLPackage()
     xiahoudun->addSkill(new MOLQingjian);
     xiahoudun->addSkill(new DetachEffectSkill("molqingjian", "molqingjian"));
     related_skills.insertMulti("molqingjian", "#molqingjian-clear");
-
-    General *caoren = new General(this, "mol_caoren", "wei", 4, true, true);
-    caoren->addSkill("jushou");
-    caoren->addSkill(new MOLJiewei);
 
     General *dianwei = new General(this, "mol_dianwei", "wei", 4, true, true);
     dianwei->addSkill(new MOLQiangxi);

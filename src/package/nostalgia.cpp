@@ -2067,7 +2067,7 @@ class NosPaoxiao : public TargetModSkill
 public:
     NosPaoxiao() : TargetModSkill("nospaoxiao")
     {
-
+        frequency = Frequent;
     }
 
     virtual int getResidueNum(const Player *from, const Card *, const Player *) const

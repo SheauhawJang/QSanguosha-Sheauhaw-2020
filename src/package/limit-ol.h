@@ -40,4 +40,17 @@ public:
     virtual const Card *validateInResponse(ServerPlayer *user) const;
 };
 
+class OLJieweiMoveCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE OLJieweiMoveCard();
+
+    virtual bool targetsFeasible(const QList<const Player *> &targets, const Player *Self) const;
+    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
+    virtual void onUse(Room *room, const CardUseStruct &use) const;
+};
+
+
 #endif // NOSTALOL_H
