@@ -1232,7 +1232,9 @@ LimitOLPackage::LimitOLPackage()
     General *xiaoqiao = new General(this, "ol_xiaoqiao", "wu", 3, false, true);
     xiaoqiao->addSkill(new OLTianxiang);
     xiaoqiao->addSkill(new OLHongyan);
+    xiaoqiao->addSkill(new OLHongyanMaxCard);
     xiaoqiao->addSkill(new Piaoling);
+    related_skills.insertMulti("olhongyan", "#olhongyan");
 
     General *zhangjiao = new General(this, "ol_zhangjiao$", "qun", 3, true, true);
     zhangjiao->addSkill(new OLLeiji);
