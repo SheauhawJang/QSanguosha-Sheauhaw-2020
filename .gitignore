@@ -35,7 +35,6 @@ Bin/
 /QSanguosha.vcxproj
 /QSanguosha.vcxproj.filters
 tags
-/extensions
 *~
 *.kdev4
 .cproject
@@ -47,7 +46,6 @@ tags
 /image/system/button/back.png
 /image/system/button/back_shade.png
 /extension-doc
-/extensions
 card_intention.txt
 ai.html
 *.sh
