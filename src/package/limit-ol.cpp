@@ -284,84 +284,6 @@ public:
     }
 };
 
-class OLLeiji : public TriggerSkill
-{
-public:
-    OLLeiji() : TriggerSkill("olleiji")
-    {
-        events << CardResponded;
-        view_as_skill = new dummyVS;
-    }
-
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
-    {
-        if (!TriggerSkill::triggerable(player)) return QStringList();
-        const Card *card_star = data.value<CardResponseStruct>().m_card;
-        if (card_star->isKindOf("Jink"))
-            return nameList();
-        return QStringList();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &, ServerPlayer *) const
-    {
-        ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
-        if (target) {
-            zhangjiao->broadcastSkillInvoke("olleiji");
-
-            JudgeStruct judge;
-            judge.patterns << ".|spade" << ".|club";
-            judge.good = false;
-            judge.negative = true;
-            judge.reason = objectName();
-            judge.who = target;
-
-            room->judge(judge);
-
-            int damage = 0;
-            if (judge.pattern == ".|spade") {
-                damage = 2;
-            } else if (judge.pattern == ".|club") {
-                damage = 1;
-                room->recover(zhangjiao, RecoverStruct(zhangjiao));
-            }
-            if (damage)
-                room->damage(DamageStruct(objectName(), zhangjiao, target, damage, DamageStruct::Thunder));
-        }
-        return false;
-    }
-};
-
-class OLGuidao : public TriggerSkill
-{
-public:
-    OLGuidao() : TriggerSkill("olguidao")
-    {
-        events << AskForRetrial;
-        view_as_skill = new dummyVS;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return TriggerSkill::triggerable(target) && !(target->isNude() && target->getHandPile().isEmpty());
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
-    {
-        JudgeStruct *judge = data.value<JudgeStruct *>();
-
-        QStringList prompt_list;
-        prompt_list << "@olguidao-card" << judge->who->objectName()
-                    << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
-        QString prompt = prompt_list.join(":");
-        const Card *card = room->askForCard(player, ".|black", prompt, data, Card::MethodResponse, judge->who, true, "olguidao");
-
-        if (card != NULL) {
-            room->retrial(card, player, judge, objectName(), true);
-        }
-        return false;
-    }
-};
-
 OLQimouCard::OLQimouCard()
 {
     target_fixed = true;
@@ -521,10 +443,16 @@ bool OLGuhuoCard::olguhuo(ServerPlayer *yuji) const
         success = (card->objectName() == user_string);
 
         if (success) {
+            QString choice = room->askForChoice(questioned, objectName(), "discard+losshp");
+            if (choice == "discard")
+                room->askForDiscard(questioned, objectName(), 1, 1, false, true);
+            else
+                room->loseHp(questioned);
             room->acquireSkill(questioned, "olchanyuan");
         } else {
             room->moveCardTo(this, yuji, NULL, Player::DiscardPile,
                              CardMoveReason(CardMoveReason::S_REASON_PUT, yuji->objectName(), QString(), "olguhuo"), true);
+            room->drawCards(questioned, 1, objectName());
         }
     }
     room->setPlayerFlag(yuji, "OLGuhuoUsed");
@@ -717,7 +645,7 @@ public:
 
     QString getSelectBox() const
     {
-        return "guhuo_bt";
+        return "olguhuo_bt";
     }
 
     virtual int getEffectIndex(const ServerPlayer *, const Card *card) const
@@ -784,8 +712,8 @@ public:
 
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
-        return skill->objectName().contains("chanyuan") || !player->hasSkill("olchanyuan")
-               || player->getHp() != 1 || skill->isAttachedLordSkill();
+        return skill->objectName().contains("olchanyuan") || !player->hasSkill("olchanyuan")
+               || player->getHp() > 1 || skill->isAttachedLordSkill();
     }
 };
 
@@ -1065,6 +993,99 @@ public:
                 CardMoveReason reason(CardMoveReason::S_REASON_PUT, xiaoqiao->objectName(), objectName(), QString());
                 room->moveCardTo(judge->card, NULL, Player::DrawPile, reason);
             }
+        }
+        return false;
+    }
+};
+
+class OLLeiji : public TriggerSkill
+{
+public:
+    OLLeiji() : TriggerSkill("olleiji")
+    {
+        events << CardUsed << CardResponded << FinishJudge;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            if (triggerEvent == FinishJudge) {
+                JudgeStruct *judge = data.value<JudgeStruct *>();
+                if (judge->card->isBlack())
+                    return QStringList("olleiji!");
+                return QStringList();
+            }
+            const Card *card = NULL;
+            if (triggerEvent == CardUsed)
+                card = data.value<CardUseStruct>().card;
+            else if (triggerEvent == CardResponded)
+                card = data.value<CardResponseStruct>().m_card;
+            if (card == NULL) return QStringList();
+
+            if (card->isKindOf("Jink") || card->isKindOf("Lightning"))
+                return nameList();
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &data, ServerPlayer *) const
+    {
+        if (triggerEvent == FinishJudge) {
+            room->sendCompulsoryTriggerLog(zhangjiao, objectName());
+            zhangjiao->broadcastSkillInvoke(objectName());
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->card->getSuit() == Card::Club)
+                room->recover(zhangjiao, RecoverStruct(zhangjiao));
+            int x = (judge->card->getSuit() == Card::Club ? 1 : 2);
+            ServerPlayer *vic = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(),
+                                "@olleiji-choose:::" + QString::number(x));
+            room->damage(DamageStruct(objectName(), zhangjiao, vic, x, DamageStruct::Thunder));
+
+        } else {
+            if (zhangjiao->askForSkillInvoke(objectName())) {
+                zhangjiao->broadcastSkillInvoke(objectName());
+                JudgeStruct judge;
+                judge.pattern = ".";
+                judge.who = zhangjiao;
+                judge.reason = objectName();
+                judge.play_animation = false;
+                room->judge(judge);
+            }
+        }
+        return false;
+    }
+};
+
+class OLGuidao : public TriggerSkill
+{
+public:
+    OLGuidao() : TriggerSkill("olguidao")
+    {
+        events << AskForRetrial;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return TriggerSkill::triggerable(target) && !(target->isNude() && target->getHandPile().isEmpty());
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        JudgeStruct *judge = data.value<JudgeStruct *>();
+
+        QStringList prompt_list;
+        prompt_list << "@olguidao-card" << judge->who->objectName()
+                    << objectName() << judge->reason << QString::number(judge->card->getEffectiveId());
+        QString prompt = prompt_list.join(":");
+        const Card *card = room->askForCard(player, ".|black", prompt, data, Card::MethodResponse, judge->who, true, "olguidao");
+
+        if (card != NULL) {
+            room->retrial(card, player, judge, objectName(), true);
+            const Card *judge_card = Sanguosha->getCard(card->getEffectiveId());
+            if (judge_card->getSuit() == Card::Spade && judge_card->getNumber() > 1 && judge_card->getNumber() < 10)
+                player->drawCards(1, objectName());
         }
         return false;
     }

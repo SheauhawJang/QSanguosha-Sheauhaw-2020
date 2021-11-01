@@ -9,6 +9,53 @@
 
 #include "json.h"
 
+class Leiji : public TriggerSkill
+{
+public:
+    Leiji() : TriggerSkill("leiji")
+    {
+        events << CardResponded;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(player)) return QStringList();
+        const Card *card_star = data.value<CardResponseStruct>().m_card;
+        if (card_star->isKindOf("Jink"))
+            return nameList();
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &, ServerPlayer *) const
+    {
+        ServerPlayer *target = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(), "leiji-invoke", true, true);
+        if (target) {
+            zhangjiao->broadcastSkillInvoke("leiji");
+
+            JudgeStruct judge;
+            judge.patterns << ".|spade" << ".|club";
+            judge.good = false;
+            judge.negative = true;
+            judge.reason = objectName();
+            judge.who = target;
+
+            room->judge(judge);
+
+            int damage = 0;
+            if (judge.pattern == ".|spade") {
+                damage = 2;
+            } else if (judge.pattern == ".|club") {
+                damage = 1;
+                room->recover(zhangjiao, RecoverStruct(zhangjiao));
+            }
+            if (damage)
+                room->damage(DamageStruct(objectName(), zhangjiao, target, damage, DamageStruct::Thunder));
+        }
+        return false;
+    }
+};
+
 class Guidao : public TriggerSkill
 {
 public:
@@ -35,68 +82,6 @@ public:
 
         if (card != NULL) {
             room->retrial(card, player, judge, objectName(), true);
-            const Card *judge_card = Sanguosha->getCard(card->getEffectiveId());
-            if (judge_card->getSuit() == Card::Spade && judge_card->getNumber() > 1 && judge_card->getNumber() < 10)
-                player->drawCards(1, objectName());
-        }
-        return false;
-    }
-};
-
-class Leiji : public TriggerSkill
-{
-public:
-    Leiji() : TriggerSkill("leiji")
-    {
-        events << CardUsed << CardResponded << FinishJudge;
-        view_as_skill = new dummyVS;
-    }
-
-    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
-    {
-        if (TriggerSkill::triggerable(player)) {
-            if (triggerEvent == FinishJudge) {
-                JudgeStruct *judge = data.value<JudgeStruct *>();
-                if (judge->card->isBlack())
-                    return QStringList("leiji!");
-                return QStringList();
-            }
-            const Card *card = NULL;
-            if (triggerEvent == CardUsed)
-                card = data.value<CardUseStruct>().card;
-            else if (triggerEvent == CardResponded)
-                card = data.value<CardResponseStruct>().m_card;
-            if (card == NULL) return QStringList();
-
-            if (card->isKindOf("Jink") || card->isKindOf("Lightning"))
-                return nameList();
-        }
-        return QStringList();
-    }
-
-    virtual bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *zhangjiao, QVariant &data, ServerPlayer *) const
-    {
-        if (triggerEvent == FinishJudge) {
-            room->sendCompulsoryTriggerLog(zhangjiao, objectName());
-            zhangjiao->broadcastSkillInvoke(objectName());
-            JudgeStruct *judge = data.value<JudgeStruct *>();
-            if (judge->card->getSuit() == Card::Club)
-                room->recover(zhangjiao, RecoverStruct(zhangjiao));
-            int x = (judge->card->getSuit() == Card::Club ? 1 : 2);
-            ServerPlayer *vic = room->askForPlayerChosen(zhangjiao, room->getAlivePlayers(), objectName(),
-                                "@leiji-choose:::" + QString::number(x));
-            room->damage(DamageStruct(objectName(), zhangjiao, vic, x, DamageStruct::Thunder));
-
-        } else {
-            if (zhangjiao->askForSkillInvoke(objectName())) {
-                zhangjiao->broadcastSkillInvoke(objectName());
-                JudgeStruct judge;
-                judge.pattern = ".";
-                judge.who = zhangjiao;
-                judge.reason = objectName();
-                judge.play_animation = false;
-                room->judge(judge);
-            }
         }
         return false;
     }
@@ -918,16 +903,10 @@ bool GuhuoCard::guhuo(ServerPlayer *yuji) const
         success = (card->objectName() == user_string);
 
         if (success) {
-            QString choice = room->askForChoice(questioned, objectName(), "discard+losshp");
-            if (choice == "discard")
-                room->askForDiscard(questioned, objectName(), 1, 1, false, true);
-            else
-                room->loseHp(questioned);
             room->acquireSkill(questioned, "chanyuan");
         } else {
             room->moveCardTo(this, yuji, NULL, Player::DiscardPile,
                              CardMoveReason(CardMoveReason::S_REASON_PUT, yuji->objectName(), QString(), "guhuo"), true);
-            room->drawCards(questioned, 1, objectName());
         }
     }
     room->setPlayerFlag(yuji, "GuhuoUsed");
@@ -1188,7 +1167,7 @@ public:
     virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
         return skill->objectName().contains("chanyuan") || !player->hasSkill("chanyuan")
-               || player->getHp() > 1 || skill->isAttachedLordSkill();
+               || player->getHp() != 1 || skill->isAttachedLordSkill();
     }
 };
 
