@@ -829,56 +829,28 @@ class Fenji : public TriggerSkill
 public:
     Fenji() : TriggerSkill("fenji")
     {
-        events << CardsMoveOneTime;
+        events << EventPhaseStart;
     }
 
-    static ServerPlayer *getFenjiTarget(QVariant move_data)
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
-        CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
-        if (move.from && move.from->isAlive() && move.from_places.contains(Player::PlaceHand)
-                && ((move.reason.m_reason == CardMoveReason::S_REASON_DISMANTLE
-                     && move.reason.m_playerId != move.reason.m_targetId)
-                    || (move.to && move.to != move.from && move.to_place == Player::PlaceHand
-                        && move.reason.m_reason != CardMoveReason::S_REASON_GIVE))) {
-            return (ServerPlayer *)move.from;
-        }
-        return NULL;
-
+        TriggerList list;
+        if (player->getPhase() == Player::Finish && player->isKongcheng())
+            foreach (ServerPlayer *sp, room->getAllPlayers())
+                if (TriggerSkill::triggerable(sp))
+                    list.insert(sp, nameList());
+        return list;
     }
 
-    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer *zhoutai) const
     {
-        if (!TriggerSkill::triggerable(player) || player->getHp() < 1) return QStringList();
-        QVariantList move_datas = data.toList();
-        foreach(QVariant move_data, move_datas) {
-            if (getFenjiTarget(move_data) != NULL)
-                return nameList();
+        if (room->askForSkillInvoke(zhoutai, objectName(), QVariant::fromValue(target))) {
+            zhoutai->broadcastSkillInvoke(objectName());
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhoutai->objectName(), target->objectName());
 
-        }
-        return QStringList();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
-    {
-        QVariantList move_datas = data.toList();
-        QList<ServerPlayer *> targets;
-        foreach(QVariant move_data, move_datas) {
-            if (!TriggerSkill::triggerable(player) || player->getHp() < 1) break;
-            ServerPlayer *target = getFenjiTarget(move_data);
-            if (target)
-                targets << target;
-        }
-        room->sortByActionOrder(targets);
-        foreach(ServerPlayer *target, targets) {
-            if (!TriggerSkill::triggerable(player)) break;
-            if (target->isAlive() && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(target))) {
-                player->broadcastSkillInvoke(objectName());
-                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
-
-                room->loseHp(player);
-                if (target->isAlive())
-                    target->drawCards(2, objectName());
-            }
+            if (target->isAlive())
+                target->drawCards(2, objectName());
+            room->loseHp(zhoutai);
         }
         return false;
     }

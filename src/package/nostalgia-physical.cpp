@@ -832,6 +832,66 @@ public:
     }
 };
 
+class Nos2015Fenji : public TriggerSkill
+{
+public:
+    Nos2015Fenji() : TriggerSkill("nos2015fenji")
+    {
+        events << CardsMoveOneTime;
+    }
+
+    static ServerPlayer *getNos2015FenjiTarget(QVariant move_data)
+    {
+        CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+        if (move.from && move.from->isAlive() && move.from_places.contains(Player::PlaceHand)
+                && ((move.reason.m_reason == CardMoveReason::S_REASON_DISMANTLE
+                     && move.reason.m_playerId != move.reason.m_targetId)
+                    || (move.to && move.to != move.from && move.to_place == Player::PlaceHand
+                        && move.reason.m_reason != CardMoveReason::S_REASON_GIVE))) {
+            return (ServerPlayer *)move.from;
+        }
+        return NULL;
+
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(player) || player->getHp() < 1) return QStringList();
+        QVariantList move_datas = data.toList();
+        foreach(QVariant move_data, move_datas) {
+            if (getNos2015FenjiTarget(move_data) != NULL)
+                return nameList();
+
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        QVariantList move_datas = data.toList();
+        QList<ServerPlayer *> targets;
+        foreach(QVariant move_data, move_datas) {
+            if (!TriggerSkill::triggerable(player) || player->getHp() < 1) break;
+            ServerPlayer *target = getNos2015FenjiTarget(move_data);
+            if (target)
+                targets << target;
+        }
+        room->sortByActionOrder(targets);
+        foreach(ServerPlayer *target, targets) {
+            if (!TriggerSkill::triggerable(player)) break;
+            if (target->isAlive() && room->askForDiscard(player, objectName(), 1, 1, true, true)) {
+                player->broadcastSkillInvoke(objectName());
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
+
+                room->loseHp(player);
+                if (target->isAlive())
+                    target->drawCards(2, objectName());
+            }
+        }
+        return false;
+    }
+};
+
 Nostal2013Package::Nostal2013Package()
     : Package("nostal_2013")
 {
@@ -867,6 +927,10 @@ Nostal2015Package::Nostal2015Package()
 
     General *zhangfei = new General(this, "nos_2015_zhangfei", "shu", 4, true, true);
     zhangfei->addSkill(new Nos2015Paoxiao);
+
+    General *zhoutai = new General(this, "nos_2015_zhoutai", "wu", 4, true, true);
+    zhoutai->addSkill("buqu");
+    zhoutai->addSkill(new Nos2015Fenji);
 }
 
 Nostal2017Package::Nostal2017Package()

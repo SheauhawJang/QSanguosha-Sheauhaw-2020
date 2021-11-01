@@ -127,10 +127,10 @@ public:
     }
 };
 
-class SZNJieweiViewAsSkill : public OneCardViewAsSkill
+class SznJieweiViewAsSkill : public OneCardViewAsSkill
 {
 public:
-    SZNJieweiViewAsSkill() : OneCardViewAsSkill("sznjiewei")
+    SznJieweiViewAsSkill() : OneCardViewAsSkill("sznjiewei")
     {
         filter_pattern = ".|.|.|equipped";
         response_or_use = true;
@@ -151,17 +151,17 @@ public:
     }
 };
 
-SZNJieweiMoveCard::SZNJieweiMoveCard()
+SznJieweiMoveCard::SznJieweiMoveCard()
 {
     mute = true;
 }
 
-bool SZNJieweiMoveCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const
+bool SznJieweiMoveCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const
 {
     return targets.length() == 2;
 }
 
-bool SZNJieweiMoveCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
+bool SznJieweiMoveCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
 {
     if (targets.isEmpty())
         return (!to_select->getJudgingArea().isEmpty() || !to_select->getEquips().isEmpty());
@@ -179,7 +179,7 @@ bool SZNJieweiMoveCard::targetFilter(const QList<const Player *> &targets, const
     return false;
 }
 
-void SZNJieweiMoveCard::onUse(Room *room, const CardUseStruct &card_use) const
+void SznJieweiMoveCard::onUse(Room *room, const CardUseStruct &card_use) const
 {
     CardUseStruct use = card_use;
     ServerPlayer *caoren = use.from;
@@ -208,36 +208,36 @@ void SZNJieweiMoveCard::onUse(Room *room, const CardUseStruct &card_use) const
     }
 
     room->fillAG(all, caoren, disabled_ids);
-    from->setFlags("SZNJieweiTarget");
+    from->setFlags("SznJieweiTarget");
     int card_id = room->askForAG(caoren, ids, true, "sznjiewei");
-    from->setFlags("-SZNJieweiTarget");
+    from->setFlags("-SznJieweiTarget");
     room->clearAG(caoren);
 
     if (card_id != -1)
         room->moveCardTo(Sanguosha->getCard(card_id), from, to, room->getCardPlace(card_id), CardMoveReason(CardMoveReason::S_REASON_TRANSFER, caoren->objectName(), "sznjiewei", QString()));
 }
 
-class SZNJieweiMove : public ZeroCardViewAsSkill
+class SznJieweiMove : public ZeroCardViewAsSkill
 {
 public:
-    SZNJieweiMove() : ZeroCardViewAsSkill("sznjiewei_move")
+    SznJieweiMove() : ZeroCardViewAsSkill("sznjiewei_move")
     {
         response_pattern = "@@sznjiewei_move";
     }
 
     virtual const Card *viewAs() const
     {
-        return new SZNJieweiMoveCard;
+        return new SznJieweiMoveCard;
     }
 };
 
-class SZNJiewei : public TriggerSkill
+class SznJiewei : public TriggerSkill
 {
 public:
-    SZNJiewei() : TriggerSkill("sznjiewei")
+    SznJiewei() : TriggerSkill("sznjiewei")
     {
         events << TurnedOver;
-        view_as_skill = new SZNJieweiViewAsSkill;
+        view_as_skill = new SznJieweiViewAsSkill;
     }
 
     virtual bool triggerable(const ServerPlayer *target) const
@@ -249,6 +249,66 @@ public:
     {
         if (room->askForCard(player, "..", "@sznjiewei", data, objectName()))
             room->askForUseCard(player, "@@sznjiewei_move", "@sznjiewei-move");
+        return false;
+    }
+};
+
+class SznFenji : public TriggerSkill
+{
+public:
+    SznFenji() : TriggerSkill("sznfenji")
+    {
+        events << CardsMoveOneTime;
+    }
+
+    static ServerPlayer *getSznFenjiTarget(QVariant move_data)
+    {
+        CardsMoveOneTimeStruct move = move_data.value<CardsMoveOneTimeStruct>();
+        if (move.from && move.from->isAlive() && move.from_places.contains(Player::PlaceHand)
+                && ((move.reason.m_reason == CardMoveReason::S_REASON_DISMANTLE
+                     && move.reason.m_playerId != move.reason.m_targetId)
+                    || (move.to && move.to != move.from && move.to_place == Player::PlaceHand
+                        && move.reason.m_reason != CardMoveReason::S_REASON_GIVE))) {
+            return (ServerPlayer *)move.from;
+        }
+        return NULL;
+
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (!TriggerSkill::triggerable(player) || player->getHp() < 1) return QStringList();
+        QVariantList move_datas = data.toList();
+        foreach(QVariant move_data, move_datas) {
+            if (getSznFenjiTarget(move_data) != NULL)
+                return nameList();
+
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        QVariantList move_datas = data.toList();
+        QList<ServerPlayer *> targets;
+        foreach(QVariant move_data, move_datas) {
+            if (!TriggerSkill::triggerable(player) || player->getHp() < 1) break;
+            ServerPlayer *target = getSznFenjiTarget(move_data);
+            if (target)
+                targets << target;
+        }
+        room->sortByActionOrder(targets);
+        foreach(ServerPlayer *target, targets) {
+            if (!TriggerSkill::triggerable(player)) break;
+            if (target->isAlive() && room->askForSkillInvoke(player, objectName(), QVariant::fromValue(target))) {
+                player->broadcastSkillInvoke(objectName());
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), target->objectName());
+
+                room->loseHp(player);
+                if (target->isAlive())
+                    target->drawCards(2, objectName());
+            }
+        }
         return false;
     }
 };
@@ -266,10 +326,14 @@ LimitSZNPackage::LimitSZNPackage()
 
     General *caoren = new General(this, "szn_caoren", "wei", 4, true, true);
     caoren->addSkill("jushou");
-    caoren->addSkill(new SZNJiewei);
+    caoren->addSkill(new SznJiewei);
 
-    addMetaObject<SZNJieweiMoveCard>();
-    skills << new SZNJieweiMove;
+    General *zhoutai = new General(this, "szn_zhoutai", "wu", 4, true, true);
+    zhoutai->addSkill("buqu");
+    zhoutai->addSkill(new SznFenji);
+
+    addMetaObject<SznJieweiMoveCard>();
+    skills << new SznJieweiMove;
 }
 
 ADD_PACKAGE(LimitSZN)

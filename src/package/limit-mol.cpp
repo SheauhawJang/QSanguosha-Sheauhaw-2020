@@ -461,7 +461,7 @@ public:
         }
     }
 
-    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &data) const
     {
         TriggerList list;
         if (triggerEvent == CardResponded) {
@@ -667,7 +667,7 @@ public:
         view_as_skill = new dummyVS;
     }
 
-    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList skill_list;
         if (player->isAlive() && player->getKingdom() == "qun") {
@@ -928,6 +928,38 @@ public:
     }
 };
 
+class MOLFenji : public TriggerSkill
+{
+public:
+    MOLFenji() : TriggerSkill("molfenji")
+    {
+        events << EventPhaseChanging;
+    }
+
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        TriggerList list;
+        if (data.value<PhaseChangeStruct>().to == Player::NotActive && player->isKongcheng())
+            foreach (ServerPlayer *sp, room->getAllPlayers())
+                if (TriggerSkill::triggerable(sp))
+                    list.insert(sp, nameList());
+        return list;
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *target, QVariant &, ServerPlayer *zhoutai) const
+    {
+        if (room->askForSkillInvoke(zhoutai, objectName(), QVariant::fromValue(target))) {
+            zhoutai->broadcastSkillInvoke(objectName());
+            room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, zhoutai->objectName(), target->objectName());
+
+            if (target->isAlive())
+                target->drawCards(2, objectName());
+            room->loseHp(zhoutai);
+        }
+        return false;
+    }
+};
+
 LimitMOLPackage::LimitMOLPackage()
     : Package("limit_mol")
 {
@@ -936,6 +968,10 @@ LimitMOLPackage::LimitMOLPackage()
     xiahoudun->addSkill(new MOLQingjian);
     xiahoudun->addSkill(new DetachEffectSkill("molqingjian", "molqingjian"));
     related_skills.insertMulti("molqingjian", "#molqingjian-clear");
+
+    General *zhoutai = new General(this, "mol_zhoutai", "wu", 4, true, true);
+    zhoutai->addSkill("buqu");
+    zhoutai->addSkill(new MOLFenji);
 
     General *dianwei = new General(this, "mol_dianwei", "wei", 4, true, true);
     dianwei->addSkill(new MOLQiangxi);
