@@ -1252,6 +1252,7 @@ LimitOLPackage::LimitOLPackage()
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();
     addMetaObject<OLJieweiMoveCard>();
+    addMetaObject<OLTianxiangCard>();
 
     skills << new OLChanyuan << new OLChanyuanInvalidity << new OLJieweiMove;
     related_skills.insertMulti("olchanyuan", "#olchanyuan-inv");

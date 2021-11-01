@@ -52,5 +52,14 @@ public:
     virtual void onUse(Room *room, const CardUseStruct &use) const;
 };
 
+class OLTianxiangCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE OLTianxiangCard();
+
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
 
 #endif // NOSTALOL_H

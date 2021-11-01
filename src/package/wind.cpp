@@ -1220,6 +1220,37 @@ public:
     }
 };
 
+TianxiangCard::TianxiangCard()
+{
+}
+
+void TianxiangCard::onEffect(const CardEffectStruct &effect) const
+{
+    ServerPlayer *xiaoqiao = effect.from, *target = effect.to;
+    Room *room = xiaoqiao->getRoom();
+    QVariant data = xiaoqiao->tag.value("TianxiangDamage");
+    DamageStruct damage = data.value<DamageStruct>();
+    room->preventDamage(damage);
+    const Card *card = Sanguosha->getCard(getEffectiveId());
+    QStringList choices;
+    choices << "losehp";
+    if (damage.from && damage.from->isAlive())
+        choices << "damage";
+
+    if (room->askForChoice(xiaoqiao, "tianxiang", choices.join("+"), data,
+                           "@tianxiang-choose::" + target->objectName() + ":" + card->objectName(), "damage+losehp") == "damage") {
+        room->damage(DamageStruct("tianxiang", damage.from, target));
+        if (target->isAlive() && target->getLostHp() > 0)
+            target->drawCards(qMin(target->getLostHp(), 5), "tianxiang");
+    } else {
+        room->loseHp(target);
+        int id = getEffectiveId();
+        Player::Place place = room->getCardPlace(id);
+        if (target->isAlive() && (place == Player::DiscardPile || place == Player::DrawPile))
+            target->obtainCard(this);
+    }
+}
+
 class TianxiangViewAsSkill : public OneCardViewAsSkill
 {
 public:
