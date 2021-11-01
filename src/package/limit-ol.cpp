@@ -900,132 +900,6 @@ public:
     }
 };
 
-class OLJieweiViewAsSkill : public OneCardViewAsSkill
-{
-public:
-    OLJieweiViewAsSkill() : OneCardViewAsSkill("oljiewei")
-    {
-        filter_pattern = ".|.|.|equipped";
-        response_or_use = true;
-        response_pattern = "nullification";
-    }
-
-    virtual const Card *viewAs(const Card *originalCard) const
-    {
-        Nullification *ncard = new Nullification(originalCard->getSuit(), originalCard->getNumber());
-        ncard->addSubcard(originalCard);
-        ncard->setSkillName(objectName());
-        return ncard;
-    }
-
-    virtual bool isEnabledAtNullification(const ServerPlayer *player) const
-    {
-        return player->hasEquip();
-    }
-};
-
-OLJieweiMoveCard::OLJieweiMoveCard()
-{
-    mute = true;
-}
-
-bool OLJieweiMoveCard::targetsFeasible(const QList<const Player *> &targets, const Player *) const
-{
-    return targets.length() == 2;
-}
-
-bool OLJieweiMoveCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
-{
-    if (targets.isEmpty())
-        return (!to_select->getJudgingArea().isEmpty() || !to_select->getEquips().isEmpty());
-    else if (targets.length() == 1) {
-        for (int i = 0; i < S_EQUIP_AREA_LENGTH; i++) {
-            if (targets.first()->getEquip(i) && to_select->canSetEquip(i))
-                return true;
-        }
-        foreach(const Card *card, targets.first()->getJudgingArea()) {
-            if (!Sanguosha->isProhibited(NULL, to_select, card))
-                return true;
-        }
-
-    }
-    return false;
-}
-
-void OLJieweiMoveCard::onUse(Room *room, const CardUseStruct &card_use) const
-{
-    CardUseStruct use = card_use;
-    ServerPlayer *caoren = use.from;
-    if (use.to.length() != 2) return;
-
-    ServerPlayer *from = use.to.first();
-    ServerPlayer *to = use.to.last();
-
-    QList<int> all, ids, disabled_ids;
-    for (int i = 0; i < S_EQUIP_AREA_LENGTH; i++) {
-        if (from->getEquip(i)) {
-            if (!to->getEquip(i))
-                ids << from->getEquip(i)->getEffectiveId();
-            else
-                disabled_ids << from->getEquip(i)->getEffectiveId();
-            all << from->getEquip(i)->getEffectiveId();
-        }
-    }
-
-    foreach(const Card *card, from->getJudgingArea()) {
-        if (!Sanguosha->isProhibited(NULL, to, card))
-            ids << card->getEffectiveId();
-        else
-            disabled_ids << card->getEffectiveId();
-        all << card->getEffectiveId();
-    }
-
-    room->fillAG(all, caoren, disabled_ids);
-    from->setFlags("OLJieweiTarget");
-    int card_id = room->askForAG(caoren, ids, true, "oljiewei");
-    from->setFlags("-OLJieweiTarget");
-    room->clearAG(caoren);
-
-    if (card_id != -1)
-        room->moveCardTo(Sanguosha->getCard(card_id), from, to, room->getCardPlace(card_id), CardMoveReason(CardMoveReason::S_REASON_TRANSFER, caoren->objectName(), "oljiewei", QString()));
-}
-
-class OLJieweiMove : public ZeroCardViewAsSkill
-{
-public:
-    OLJieweiMove() : ZeroCardViewAsSkill("oljiewei_move")
-    {
-        response_pattern = "@@oljiewei_move";
-    }
-
-    virtual const Card *viewAs() const
-    {
-        return new OLJieweiMoveCard;
-    }
-};
-
-class OLJiewei : public TriggerSkill
-{
-public:
-    OLJiewei() : TriggerSkill("oljiewei")
-    {
-        events << TurnedOver;
-        view_as_skill = new OLJieweiViewAsSkill;
-    }
-
-    virtual bool triggerable(const ServerPlayer *target) const
-    {
-        return TriggerSkill::triggerable(target) && target->faceUp() && !target->isNude();
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
-    {
-        if (room->askForCard(player, "..", "@oljiewei", data, objectName()))
-            room->askForUseCard(player, "@@oljiewei_move", "@oljiewei-move");
-        return false;
-    }
-};
-
 class OLHongyan : public FilterSkill
 {
 public:
@@ -1217,10 +1091,6 @@ LimitOLPackage::LimitOLPackage()
     General *huaxiong = new General(this, "ol_huaxiong", "qun", 6, true, true);
     huaxiong->addSkill(new OLYaowu);
 
-    General *caoren = new General(this, "ol_caoren", "wei", 4, true, true);
-    caoren->addSkill("jushou");
-    caoren->addSkill(new OLJiewei);
-
     General *weiyan = new General(this, "ol_weiyan", "shu", 4, true, true);
     weiyan->addSkill("kuanggu");
     weiyan->addSkill(new OLQimou);
@@ -1251,10 +1121,9 @@ LimitOLPackage::LimitOLPackage()
 
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();
-    addMetaObject<OLJieweiMoveCard>();
     addMetaObject<OLTianxiangCard>();
 
-    skills << new OLChanyuan << new OLChanyuanInvalidity << new OLJieweiMove;
+    skills << new OLChanyuan << new OLChanyuanInvalidity;
     related_skills.insertMulti("olchanyuan", "#olchanyuan-inv");
 }
 
