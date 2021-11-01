@@ -750,6 +750,71 @@ public:
     }
 };
 
+class NosRnTishen : public TriggerSkill
+{
+public:
+    NosRnTishen() : TriggerSkill("nosrntishen")
+    {
+        events << EventPhaseChanging << EventPhaseStart << HpChanged;
+        frequency = Limited;
+        limit_mark = "@nosrnsubstitute";
+    }
+
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *, ServerPlayer *player, QVariant &, ServerPlayer *&) const
+    {
+        if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player)
+                && player->getMark("@nosrnsubstitute") > 0 && player->getMark("#nosrntishen") > 0 && player->getPhase() == Player::Start)
+            return nameList();
+        return QStringList();
+    }
+
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (!TriggerSkill::triggerable(player))
+            return;
+        if (triggerEvent == EventPhaseChanging) {
+            PhaseChangeStruct change = data.value<PhaseChangeStruct>();
+            if (change.to == Player::NotActive) {
+                room->setPlayerMark(player, "#nosrntishen", 0);
+            }
+        } else {
+            if (!data.isNull() && !data.canConvert<RecoverStruct>() && player->getMark("#nosrntishen") < 4) {
+                room->addPlayerMark(player, "#nosrntishen", 1);
+            }
+        }
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
+        int x = player->getMark("#nosrntishen");
+        if (room->askForSkillInvoke(player, objectName(), QVariant::fromValue(x))) {
+            room->removePlayerMark(player, "@nosrnsubstitute");
+            player->broadcastSkillInvoke(objectName());
+            //room->doLightbox("$NJieTishenAnimate");
+
+            room->recover(player, RecoverStruct(player, NULL, x));
+            player->drawCards(x, objectName());
+        }
+        return false;
+    }
+};
+
+class Nos2015Paoxiao : public TargetModSkill
+{
+public:
+    Nos2015Paoxiao() : TargetModSkill("nos2015paoxiao")
+    {
+        frequency = Compulsory;
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        if (from->hasSkill(this))
+            return 1000;
+        else
+            return 0;
+    }
+};
 
 Nostal2013Package::Nostal2013Package()
     : Package("nostal_2013")
@@ -766,9 +831,9 @@ Nostal2013Package::Nostal2013Package()
     diaochan->addSkill("lijian");
     diaochan->addSkill(new Nos2013Biyue);
 
-    General *alpha_caoren = new General(this, "nos_2013_caoren", "wei", 4, true, true);
-    alpha_caoren->addSkill(new Nos2013Jushou);
-    alpha_caoren->addSkill(new Nos2013Jiewei);
+    General *caoren = new General(this, "nos_2013_caoren", "wei", 4, true, true);
+    caoren->addSkill(new Nos2013Jushou);
+    caoren->addSkill(new Nos2013Jiewei);
 
     General *zhangjiao = new General(this, "nos_2013_zhangjiao$", "qun", 3, true, true);
     zhangjiao->addSkill(new Nos2013Leiji);
@@ -781,8 +846,11 @@ Nostal2013Package::Nostal2013Package()
 Nostal2015Package::Nostal2015Package()
     : Package("nostal_2015")
 {
-    General *beta_caoren = new General(this, "nos_2015_caoren", "wei", 4, true, true);
-    beta_caoren->addSkill(new Nos2015Jushou);
+    General *caoren = new General(this, "nos_2015_caoren", "wei", 4, true, true);
+    caoren->addSkill(new Nos2015Jushou);
+
+    General *zhangfei = new General(this, "nos_2015_zhangfei", "shu", 4, true, true);
+    zhangfei->addSkill(new Nos2015Paoxiao);
 }
 
 Nostal2017Package::Nostal2017Package()
@@ -806,7 +874,19 @@ Nostal2020Package::Nostal2020Package()
     yuanshao->addSkill("molxueyi");
 }
 
+NostalRenewPackage::NostalRenewPackage()
+    : Package("nostal_renew")
+{
+    General *guanyu = new General(this, "nos_rn_guanyu", "shu", 4, true, true);
+    guanyu->addSkill("wusheng");
+
+    General *zhangfei = new General(this, "nos_rn_zhangfei", "shu", 4, true, true);
+    zhangfei->addSkill("nos2015paoxiao");
+    zhangfei->addSkill(new NosRnTishen);
+}
+
 ADD_PACKAGE(Nostal2013)
 ADD_PACKAGE(Nostal2015)
 ADD_PACKAGE(Nostal2017)
 ADD_PACKAGE(Nostal2020)
+ADD_PACKAGE(NostalRenew)

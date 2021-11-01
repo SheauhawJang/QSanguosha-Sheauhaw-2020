@@ -516,23 +516,6 @@ public:
     }
 };
 
-class NJiePaoxiao : public TargetModSkill
-{
-public:
-    NJiePaoxiao() : TargetModSkill("njiepaoxiao")
-    {
-        frequency = Compulsory;
-    }
-
-    virtual int getResidueNum(const Player *from, const Card *, const Player *) const
-    {
-        if (from->hasSkill(this))
-            return 1000;
-        else
-            return 0;
-    }
-};
-
 class NJieTishen : public TriggerSkill
 {
 public:
@@ -809,7 +792,7 @@ NostalLimitationBrokenPackage::NostalLimitationBrokenPackage()
     guanyu->addSkill(new NJieYijue);
 
     General *zhangfei = new General(this, "njie_zhangfei", "shu", 4, true, true);
-    zhangfei->addSkill(new NJiePaoxiao);
+    zhangfei->addSkill("nos2015paoxiao");
     zhangfei->addSkill(new NJieTishen);
 
     General *zhaoyun = new General(this, "njie_zhaoyun", "shu", 4, true, true);

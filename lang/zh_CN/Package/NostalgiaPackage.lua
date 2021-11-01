@@ -64,6 +64,8 @@ return {
 
 	["nos_zhangfei"] = "张飞-旧",
 	["&nos_zhangfei"] = "张飞",
+	["nospaoxiao"] = "咆哮",
+	[":nospaoxiao"] = "出牌阶段，你可以使用任意数量的【杀】",
 	
 	["nos_zhugeliang"] = "诸葛亮-旧",
 	["&nos_zhugeliang"] = "诸葛亮",

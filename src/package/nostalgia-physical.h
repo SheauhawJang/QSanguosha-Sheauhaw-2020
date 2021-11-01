@@ -37,6 +37,14 @@ public:
     Nostal2020Package();
 };
 
+class NostalRenewPackage : public Package
+{
+    Q_OBJECT
+
+public:
+    NostalRenewPackage();
+};
+
 class Nos2013RendeCard : public SkillCard
 {
     Q_OBJECT

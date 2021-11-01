@@ -81,6 +81,7 @@ config = {
 		"NostalLimitationBroken",
 		"Nostal2015",
 		"Nostal2017",
+		"NostalRenew",
 		"Nostal2020",
         "BestLoyalist",
 		"JianGeDefense",

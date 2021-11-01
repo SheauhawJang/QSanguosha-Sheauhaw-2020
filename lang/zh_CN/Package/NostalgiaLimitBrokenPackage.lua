@@ -57,8 +57,6 @@ return {
 	
 	["njie_zhangfei"] = "张飞-界",
 	["&njie_zhangfei"] = "张飞",
-	["njiepaoxiao"] = "咆哮",
-	[":njiepaoxiao"] = "锁定技，你使用【杀】无次数限制。",
 	["njietishen"] = "替身",
 	[":njietishen"] = "限定技，准备阶段开始时，你可以将体力回复至X点（X为你上回合结束前的体力值）。你摸Y张牌（Y为你以此法回复的体力数）。",
 	

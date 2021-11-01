@@ -2062,6 +2062,23 @@ public:
     }
 };
 
+class NosPaoxiao : public TargetModSkill
+{
+public:
+    NosPaoxiao() : TargetModSkill("nospaoxiao")
+    {
+
+    }
+
+    virtual int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        if (from->hasSkill(this))
+            return 1000;
+        else
+            return 0;
+    }
+};
+
 NostalStandardPackage::NostalStandardPackage()
     : Package("nostal_standard")
 {
@@ -2100,7 +2117,7 @@ NostalStandardPackage::NostalStandardPackage()
     nos_guanyu->addSkill("njiewusheng");
 
     General *nos_zhangfei = new General(this, "nos_zhangfei", "shu");
-    nos_zhangfei->addSkill("njiepaoxiao");
+    nos_zhangfei->addSkill(new NosPaoxiao);
 
     General *nos_zhugeliang = new General(this, "nos_zhugeliang", "shu", 3, true, true);
     nos_zhugeliang->addSkill(new NosGuanxing);
