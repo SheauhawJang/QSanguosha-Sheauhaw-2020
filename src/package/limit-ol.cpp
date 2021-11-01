@@ -908,6 +908,47 @@ public:
     }
 };
 
+class OLYaowu : public TriggerSkill
+{
+public:
+    OLYaowu() : TriggerSkill("olyaowu")
+    {
+        events << DamageInflicted;
+        frequency = Compulsory;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card && (!damage.card->isRed() || (damage.from && damage.from->isAlive()))) {
+                return nameList();
+            }
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.card) {
+            if (damage.card->isRed()) {
+                if (damage.from && damage.from->isAlive()) {
+                    room->sendCompulsoryTriggerLog(player, objectName());
+                    player->broadcastSkillInvoke(objectName());
+                    damage.from->drawCards(1, objectName());
+                }
+            } else {
+                room->sendCompulsoryTriggerLog(player, objectName());
+                player->broadcastSkillInvoke(objectName());
+                player->drawCards(1, objectName());
+            }
+        }
+        return false;
+    }
+};
+
 LimitOLPackage::LimitOLPackage()
     : Package("limit_ol")
 {
@@ -924,6 +965,9 @@ LimitOLPackage::LimitOLPackage()
 
     General *xiahouyuan = new General(this, "ol_xiahouyuan", "wei", 4, true, true);
     xiahouyuan->addSkill("shensu");
+
+    General *huaxiong = new General(this, "ol_huaxiong", "qun", 6, true, true);
+    huaxiong->addSkill(new OLYaowu);
 
     General *weiyan = new General(this, "ol_weiyan", "shu", 4, true, true);
     weiyan->addSkill("kuanggu");

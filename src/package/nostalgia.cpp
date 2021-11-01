@@ -2079,6 +2079,44 @@ public:
     }
 };
 
+class NosYaowu : public TriggerSkill
+{
+public:
+    NosYaowu() : TriggerSkill("nosyaowu")
+    {
+        events << DamageInflicted;
+        frequency = Compulsory;
+    }
+
+    virtual QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
+    {
+        if (TriggerSkill::triggerable(player)) {
+            DamageStruct damage = data.value<DamageStruct>();
+            if (damage.card && damage.card->isKindOf("Slash") && damage.card->isRed()
+                    && damage.from && damage.from->isAlive()) {
+                return nameList();
+            }
+        }
+        return QStringList();
+    }
+
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *) const
+    {
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.card && damage.card->isKindOf("Slash")) {
+            if (damage.from && damage.from->isAlive()) {
+                room->sendCompulsoryTriggerLog(player, objectName());
+                player->broadcastSkillInvoke(objectName());
+                if (damage.from->isWounded() && room->askForChoice(damage.from, objectName(), "recover+draw", data) == "recover")
+                    room->recover(damage.from, RecoverStruct(damage.to));
+                else
+                    damage.from->drawCards(1, objectName());
+            }
+        }
+        return false;
+    }
+};
+
 NostalStandardPackage::NostalStandardPackage()
     : Package("nostal_standard")
 {
@@ -2173,6 +2211,9 @@ NostalStandardPackage::NostalStandardPackage()
     General *nos_diaochan = new General(this, "nos_diaochan", "qun", 3, false);
     nos_diaochan->addSkill(new NosLijian);
     nos_diaochan->addSkill("nos2013biyue");
+
+    General *nos_huaxiong = new General(this, "nos_huaxiong", "qun", 6, true, true);
+    nos_huaxiong->addSkill(new NosYaowu);
 
     addMetaObject<NosTuxiCard>();
     addMetaObject<NosRendeCard>();

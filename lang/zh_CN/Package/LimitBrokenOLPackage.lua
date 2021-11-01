@@ -18,6 +18,11 @@ return {
 	["olyajiao_discard:prompt"] = "是否将【%arg】置入弃牌堆",
 	["olyajiao:throw"] = "置入弃牌堆",
 	
+	["ol_huaxiong"] = "华雄-OL",
+	["&ol_huaxiong"] = "华雄",
+	["olyaowu"] = "耀武",
+	[":olyaowu"] = "锁定技，当你受到伤害时，若造成伤害的牌为红色，伤害来源摸一张牌；若此牌不为红色，你摸一张牌。",
+	
 	["ol_xiahouyuan"] = "夏侯渊-OL",
 	["&ol_xiahouyuan"] = "夏侯渊-旧",
 	

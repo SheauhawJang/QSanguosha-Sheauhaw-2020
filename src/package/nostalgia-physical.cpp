@@ -816,6 +816,22 @@ public:
     }
 };
 
+class Shanyu : public DistanceSkill
+{
+public:
+    Shanyu() : DistanceSkill("shanyu")
+    {
+    }
+
+    virtual int getCorrect(const Player *from, const Player *) const
+    {
+        if (from->hasSkill(this) && (from->getDefensiveHorse() || from->getOffensiveHorse()))
+            return -1;
+        else
+            return 0;
+    }
+};
+
 Nostal2013Package::Nostal2013Package()
     : Package("nostal_2013")
 {
@@ -883,6 +899,10 @@ NostalRenewPackage::NostalRenewPackage()
     General *zhangfei = new General(this, "nos_rn_zhangfei", "shu", 4, true, true);
     zhangfei->addSkill("nos2015paoxiao");
     zhangfei->addSkill(new NosRnTishen);
+
+    General *lvbu = new General(this, "nos_rn_lvbu", "qun", 5, true, true);
+    lvbu->addSkill("wushuang");
+    lvbu->addSkill(new Shanyu);
 }
 
 ADD_PACKAGE(Nostal2013)
