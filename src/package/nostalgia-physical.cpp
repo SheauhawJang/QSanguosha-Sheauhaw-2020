@@ -951,7 +951,7 @@ Nostal2020Package::Nostal2020Package()
 {
     General *yuanshao = new General(this, "nos_2020_yuanshao$", "qun", 4, true, true);
     yuanshao->addSkill(new Nos2020Luanji);
-    yuanshao->addSkill("molxueyi");
+    yuanshao->addSkill("xueyi");
 }
 
 NostalRenewPackage::NostalRenewPackage()

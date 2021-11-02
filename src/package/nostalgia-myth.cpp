@@ -1699,12 +1699,9 @@ NostalFirePackage::NostalFirePackage()
     nos_wolong->addSkill(new NosHuoji);
     nos_wolong->addSkill(new NosKanpo);
 
-    General *nos_taishici = new General(this, "nos_taishici", "wu", 4, true, true);
-    nos_taishici->addSkill("tianyi");
-
     General *nos_yuanshao = new General(this, "nos_yuanshao$", "qun", 4, true, true);
     nos_yuanshao->addSkill(new NosLuanji);
-    nos_yuanshao->addSkill("molxueyi");
+    nos_yuanshao->addSkill("xueyi");
 
     General *nos_yanliangwenchou = new General(this, "nos_yanliangwenchou", "qun", 4, true, true);
     nos_yanliangwenchou->addSkill(new NosShuangxiong);

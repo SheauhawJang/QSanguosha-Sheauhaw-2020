@@ -46,5 +46,18 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
+class NiepanCard : public SkillCard
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE NiepanCard();
+
+    virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
+    virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
+
+    static void doNiepan(Room *room, ServerPlayer *player);
+};
+
 #endif
 

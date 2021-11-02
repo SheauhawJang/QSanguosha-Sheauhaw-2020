@@ -81,9 +81,6 @@ return {
 	["noskanpo"] = "看破",
 	[":noskanpo"] = "当你需要使用【无懈可击】时，你可使用对应的实体牌为你的一张黑色手牌的【无懈可击】。",
 	
-	["nos_taishici"] = "太史慈-旧",
-	["&nos_taishici"] = "太史慈",
-	
 	["nos_yuanshao"] = "袁绍-旧",
 	["&nos_yuanshao"] = "袁绍",
 	["nosluanji"] = "乱击",
