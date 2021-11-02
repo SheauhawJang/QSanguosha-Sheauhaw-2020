@@ -139,9 +139,9 @@ public:
     {
     }
 
-    virtual bool isEnabledAtPlay(const Player *player) const
+    virtual bool isEnabledAtPlay(const Player *) const
     {
-        return player->usedTimes("QiangxiCard") < 2;
+        return true;
     }
 
     virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const

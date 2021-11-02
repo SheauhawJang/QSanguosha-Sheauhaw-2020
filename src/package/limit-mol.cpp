@@ -201,99 +201,6 @@ public:
     }
 };
 
-MOLQiangxiCard::MOLQiangxiCard()
-{
-}
-
-bool MOLQiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
-{
-    if (!targets.isEmpty() || to_select == Self)
-        return false;
-
-    QStringList molqiangxi_prop = Self->property("molqiangxi").toString().split("+");
-    if (molqiangxi_prop.contains(to_select->objectName()))
-        return false;
-
-    int rangefix = 0;
-    if (!subcards.isEmpty() && Self->getWeapon() && Self->getWeapon()->getId() == subcards.first()) {
-        const Weapon *card = qobject_cast<const Weapon *>(Self->getWeapon()->getRealCard());
-        rangefix += card->getRange() - Self->getAttackRange(false);;
-    }
-
-    return Self->inMyAttackRange(to_select, rangefix);
-}
-
-void MOLQiangxiCard::extraCost(Room *room, const CardUseStruct &card_use) const
-{
-    if (subcards.isEmpty())
-        room->loseHp(card_use.from);
-    else {
-        CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
-        room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
-    }
-}
-
-void MOLQiangxiCard::onEffect(const CardEffectStruct &effect) const
-{
-    QSet<QString> molqiangxi_prop = effect.from->property("molqiangxi").toString().split("+").toSet();
-    molqiangxi_prop.insert(effect.to->objectName());
-    effect.from->getRoom()->setPlayerProperty(effect.from, "molqiangxi", QStringList(molqiangxi_prop.toList()).join("+"));
-    effect.to->getRoom()->damage(DamageStruct("molqiangxi", effect.from, effect.to));
-}
-
-class MOLQiangxiViewAsSkill : public ViewAsSkill
-{
-public:
-    MOLQiangxiViewAsSkill() : ViewAsSkill("molqiangxi")
-    {
-    }
-
-    virtual bool isEnabledAtPlay(const Player *) const
-    {
-        return true;
-    }
-
-    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
-    {
-        return selected.isEmpty() && to_select->isKindOf("Weapon") && !Self->isJilei(to_select);
-    }
-
-    virtual const Card *viewAs(const QList<const Card *> &cards) const
-    {
-        if (cards.isEmpty())
-            return new MOLQiangxiCard;
-        else if (cards.length() == 1) {
-            MOLQiangxiCard *card = new MOLQiangxiCard;
-            card->addSubcards(cards);
-
-            return card;
-        } else
-            return NULL;
-    }
-};
-
-class MOLQiangxi : public TriggerSkill
-{
-public:
-    MOLQiangxi() : TriggerSkill("molqiangxi")
-    {
-        events << EventPhaseChanging;
-        view_as_skill = new MOLQiangxiViewAsSkill;
-    }
-
-    bool triggerable(const ServerPlayer *) const
-    {
-        return false;
-    }
-
-    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (data.value<PhaseChangeStruct>().from == Player::Play) {
-            room->setPlayerProperty(player, "molqiangxi", QVariant());
-        }
-    }
-};
-
 MOLNiepanCard::MOLNiepanCard()
 {
     target_fixed = true;
@@ -973,12 +880,8 @@ LimitMOLPackage::LimitMOLPackage()
     zhoutai->addSkill("buqu");
     zhoutai->addSkill(new MOLFenji);
 
-    General *dianwei = new General(this, "mol_dianwei", "wei", 4, true, true);
-    dianwei->addSkill(new MOLQiangxi);
-
     General *pangtong = new General(this, "mol_pangtong", "shu", 3, true, true);
     pangtong->addSkill("lianhuan");
-    //pangtong->addSkill("#lianhuan-target");
     pangtong->addSkill(new MOLNiepan);
 
     General *wolong = new General(this, "mol_wolong", "shu", 3, true, true);
@@ -1021,7 +924,6 @@ LimitMOLPackage::LimitMOLPackage()
     related_skills.insertMulti("molfangquan", "#molfangquan");
 
     addMetaObject<MOLQingjianAllotCard>();
-    addMetaObject<MOLQiangxiCard>();
     addMetaObject<MOLNiepanCard>();
     skills << new MOLQingjianAllot << new MOLJixi;
 }

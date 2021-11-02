@@ -74,6 +74,11 @@ return {
 	["$OLGuhuoResult"] = "%from 的“<font color=\"yellow\"><b>蛊惑</b></font>”牌是 %card",
 	["#OLChanyuan"] = "%from 的“%arg”被触发，无法质疑",
 	
+	["ol_dianwei"] = "典韦-OL",
+	["&ol_dianwei"] = "典韦",
+	["olqiangxi"] = "强袭",
+	[":olqiangxi"] = "<font color=green><b>出牌阶段限两次</b></font>，你可以失去1点体力或弃置一张武器牌，并选择你于本回合内未以此法指定过的一名其他角色，你对其造成1点伤害。",
+	
 	["ol_pangde"] = "庞德-OL",
 	["&ol_pangde"] = "庞德",
 	["oljianchu"] = "鞬出",

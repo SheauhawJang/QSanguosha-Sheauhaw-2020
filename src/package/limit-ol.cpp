@@ -1091,6 +1091,93 @@ public:
     }
 };
 
+OLQiangxiCard::OLQiangxiCard()
+{
+}
+
+bool OLQiangxiCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const
+{
+    if (!targets.isEmpty() || to_select == Self)
+        return false;
+
+    QStringList olqiangxi_prop = Self->property("olqiangxi").toString().split("+");
+    if (olqiangxi_prop.contains(to_select->objectName()))
+        return false;
+
+    return true;
+}
+
+void OLQiangxiCard::extraCost(Room *room, const CardUseStruct &card_use) const
+{
+    if (subcards.isEmpty())
+        room->loseHp(card_use.from);
+    else {
+        CardMoveReason reason(CardMoveReason::S_REASON_THROW, card_use.from->objectName(), QString(), card_use.card->getSkillName(), QString());
+        room->moveCardTo(this, NULL, Player::DiscardPile, reason, true);
+    }
+}
+
+void OLQiangxiCard::onEffect(const CardEffectStruct &effect) const
+{
+    QSet<QString> olqiangxi_prop = effect.from->property("olqiangxi").toString().split("+").toSet();
+    olqiangxi_prop.insert(effect.to->objectName());
+    effect.from->getRoom()->setPlayerProperty(effect.from, "olqiangxi", QStringList(olqiangxi_prop.toList()).join("+"));
+    effect.to->getRoom()->damage(DamageStruct("olqiangxi", effect.from, effect.to));
+}
+
+class OLQiangxiViewAsSkill : public ViewAsSkill
+{
+public:
+    OLQiangxiViewAsSkill() : ViewAsSkill("olqiangxi")
+    {
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return  player->usedTimes("OLQiangxiCard") < 2;
+    }
+
+    virtual bool viewFilter(const QList<const Card *> &selected, const Card *to_select) const
+    {
+        return selected.isEmpty() && to_select->isKindOf("Weapon") && !Self->isJilei(to_select);
+    }
+
+    virtual const Card *viewAs(const QList<const Card *> &cards) const
+    {
+        if (cards.isEmpty())
+            return new OLQiangxiCard;
+        else if (cards.length() == 1) {
+            OLQiangxiCard *card = new OLQiangxiCard;
+            card->addSubcards(cards);
+
+            return card;
+        } else
+            return NULL;
+    }
+};
+
+class OLQiangxi : public TriggerSkill
+{
+public:
+    OLQiangxi() : TriggerSkill("olqiangxi")
+    {
+        events << EventPhaseChanging;
+        view_as_skill = new OLQiangxiViewAsSkill;
+    }
+
+    bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+
+    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+            room->setPlayerProperty(player, "olqiangxi", QVariant());
+        }
+    }
+};
+
 LimitOLPackage::LimitOLPackage()
     : Package("limit_ol")
 {
@@ -1136,6 +1223,9 @@ LimitOLPackage::LimitOLPackage()
     yuji->addSkill(new OLGuhuo);
     yuji->addRelateSkill("olchanyuan");
 
+    General *dianwei = new General(this, "ol_dianwei", "wei", 4, true, true);
+    dianwei->addSkill(new OLQiangxi);
+
     General *pangde = new General(this, "ol_pangde", "qun", 4, true, true);
     pangde->addSkill("mashu");
     pangde->addSkill(new OLJianchu);
@@ -1143,6 +1233,7 @@ LimitOLPackage::LimitOLPackage()
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();
     addMetaObject<OLTianxiangCard>();
+    addMetaObject<OLQiangxiCard>();
 
     skills << new OLChanyuan << new OLChanyuanInvalidity;
     related_skills.insertMulti("olchanyuan", "#olchanyuan-inv");

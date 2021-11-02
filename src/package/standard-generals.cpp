@@ -709,7 +709,7 @@ public:
 
     virtual void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        if (data.value<PhaseChangeStruct>().from == Player::Play || data.value<PhaseChangeStruct>().to == Player::Play) {
+        if (data.value<PhaseChangeStruct>().from == Player::Play) {
             room->setPlayerMark(player, "rende", 0);
             room->setPlayerProperty(player, "rende", QVariant());
         }

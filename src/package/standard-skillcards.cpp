@@ -279,20 +279,25 @@ QingnangCard::QingnangCard()
 
 bool QingnangCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *) const
 {
-    return targets.isEmpty() && to_select->isWounded() && !to_select->getMark("QingnangUsed");
+    QStringList qingnang_prop = Self->property("qingnang").toString().split("+");
+    if (qingnang_prop.contains(to_select->objectName()))
+        return false;
+    return targets.isEmpty() && to_select->isWounded();
 }
 
 void QingnangCard::use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const
 {
     ServerPlayer *target = targets.value(0, source);
-    if (getColor() == Card::Red)
-        room->addPlayerMark(source, "qingnangTimesIncrease");
-    room->addPlayerMark(target, "QingnangUsed");
     room->cardEffect(this, source, target);
 }
 
 void QingnangCard::onEffect(const CardEffectStruct &effect) const
 {
+    if (effect.card->getColor() == Card::Red)
+        effect.from->getRoom()->addPlayerMark(effect.from, "qingnangTimesIncrease");
+    QSet<QString> qingnang_prop = effect.from->property("qingnang").toString().split("+").toSet();
+    qingnang_prop.insert(effect.to->objectName());
+    effect.from->getRoom()->setPlayerProperty(effect.from, "qingnang", QStringList(qingnang_prop.toList()).join("+"));
     effect.to->getRoom()->recover(effect.to, RecoverStruct(effect.from));
 }
 

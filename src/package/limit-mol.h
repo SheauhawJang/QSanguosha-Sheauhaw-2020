@@ -22,18 +22,6 @@ public:
     virtual void use(Room *room, ServerPlayer *source, QList<ServerPlayer *> &targets) const;
 };
 
-class MOLQiangxiCard : public SkillCard
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE MOLQiangxiCard();
-
-    virtual bool targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const;
-    virtual void extraCost(Room *room, const CardUseStruct &card_use) const;
-    virtual void onEffect(const CardEffectStruct &effect) const;
-};
-
 class MOLNiepanCard : public SkillCard
 {
     Q_OBJECT

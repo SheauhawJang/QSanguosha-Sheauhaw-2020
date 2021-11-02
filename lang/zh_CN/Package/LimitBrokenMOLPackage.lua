@@ -13,11 +13,6 @@ return {
 	["molfenji"] = "奋激",
 	[":molfenji"] = "一名角色的回合结束后，若其没有手牌，你可以令其摸两张牌，然后你失去1点体力。",
 	
-	["mol_dianwei"] = "典韦-手杀",
-	["&mol_dianwei"] = "典韦",
-	["molqiangxi"] = "强袭",
-	[":molqiangxi"] = "出牌阶段限一次，你可以失去1点体力或弃置一张武器牌，并选择你攻击范围内的一名其他角色，然后对其造成1点伤害。",
-	
 	["mol_pangtong"] = "庞统-手杀",
 	["&mol_pangtong"] = "庞统",
 	["molniepan"] = "涅槃",
