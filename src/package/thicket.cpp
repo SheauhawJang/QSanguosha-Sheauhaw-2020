@@ -260,54 +260,56 @@ public:
     }
 };
 
-class Zaiqi : public PhaseChangeSkill
+class Zaiqi : public TriggerSkill
 {
 public:
-    Zaiqi() : PhaseChangeSkill("zaiqi")
+    Zaiqi() : TriggerSkill("zaiqi")
     {
+        events << CardsMoveOneTime << EventPhaseEnd << EventPhaseChanging;
     }
 
-    virtual bool triggerable(const ServerPlayer *target) const
+    virtual void record(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
     {
-        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Draw && target->isWounded();
+        if (triggerEvent == CardsMoveOneTime && player->getPhase() != Player::NotActive) {
+            int x = 0;
+            QVariantList list = data.toList();
+            foreach (QVariant qvar, list) {
+                CardsMoveOneTimeStruct move = qvar.value<CardsMoveOneTimeStruct>();
+                if (move.to_place == Player::DiscardPile) {
+                    foreach (int id, move.card_ids) {
+                        if (Sanguosha->getCard(id)->getColor() == Card::Red)
+                            ++x;
+                    }
+                }
+            }
+            room->setTag("ZaiqiRecord", room->getTag("ZaiqiRecord").toInt() + x);
+        } else if (triggerEvent == EventPhaseChanging) {
+            if (data.value<PhaseChangeStruct>().to == Player::NotActive) {
+                room->removeTag("ZaiqiRecord");
+            }
+        }
     }
 
-    virtual bool onPhaseChange(ServerPlayer *menghuo) const
+    virtual QStringList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
-        Room *room = menghuo->getRoom();
-        if (room->askForSkillInvoke(menghuo, objectName())) {
-            menghuo->broadcastSkillInvoke(objectName());
+        if (triggerEvent == EventPhaseEnd && TriggerSkill::triggerable(player) &&
+                player->getPhase() == Player::Discard && room->getTag("ZaiqiRecord").toInt())
+            return nameList();
+        return QStringList();
+    }
 
-            int x = menghuo->getLostHp() + 1;
-            QList<int> ids = room->getNCards(x, false);
-            CardsMoveStruct move(ids, menghuo, Player::PlaceTable,
-                                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, menghuo->objectName(), "zaiqi", QString()));
-            room->moveCardsAtomic(move, true);
-
-            QList<int> card_to_throw;
-            QList<int> card_to_gotback;
-            for (int i = 0; i < x; i++) {
-                if (Sanguosha->getCard(ids[i])->getSuit() == Card::Heart)
-                    card_to_throw << ids[i];
-                else
-                    card_to_gotback << ids[i];
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
+    {
+        int x = room->getTag("ZaiqiRecord").toInt();
+        QList<ServerPlayer *> targets = room->askForPlayersChosen(player, room->getAlivePlayers(), objectName(), 0, x, QString(), true);
+        foreach (ServerPlayer *p, targets) {
+            if (!player->isWounded() ||
+                    room->askForChoice(p, objectName(), "draw+recover", QVariant::fromValue(player), "@zaiqi-choose:" + player->objectName()) == "draw")
+                room->drawCards(p, 1);
+            else {
+                room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, p->objectName(), player->objectName());
+                room->recover(player, RecoverStruct(p));
             }
-            if (!card_to_throw.isEmpty()) {
-                room->recover(menghuo, RecoverStruct(menghuo, NULL, card_to_throw.length()));
-
-                DummyCard *dummy = new DummyCard(card_to_throw);
-                CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, menghuo->objectName(), "zaiqi", QString());
-                room->throwCard(dummy, reason, NULL);
-                delete dummy;
-            }
-            if (!card_to_gotback.isEmpty()) {
-                DummyCard *dummy2 = new DummyCard(card_to_gotback);
-                room->obtainCard(menghuo, dummy2);
-                delete dummy2;
-            }
-
-
-            return true;
         }
         return false;
     }

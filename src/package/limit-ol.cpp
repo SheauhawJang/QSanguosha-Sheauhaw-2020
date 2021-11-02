@@ -1514,6 +1514,59 @@ public:
     }
 };
 
+class OLZaiqi : public PhaseChangeSkill
+{
+public:
+    OLZaiqi() : PhaseChangeSkill("olzaiqi")
+    {
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const
+    {
+        return PhaseChangeSkill::triggerable(target) && target->getPhase() == Player::Draw && target->isWounded();
+    }
+
+    virtual bool onPhaseChange(ServerPlayer *menghuo) const
+    {
+        Room *room = menghuo->getRoom();
+        if (room->askForSkillInvoke(menghuo, objectName())) {
+            menghuo->broadcastSkillInvoke(objectName());
+
+            int x = menghuo->getLostHp() + 1;
+            QList<int> ids = room->getNCards(x, false);
+            CardsMoveStruct move(ids, menghuo, Player::PlaceTable,
+                                 CardMoveReason(CardMoveReason::S_REASON_TURNOVER, menghuo->objectName(), "olzaiqi", QString()));
+            room->moveCardsAtomic(move, true);
+
+            QList<int> card_to_throw;
+            QList<int> card_to_gotback;
+            for (int i = 0; i < x; i++) {
+                if (Sanguosha->getCard(ids[i])->getSuit() == Card::Heart)
+                    card_to_throw << ids[i];
+                else
+                    card_to_gotback << ids[i];
+            }
+            if (!card_to_throw.isEmpty()) {
+                room->recover(menghuo, RecoverStruct(menghuo, NULL, card_to_throw.length()));
+
+                DummyCard *dummy = new DummyCard(card_to_throw);
+                CardMoveReason reason(CardMoveReason::S_REASON_NATURAL_ENTER, menghuo->objectName(), "olzaiqi", QString());
+                room->throwCard(dummy, reason, NULL);
+                delete dummy;
+            }
+            if (!card_to_gotback.isEmpty()) {
+                DummyCard *dummy2 = new DummyCard(card_to_gotback);
+                room->obtainCard(menghuo, dummy2);
+                delete dummy2;
+            }
+
+
+            return true;
+        }
+        return false;
+    }
+};
+
 LimitOLPackage::LimitOLPackage()
     : Package("limit_ol")
 {
@@ -1592,6 +1645,10 @@ LimitOLPackage::LimitOLPackage()
     pangde->addSkill(new OLJianchu);
     pangde->addSkill(new OLJianchuTargetMod);
     related_skills.insertMulti("oljianchu", "#oljianchu-target");
+
+    General *menghuo = new General(this, "ol_menghuo", "shu", 4, true, true);
+    menghuo->addSkill("huoshou");
+    menghuo->addSkill(new OLZaiqi);
 
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();
