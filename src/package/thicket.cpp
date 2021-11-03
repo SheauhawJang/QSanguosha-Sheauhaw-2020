@@ -456,47 +456,37 @@ public:
     }
 };
 
-class Wulie : public TriggerSkill
+class Poluu : public TriggerSkill
 {
 public:
-    Wulie() : TriggerSkill("wulie")
+    Poluu() : TriggerSkill("poluu")
     {
-        events << EventPhaseStart << DamageInflicted;
-        frequency = Limited;
-        limit_mark = "@strongmartyr";
+        events << Death;
+        //frequency = Frequent;
     }
 
-    TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
     {
-        TriggerList skill_list;
-        if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getMark(limit_mark) > 0 && player->getHp() > 0 && player->getPhase() == Player::Finish)
-            skill_list.insert(player, nameList());
-        else if (triggerEvent == DamageInflicted && player->isAlive() && player->getMark("#martyr") > 0) {
-            QList<ServerPlayer *> sunjians = room->findPlayersBySkillName(objectName());
-            foreach (ServerPlayer *sunjian, sunjians)
-                skill_list.insert(sunjian, comList());
-        }
-        return skill_list;
+        if (player == NULL || !player->hasSkill(this)) return QStringList();
+        DeathStruct death = data.value<DeathStruct>();
+        if (death.who == player)
+            return nameList();
+        if (death.damage && death.damage->from == player)
+            return nameList();
+        return QStringList();
     }
 
-    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *sunjian) const
+    bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
     {
-        if (triggerEvent == EventPhaseStart) {
-            QList<ServerPlayer *> list = room->askForPlayersChosen(player, room->getOtherPlayers(player), objectName(), 0, player->getHp(), "@wulie-invoke:::" + QString::number(player->getHp()));
-            if (!list.empty()) {
-                player->broadcastSkillInvoke(objectName());
-                room->removePlayerMark(player, "@strongmartyr");
-                room->loseHp(player, list.size());
-                foreach (ServerPlayer *p, list) {
-                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), p->objectName());
-                    room->addPlayerMark(p, "#martyr");
-                }
+        if (room->askForSkillInvoke(player, objectName())) {
+            room->addPlayerMark(player, "#poluu");
+            int x = player->getMark("#poluu");
+            QList<ServerPlayer *> targets =
+                room->askForPlayersChosen(player, room->getAlivePlayers(), objectName(), 1,
+                                          room->getAlivePlayers().size(), "@poluu-invoke:::" + QString::number(x));
+            foreach (ServerPlayer *target, targets) {
+                room->drawCards(target, x);
             }
-        } else if (triggerEvent == DamageInflicted) {
-            room->sendCompulsoryTriggerLog(sunjian, objectName());
-            sunjian->broadcastSkillInvoke(objectName());
-            room->removePlayerMark(player, "#martyr");
-            return true;
         }
         return false;
     }
@@ -1050,9 +1040,9 @@ ThicketPackage::ThicketPackage()
     zhurong->addSkill(new Lieren);
     related_skills.insertMulti("juxiang", "#sa_avoid_juxiang");
 
-    General *sunjian = new General(this, "sunjian", "wu", 5, true, false, false, 4); // WU 009
+    General *sunjian = new General(this, "sunjian", "wu", 4); // WU 009
     sunjian->addSkill(new Yinghun);
-    sunjian->addSkill(new Wulie);
+    sunjian->addSkill(new Poluu);
 
     General *lusu = new General(this, "lusu", "wu", 3); // WU 014
     lusu->addSkill(new Haoshi);

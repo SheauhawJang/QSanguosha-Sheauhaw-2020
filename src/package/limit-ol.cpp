@@ -1567,6 +1567,52 @@ public:
     }
 };
 
+class Wulie : public TriggerSkill
+{
+public:
+    Wulie() : TriggerSkill("wulie")
+    {
+        events << EventPhaseStart << DamageInflicted;
+        frequency = Limited;
+        limit_mark = "@strongmartyr";
+    }
+
+    TriggerList triggerable(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &) const
+    {
+        TriggerList skill_list;
+        if (triggerEvent == EventPhaseStart && TriggerSkill::triggerable(player) && player->getMark(limit_mark) > 0 && player->getHp() > 0 && player->getPhase() == Player::Finish)
+            skill_list.insert(player, nameList());
+        else if (triggerEvent == DamageInflicted && player->isAlive() && player->getMark("#martyr") > 0) {
+            QList<ServerPlayer *> sunjians = room->findPlayersBySkillName(objectName());
+            foreach (ServerPlayer *sunjian, sunjians)
+                skill_list.insert(sunjian, comList());
+        }
+        return skill_list;
+    }
+
+    bool effect(TriggerEvent triggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *sunjian) const
+    {
+        if (triggerEvent == EventPhaseStart) {
+            QList<ServerPlayer *> list = room->askForPlayersChosen(player, room->getOtherPlayers(player), objectName(), 0, player->getHp(), "@wulie-invoke:::" + QString::number(player->getHp()));
+            if (!list.empty()) {
+                player->broadcastSkillInvoke(objectName());
+                room->removePlayerMark(player, "@strongmartyr");
+                room->loseHp(player, list.size());
+                foreach (ServerPlayer *p, list) {
+                    room->doAnimate(QSanProtocol::S_ANIMATE_INDICATE, player->objectName(), p->objectName());
+                    room->addPlayerMark(p, "#martyr");
+                }
+            }
+        } else if (triggerEvent == DamageInflicted) {
+            room->sendCompulsoryTriggerLog(sunjian, objectName());
+            sunjian->broadcastSkillInvoke(objectName());
+            room->removePlayerMark(player, "#martyr");
+            return true;
+        }
+        return false;
+    }
+};
+
 LimitOLPackage::LimitOLPackage()
     : Package("limit_ol")
 {
@@ -1649,6 +1695,10 @@ LimitOLPackage::LimitOLPackage()
     General *menghuo = new General(this, "ol_menghuo", "shu", 4, true, true);
     menghuo->addSkill("huoshou");
     menghuo->addSkill(new OLZaiqi);
+
+    General *sunjian = new General(this, "ol_sunjian", "wu", 5, true, true, false, 4);
+    sunjian->addSkill("yinghun");
+    sunjian->addSkill(new Wulie);
 
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();

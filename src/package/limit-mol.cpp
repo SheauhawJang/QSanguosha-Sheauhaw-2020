@@ -201,42 +201,6 @@ public:
     }
 };
 
-class Poluu : public TriggerSkill
-{
-public:
-    Poluu() : TriggerSkill("poluu")
-    {
-        events << Death;
-        //frequency = Frequent;
-    }
-
-    QStringList triggerable(TriggerEvent, Room *, ServerPlayer *player, QVariant &data, ServerPlayer *&) const
-    {
-        if (player == NULL || !player->hasSkill(this)) return QStringList();
-        DeathStruct death = data.value<DeathStruct>();
-        if (death.who == player)
-            return nameList();
-        if (death.damage && death.damage->from == player)
-            return nameList();
-        return QStringList();
-    }
-
-    bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *) const
-    {
-        if (room->askForSkillInvoke(player, objectName())) {
-            room->addPlayerMark(player, "#poluu");
-            int x = player->getMark("#poluu");
-            QList<ServerPlayer *> targets =
-                room->askForPlayersChosen(player, room->getAlivePlayers(), objectName(), 1,
-                                          room->getAlivePlayers().size(), "@poluu-invoke:::" + QString::number(x));
-            foreach (ServerPlayer *target, targets) {
-                room->drawCards(target, x);
-            }
-        }
-        return false;
-    }
-};
-
 class MOLJiuchiViewAsSkill : public OneCardViewAsSkill
 {
 public:
@@ -602,10 +566,6 @@ LimitMOLPackage::LimitMOLPackage()
     General *zhoutai = new General(this, "mol_zhoutai", "wu", 4, true, true);
     zhoutai->addSkill("buqu");
     zhoutai->addSkill(new MOLFenji);
-
-    General *sunjian = new General(this, "mol_sunjian", "wu", 4, true, true);
-    sunjian->addSkill("yinghun");
-    sunjian->addSkill(new Poluu);
 
     General *dongzhuo = new General(this, "mol_dongzhuo", "qun", 8, true, true);
     dongzhuo->addSkill(new MOLJiuchi);
