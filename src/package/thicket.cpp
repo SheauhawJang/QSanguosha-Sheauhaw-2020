@@ -851,7 +851,7 @@ public:
         if (!TriggerSkill::triggerable(player)) return;
         DamageStruct damage = data.value<DamageStruct>();
         if (damage.card && damage.card->isKindOf("Slash") && damage.card->hasFlag("drank"))
-            room->setPlayerFlag(player, "noBenghuai");
+            room->setPlayerFlag(player, "no_benghuai");
     }
 
     bool triggerable(const ServerPlayer *) const
@@ -860,19 +860,16 @@ public:
     }
 };
 
-class JiuchiTargetMod : public TargetModSkill
+class JiuchiInvalidity : public InvaliditySkill
 {
 public:
-    JiuchiTargetMod() : TargetModSkill("#jiuchi-target")
+    JiuchiInvalidity() : InvaliditySkill("#jiuchi-invalidity")
     {
-        pattern = "Analeptic";
     }
 
-    int getResidueNum(const Player *from, const Card *, const Player *) const
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const
     {
-        if (from->hasSkill("jiuchi"))
-            return 999;
-        return 0;
+        return player->hasFlag("no_benghuai") && skill->objectName() == "benghuai";
     }
 };
 
@@ -928,7 +925,6 @@ public:
     virtual QStringList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &, ServerPlayer *&) const
     {
         if (!PhaseChangeSkill::triggerable(player)) return QStringList();
-        if (player->hasFlag("noBenghuai")) return QStringList();
         if (player->getPhase() == Player::Finish) {
             QList<ServerPlayer *> players = room->getOtherPlayers(player);
             foreach(ServerPlayer *p, players)
@@ -960,55 +956,44 @@ class Baonue : public TriggerSkill
 public:
     Baonue() : TriggerSkill("baonue$")
     {
-        events << Damage << FinishJudge;
+        events << Damage;
         view_as_skill = new dummyVS;
     }
 
-    virtual TriggerList triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
+    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
     {
         TriggerList skill_list;
-        if (event == Damage) {
-            if (player->isAlive() && player->getKingdom() == "qun") {
-                foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
-                    if (dongzhuo->hasLordSkill(objectName()))
-                        skill_list.insert(dongzhuo, QStringList("baonue!"));
-                }
+        if (player->isAlive() && player->getKingdom() == "qun") {
+            foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
+                if (dongzhuo->hasLordSkill(objectName()))
+                    skill_list.insert(dongzhuo, QStringList("baonue!"));
             }
-        } else if (event == FinishJudge) {
-            JudgeStruct *judge = data.value<JudgeStruct *>();
-            if (judge->isGood() && judge->reason == objectName() && judge->who == player)
-                skill_list.insert(player, nameList());
         }
-
         return skill_list;
     }
 
-    virtual bool effect(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
+    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
     {
-        if (event == Damage) {
-            if (room->askForChoice(player, objectName(), "yes+no", data, "@baonue-to:" + dongzhuo->objectName()) == "yes") {
-                LogMessage log;
-                log.type = "#InvokeOthersSkill";
-                log.from = player;
-                log.to << dongzhuo;
-                log.arg = objectName();
-                room->sendLog(log);
-                room->notifySkillInvoked(dongzhuo, objectName());
-                dongzhuo->broadcastSkillInvoke(objectName());
+        if (room->askForChoice(player, objectName(), "yes+no", data, "@baonue-to:" + dongzhuo->objectName()) == "yes") {
+            LogMessage log;
+            log.type = "#InvokeOthersSkill";
+            log.from = player;
+            log.to << dongzhuo;
+            log.arg = objectName();
+            room->sendLog(log);
+            room->notifySkillInvoked(dongzhuo, objectName());
+            dongzhuo->broadcastSkillInvoke(objectName());
 
-                JudgeStruct judge;
-                judge.pattern = ".|spade";
-                judge.good = true;
-                judge.reason = objectName();
-                judge.who = dongzhuo;
+            JudgeStruct judge;
+            judge.pattern = ".|spade";
+            judge.good = true;
+            judge.reason = objectName();
+            judge.who = player;
 
-                room->judge(judge);
-            }
-        } else if (event == FinishJudge) {
-            room->recover(dongzhuo, RecoverStruct());
-            JudgeStruct *judge = data.value<JudgeStruct *>();
-            if (room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
-                player->obtainCard(judge->card);
+            room->judge(judge);
+
+            if (judge.isGood())
+                room->recover(dongzhuo, RecoverStruct(player));
         }
         return false;
     }
@@ -1050,11 +1035,11 @@ ThicketPackage::ThicketPackage()
 
     General *dongzhuo = new General(this, "dongzhuo$", "qun", 8); // QUN 006
     dongzhuo->addSkill(new Jiuchi);
-    dongzhuo->addSkill(new JiuchiTargetMod);
+    dongzhuo->addSkill(new JiuchiInvalidity);
     dongzhuo->addSkill(new Roulin);
     dongzhuo->addSkill(new Benghuai);
     dongzhuo->addSkill(new Baonue);
-    related_skills.insertMulti("jiuchi", "#jiuchi-target");
+    related_skills.insertMulti("jiuchi", "#jiuchi-invalidity");
 
     General *jiaxu = new General(this, "jiaxu", "qun", 3); // QUN 007
     jiaxu->addSkill(new Wansha);

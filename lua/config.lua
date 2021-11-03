@@ -83,6 +83,7 @@ config = {
 		"Nostal2017",
 		"NostalRenew",
 		"Nostal2020",
+		"NostalOL",
         "BestLoyalist",
 		"JianGeDefense",
 		"DragonBoat",

@@ -1613,6 +1613,145 @@ public:
     }
 };
 
+class OLJiuchiViewAsSkill : public OneCardViewAsSkill
+{
+public:
+    OLJiuchiViewAsSkill() : OneCardViewAsSkill("oljiuchi")
+    {
+        filter_pattern = ".|spade|.|hand";
+        response_or_use = true;
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const
+    {
+        return hasAvailable(player) || Analeptic::IsAvailable(player);
+    }
+
+    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
+    {
+        return  pattern.contains("analeptic");
+    }
+
+    virtual const Card *viewAs(const Card *originalCard) const
+    {
+        Analeptic *analeptic = new Analeptic(originalCard->getSuit(), originalCard->getNumber());
+        analeptic->setSkillName(objectName());
+        analeptic->addSubcard(originalCard->getId());
+        return analeptic;
+    }
+};
+
+class OLJiuchi : public TriggerSkill
+{
+public:
+    OLJiuchi() : TriggerSkill("oljiuchi")
+    {
+        events << Damage;
+        view_as_skill = new OLJiuchiViewAsSkill;
+    }
+
+    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        if (!TriggerSkill::triggerable(player)) return;
+        DamageStruct damage = data.value<DamageStruct>();
+        if (damage.card && damage.card->isKindOf("Slash") && damage.card->hasFlag("drank"))
+            room->setPlayerFlag(player, "no_benghuai");
+    }
+
+    bool triggerable(const ServerPlayer *) const
+    {
+        return false;
+    }
+};
+
+class OLJiuchiTargetMod : public TargetModSkill
+{
+public:
+    OLJiuchiTargetMod() : TargetModSkill("#oljiuchi-target")
+    {
+        pattern = "Analeptic";
+    }
+
+    int getResidueNum(const Player *from, const Card *, const Player *) const
+    {
+        if (from->hasSkill("oljiuchi"))
+            return 999;
+        return 0;
+    }
+};
+
+class OLJiuchiInvalidity : public InvaliditySkill
+{
+public:
+    OLJiuchiInvalidity() : InvaliditySkill("#oljiuchi-invalidity")
+    {
+    }
+
+    virtual bool isSkillValid(const Player *player, const Skill *skill) const
+    {
+        return player->hasFlag("no_benghuai") && skill->objectName() == "benghuai";
+    }
+};
+
+class OLBaonue : public TriggerSkill
+{
+public:
+    OLBaonue() : TriggerSkill("olbaonue$")
+    {
+        events << Damage << FinishJudge;
+        view_as_skill = new dummyVS;
+    }
+
+    virtual TriggerList triggerable(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data) const
+    {
+        TriggerList skill_list;
+        if (event == Damage) {
+            if (player->isAlive() && player->getKingdom() == "qun") {
+                foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
+                    if (dongzhuo->hasLordSkill(objectName()))
+                        skill_list.insert(dongzhuo, QStringList("olbaonue!"));
+                }
+            }
+        } else if (event == FinishJudge) {
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (judge->isGood() && judge->reason == objectName() && judge->who == player)
+                skill_list.insert(player, nameList());
+        }
+
+        return skill_list;
+    }
+
+    virtual bool effect(TriggerEvent event, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
+    {
+        if (event == Damage) {
+            if (room->askForChoice(player, objectName(), "yes+no", data, "@olbaonue-to:" + dongzhuo->objectName()) == "yes") {
+                LogMessage log;
+                log.type = "#InvokeOthersSkill";
+                log.from = player;
+                log.to << dongzhuo;
+                log.arg = objectName();
+                room->sendLog(log);
+                room->notifySkillInvoked(dongzhuo, objectName());
+                dongzhuo->broadcastSkillInvoke(objectName());
+
+                JudgeStruct judge;
+                judge.pattern = ".|spade";
+                judge.good = true;
+                judge.reason = objectName();
+                judge.who = dongzhuo;
+
+                room->judge(judge);
+            }
+        } else if (event == FinishJudge) {
+            room->recover(dongzhuo, RecoverStruct());
+            JudgeStruct *judge = data.value<JudgeStruct *>();
+            if (room->getCardPlace(judge->card->getEffectiveId()) == Player::PlaceJudge)
+                player->obtainCard(judge->card);
+        }
+        return false;
+    }
+};
+
 LimitOLPackage::LimitOLPackage()
     : Package("limit_ol")
 {
@@ -1699,6 +1838,16 @@ LimitOLPackage::LimitOLPackage()
     General *sunjian = new General(this, "ol_sunjian", "wu", 5, true, true, false, 4);
     sunjian->addSkill("yinghun");
     sunjian->addSkill(new Wulie);
+
+    General *dongzhuo = new General(this, "mol_dongzhuo", "qun", 8, true, true);
+    dongzhuo->addSkill(new OLJiuchi);
+    dongzhuo->addSkill(new OLJiuchiTargetMod);
+    dongzhuo->addSkill(new OLJiuchiInvalidity);
+    dongzhuo->addSkill("roulin");
+    dongzhuo->addSkill("benghuai");
+    dongzhuo->addSkill(new OLBaonue);
+    related_skills.insertMulti("oljiuchi", "#oljiuchi-target");
+    related_skills.insertMulti("oljiuchi", "#oljiuchi-invalidity");
 
     addMetaObject<OLQimouCard>();
     addMetaObject<OLGuhuoCard>();

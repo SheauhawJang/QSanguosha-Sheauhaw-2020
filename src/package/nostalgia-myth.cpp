@@ -1741,7 +1741,7 @@ NostalThicketPackage::NostalThicketPackage()
     nos_dongzhuo->addSkill(new NosJiuchi);
     nos_dongzhuo->addSkill("roulin");
     nos_dongzhuo->addSkill("benghuai");
-    nos_dongzhuo->addSkill("molbaonue");
+    nos_dongzhuo->addSkill("baonue");
 }
 
 NostalMountainPackage::NostalMountainPackage()

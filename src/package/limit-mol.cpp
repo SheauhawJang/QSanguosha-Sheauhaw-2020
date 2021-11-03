@@ -201,105 +201,6 @@ public:
     }
 };
 
-class MOLJiuchiViewAsSkill : public OneCardViewAsSkill
-{
-public:
-    MOLJiuchiViewAsSkill() : OneCardViewAsSkill("moljiuchi")
-    {
-        filter_pattern = ".|spade|.|hand";
-        response_or_use = true;
-    }
-
-    virtual bool isEnabledAtPlay(const Player *player) const
-    {
-        return hasAvailable(player) || Analeptic::IsAvailable(player);
-    }
-
-    virtual bool isEnabledAtResponse(const Player *, const QString &pattern) const
-    {
-        return  pattern.contains("analeptic");
-    }
-
-    virtual const Card *viewAs(const Card *originalCard) const
-    {
-        Analeptic *analeptic = new Analeptic(originalCard->getSuit(), originalCard->getNumber());
-        analeptic->setSkillName(objectName());
-        analeptic->addSubcard(originalCard->getId());
-        return analeptic;
-    }
-};
-
-class MOLJiuchi : public TriggerSkill
-{
-public:
-    MOLJiuchi() : TriggerSkill("moljiuchi")
-    {
-        events << Damage;
-        view_as_skill = new MOLJiuchiViewAsSkill;
-    }
-
-    void record(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data) const
-    {
-        if (!TriggerSkill::triggerable(player)) return;
-        DamageStruct damage = data.value<DamageStruct>();
-        if (damage.card && damage.card->isKindOf("Slash") && damage.card->hasFlag("drank"))
-            room->setPlayerFlag(player, "noBenghuai");
-    }
-
-    bool triggerable(const ServerPlayer *) const
-    {
-        return false;
-    }
-};
-
-class MOLBaonue : public TriggerSkill
-{
-public:
-    MOLBaonue() : TriggerSkill("molbaonue$")
-    {
-        events << Damage;
-        view_as_skill = new dummyVS;
-    }
-
-    virtual TriggerList triggerable(TriggerEvent, Room *room, ServerPlayer *player, QVariant &) const
-    {
-        TriggerList skill_list;
-        if (player->isAlive() && player->getKingdom() == "qun") {
-            foreach (ServerPlayer *dongzhuo, room->getOtherPlayers(player)) {
-                if (dongzhuo->hasLordSkill(objectName()))
-                    skill_list.insert(dongzhuo, QStringList("molbaonue!"));
-            }
-        }
-        return skill_list;
-    }
-
-    virtual bool effect(TriggerEvent, Room *room, ServerPlayer *player, QVariant &data, ServerPlayer *dongzhuo) const
-    {
-        if (room->askForChoice(player, objectName(), "yes+no", data, "@molbaonue-to:" + dongzhuo->objectName()) == "yes") {
-            LogMessage log;
-            log.type = "#InvokeOthersSkill";
-            log.from = player;
-            log.to << dongzhuo;
-            log.arg = objectName();
-            room->sendLog(log);
-            room->notifySkillInvoked(dongzhuo, objectName());
-            dongzhuo->broadcastSkillInvoke(objectName());
-
-            JudgeStruct judge;
-            judge.pattern = ".|spade";
-            judge.good = true;
-            judge.reason = objectName();
-            judge.who = player;
-
-            room->judge(judge);
-
-            if (judge.isGood())
-                room->recover(dongzhuo, RecoverStruct(player));
-        }
-        return false;
-    }
-};
-
 class MOLTuntian : public TriggerSkill
 {
 public:
@@ -566,12 +467,6 @@ LimitMOLPackage::LimitMOLPackage()
     General *zhoutai = new General(this, "mol_zhoutai", "wu", 4, true, true);
     zhoutai->addSkill("buqu");
     zhoutai->addSkill(new MOLFenji);
-
-    General *dongzhuo = new General(this, "mol_dongzhuo", "qun", 8, true, true);
-    dongzhuo->addSkill(new MOLJiuchi);
-    dongzhuo->addSkill("roulin");
-    dongzhuo->addSkill("benghuai");
-    dongzhuo->addSkill(new MOLBaonue);
 
     General *dengai = new General(this, "mol_dengai", "wei", 4, true, true);
     dengai->addSkill(new MOLTuntian);

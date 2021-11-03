@@ -146,7 +146,8 @@ SOURCES += \
     src/package/nostalgia-myth.cpp \
     src/package/limit-ol.cpp \
     src/package/limit-mol.cpp \
-    src/package/limit-szn.cpp
+    src/package/limit-szn.cpp \
+    src/package/nostalgia-ol.cpp
 
 HEADERS += \
     src/client/aux-skills.h \
@@ -286,7 +287,8 @@ HEADERS += \
     src/package/nostalgia-myth.h \
     src/package/limit-ol.h \
     src/package/limit-mol.h \
-    src/package/limit-szn.h
+    src/package/limit-szn.h \
+    src/package/nostalgia-ol.h
 
 FORMS += \
     src/dialog/cardoverview.ui \
